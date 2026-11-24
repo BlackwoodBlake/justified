@@ -2,7 +2,7 @@
  * The Foundations pages read tokens.css itself and measure it with the same
  * code as `npm test`, so every value and ratio shown here is the real one.
  */
-import { measure, parseThemes } from "@blackwoodblake/justified-tokens/contrast";
+import { measure, parseThemes } from "../../../packages/tokens/src/contrast";
 import source from "@blackwoodblake/justified-tokens/tokens.css?raw";
 
 export const themes = parseThemes(source);

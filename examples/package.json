@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@blackwoodblake/justified-shadcn": "0.0.0",
-    "@blackwoodblake/justified-tokens": "0.0.0",
+    "@blackwoodblake/justified-tokens": "0.1.0",
     "react": "19.1.10",
     "react-dom": "19.1.10"
   },

@@ -1,21 +1,41 @@
 {
   "name": "@blackwoodblake/justified-tokens",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
   "description": "Colour, typography, space, shape, focus, target size and motion tokens for Justified by Blackwood & Blake, as CSS custom properties.",
+  "keywords": [
+    "design-tokens",
+    "css-variables",
+    "shadcn",
+    "tailwindcss",
+    "accessibility",
+    "wcag",
+    "design-system"
+  ],
+  "homepage": "https://blackwoodblake.com/design-system/",
+  "bugs": {
+    "url": "https://github.com/blackwoodblake/justified/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blackwoodblake/justified.git",
+    "directory": "packages/tokens"
+  },
   "license": "MIT",
+  "author": "Carl Magnus Swahn",
   "type": "module",
   "exports": {
     "./tokens.css": "./tokens.css",
     "./theme.css": "./theme.css",
-    "./contrast": "./src/contrast.ts"
+    "./package.json": "./package.json"
   },
   "files": [
     "tokens.css",
-    "theme.css",
-    "src"
+    "theme.css"
   ],
   "scripts": {
     "test": "tsx scripts/contrast.ts"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

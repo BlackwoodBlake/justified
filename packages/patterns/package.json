@@ -1,17 +1,39 @@
 {
   "name": "@blackwoodblake/justified-patterns",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
   "description": "The behaviour rules of Justified by Blackwood & Blake as data, with verdicts and source stances.",
+  "keywords": [
+    "design-system",
+    "accessibility",
+    "wcag",
+    "ux",
+    "shadcn",
+    "guidelines"
+  ],
+  "homepage": "https://blackwoodblake.com/design-system/",
+  "bugs": {
+    "url": "https://github.com/blackwoodblake/justified/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blackwoodblake/justified.git",
+    "directory": "packages/patterns"
+  },
   "license": "MIT AND CC-BY-4.0",
+  "author": "Carl Magnus Swahn",
   "type": "module",
   "exports": {
-    "./rules.json": "./dist/rules.json"
+    "./rules.json": "./dist/rules.json",
+    "./package.json": "./package.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "LICENSE-docs"
   ],
   "scripts": {
     "build": "tsx scripts/build.ts"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

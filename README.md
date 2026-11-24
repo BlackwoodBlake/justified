@@ -24,6 +24,7 @@ The verdict is Requirement, Unanimous, Majority, Split or Insufficient evidence,
 
 - **With shadcn:** add the theme and components from the registry, for example `npx shadcn@latest add https://blackwoodblake.com/design-system/r/justified-theme.json`. See [Use with shadcn](https://blackwoodblake.com/design-system/get-started/shadcn/).
 - **With an AI coding agent:** add the Claude Code skill or `AGENTS.md`. See [Use with an AI agent](https://blackwoodblake.com/design-system/get-started/ai-agents/).
+- **From npm:** `npm install @blackwoodblake/justified-tokens` for the theme as CSS variables, `@blackwoodblake/justified-patterns` for the rules as data and `@blackwoodblake/justified-agents` for the agent files.
 - **As data:** every rule is in [rules.json](https://blackwoodblake.com/design-system/patterns/rules.json) and in [llms.txt](https://blackwoodblake.com/design-system/llms.txt).
 
 ## Accessibility
@@ -62,7 +63,7 @@ Justified is open source, but it does not accept pull requests. Issues are welco
 | `scripts/` | The checks: verdicts from stances (`check-rules.ts`), copied wording (`similarity.ts`) and private text that must not be published (`check-public.ts`) |
 | `WRITING.md`, `CONTENT.md` | How rule texts are written from sources, and what we may claim |
 
-The packages are not published yet.
+`justified-tokens`, `justified-patterns` and `justified-agents` are published on npm under the `@blackwoodblake` scope, each with its own README. `justified-shadcn` is not published: add its components with the shadcn CLI instead.
 
 ## Building locally
 
