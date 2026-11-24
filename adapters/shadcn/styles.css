@@ -1,0 +1,5 @@
+/*
+ * Import this after Tailwind CSS and the tokens, so that Tailwind finds the
+ * classes the components use.
+ */
+@source "./src";

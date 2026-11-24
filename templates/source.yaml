@@ -1,0 +1,12 @@
+# One entry in sources/sources.yaml. Copy it into the list and fill it in.
+
+- id: carbon-button          # system, then page; lowercase words joined by hyphens
+  system: carbon             # wcag | material | apple | carbon | govuk | nngroup
+  role: judge                # law (wcag) | judge (material, apple, carbon) | witness (govuk, nngroup)
+  title: Button usage        # the page title, used as link text
+  url: https://carbondesignsystem.com/components/button/usage/
+  version: null              # as the page states it, for example "v11"; otherwise null
+  page_updated: null         # the date the page shows, if any (YYYY-MM-DD)
+  read: 2026-11-21           # the date the page was read in a real browser
+  author: null               # required for NN/g: the article's author
+  platform: null             # required for Apple: web, ios, macos ...; note when web differs

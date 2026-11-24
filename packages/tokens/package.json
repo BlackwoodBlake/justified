@@ -1,0 +1,21 @@
+{
+  "name": "@blackwoodblake/justified-tokens",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Colour, typography, space, shape, focus, target size and motion tokens for Justified by Blackwood & Blake, as CSS custom properties.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    "./tokens.css": "./tokens.css",
+    "./theme.css": "./theme.css",
+    "./contrast": "./src/contrast.ts"
+  },
+  "files": [
+    "tokens.css",
+    "theme.css",
+    "src"
+  ],
+  "scripts": {
+    "test": "tsx scripts/contrast.ts"
+  }
+}

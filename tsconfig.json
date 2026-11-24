@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "types": ["node"]
+  },
+  "include": ["scripts", "packages/*/scripts", "adapters/shadcn/src", "packages/tokens/src", "examples/stories", "examples/rules", "examples/.storybook", "examples/vite-env.d.ts"]
+}

@@ -1,0 +1,13 @@
+# Copies of source pages for the similarity check. Never commit.
+.sources-cache/
+
+# Dependencies and build output
+node_modules/
+dist/
+.astro/
+
+# macOS
+.DS_Store
+
+# Analyses and review reports. They describe what sources say. Never commit.
+.analysis/

@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "@blackwoodblake/justified-tokens/tokens.css";
+@import "@blackwoodblake/justified-tokens/theme.css";
+@import "@blackwoodblake/justified-shadcn/styles.css";
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-family-sans);
+}

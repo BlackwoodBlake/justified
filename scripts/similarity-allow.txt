@@ -1,0 +1,24 @@
+# Phrases the similarity check accepts even when a source uses them too.
+# One phrase per line. Add only names and fixed terms, never sentences
+# from a source. Every addition is reviewed in its pull request.
+
+# WCAG success criteria (names are quoted with the number and a link)
+Content on Hover or Focus
+Consistent Help
+Focus Not Obscured (Minimum)
+Labels or Instructions
+Error Prevention (Legal, Financial, Data)
+Use of Color
+Contrast (Minimum)
+Non-text Contrast
+Error Identification
+Error Suggestion
+Status Messages
+Focus Order
+Info and Relationships
+Name, Role, Value
+Headings and Labels
+Label in Name
+No Keyboard Trap
+Resize Text
+Meaningful Sequence

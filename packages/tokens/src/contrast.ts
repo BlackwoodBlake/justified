@@ -1,0 +1,92 @@
+/**
+ * The colour pairs Justified promises, and how their contrast is measured.
+ *
+ * Shared by scripts/contrast.ts (the test) and the Foundations pages in
+ * Storybook, so the numbers people read are the numbers that were tested.
+ *
+ *   - Text pairs need 4.5:1 (WCAG 2.2, 1.4.3 Contrast (Minimum)).
+ *   - Input borders and focus rings need 3:1 against the page; the ring
+ *     also against every surface it can sit on (card, muted, accent)
+ *     (1.4.11 Non-text Contrast).
+ */
+
+export const TEXT = 4.5;
+export const NON_TEXT = 3;
+
+export type Pair = { fg: string; bg: string; min: number; use: string };
+
+export const PAIRS: Pair[] = [
+  { fg: "foreground", bg: "background", min: TEXT, use: "body text" },
+  { fg: "muted-foreground", bg: "background", min: TEXT, use: "secondary text" },
+  { fg: "muted-foreground", bg: "muted", min: TEXT, use: "secondary text on muted areas" },
+  { fg: "card-foreground", bg: "card", min: TEXT, use: "text on cards" },
+  { fg: "popover-foreground", bg: "popover", min: TEXT, use: "text in popovers" },
+  { fg: "accent-foreground", bg: "accent", min: TEXT, use: "hovered item text" },
+  { fg: "primary-foreground", bg: "primary", min: TEXT, use: "primary button label" },
+  { fg: "secondary-foreground", bg: "secondary", min: TEXT, use: "secondary button label" },
+  { fg: "primary", bg: "background", min: TEXT, use: "links" },
+  { fg: "destructive-foreground", bg: "destructive", min: TEXT, use: "destructive button label" },
+  { fg: "destructive", bg: "background", min: TEXT, use: "error messages" },
+  { fg: "success-foreground", bg: "success", min: TEXT, use: "text on success fills" },
+  { fg: "success", bg: "background", min: TEXT, use: "success messages" },
+  { fg: "warning-foreground", bg: "warning", min: TEXT, use: "text on warning fills" },
+  { fg: "warning", bg: "background", min: TEXT, use: "warning messages" },
+  { fg: "info-foreground", bg: "info", min: TEXT, use: "text on info fills" },
+  { fg: "info", bg: "background", min: TEXT, use: "info messages" },
+  { fg: "input", bg: "background", min: NON_TEXT, use: "input borders" },
+  { fg: "ring", bg: "background", min: NON_TEXT, use: "focus ring" },
+  { fg: "ring", bg: "card", min: NON_TEXT, use: "focus ring on a card" },
+  { fg: "ring", bg: "muted", min: NON_TEXT, use: "focus ring on a muted surface" },
+  { fg: "ring", bg: "accent", min: NON_TEXT, use: "focus ring on an accent surface" },
+];
+
+export type Themes = { light: Record<string, string>; dark: Record<string, string> };
+
+function block(css: string, selector: RegExp): Record<string, string> {
+  const m = css.match(selector);
+  if (!m) throw new Error(`block not found: ${selector}`);
+  const vars: Record<string, string> = {};
+  for (const v of m[1].matchAll(/--([a-z0-9-]+):\s*([^;]+);/g)) vars[v[1]] = v[2].trim();
+  return vars;
+}
+
+/** Reads the light and dark values from the text of tokens.css. */
+export function parseThemes(source: string): Themes {
+  const css = source.replace(/\/\*[\s\S]*?\*\//g, "");
+  const light = block(css, /:root\s*\{([^}]*)\}/);
+  const dark = { ...light, ...block(css, /\.dark,\s*\[data-theme="dark"\]\s*\{([^}]*)\}/) };
+  return { light, dark };
+}
+
+function luminance(hex: string): number {
+  const m = hex.match(/^#([0-9a-f]{6})$/i);
+  if (!m) throw new Error(`not a six-digit hex colour: ${hex}`);
+  const [r, g, b] = [0, 2, 4].map((i) => {
+    const c = parseInt(m[1].slice(i, i + 2), 16) / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+export function ratio(a: string, b: string): number {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+export type Result = Pair & { theme: "light" | "dark"; fgHex: string; bgHex: string; ratio: number; pass: boolean };
+
+/** Measures every pair in both themes. */
+export function measure(themes: Themes): Result[] {
+  const results: Result[] = [];
+  for (const theme of ["light", "dark"] as const) {
+    const vars = themes[theme];
+    for (const pair of PAIRS) {
+      const fgHex = vars[pair.fg];
+      const bgHex = vars[pair.bg];
+      if (!fgHex || !bgHex) throw new Error(`${theme}: --${pair.fg} or --${pair.bg} is missing`);
+      const r = ratio(fgHex, bgHex);
+      results.push({ ...pair, theme, fgHex, bgHex, ratio: r, pass: r >= pair.min });
+    }
+  }
+  return results;
+}

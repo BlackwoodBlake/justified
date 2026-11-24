@@ -1,0 +1,169 @@
+/*
+ * Justified by Blackwood & Blake: tokens.
+ *
+ * The default theme is neutral on purpose: grey surfaces, one blue for
+ * actions and links, and status colours that only carry meaning. Brands
+ * replace the colours; the names stay.
+ *
+ * Colour names follow shadcn's theme variables, so shadcn components pick
+ * them up without changes. Colours are hex so that scripts/contrast.ts can
+ * check every pair against WCAG 2.2 (1.4.3 Contrast (Minimum) and
+ * 1.4.11 Non-text Contrast) in both themes.
+ *
+ * Dark mode applies with a `.dark` class or `data-theme="dark"` on an
+ * ancestor, which covers shadcn and Astro Starlight.
+ *
+ * Non-colour tokens have their own prefixes (font-, space-, motion-,
+ * focus-, target-) so they never clash with Tailwind's theme names;
+ * theme.css maps them.
+ */
+
+:root {
+  /* Native controls, scrollbars and select lists follow the theme. */
+  color-scheme: light;
+
+  /* Colour: surfaces and text */
+  --background: #ffffff;
+  --foreground: #17171a;
+  --card: #ffffff;
+  --card-foreground: #17171a;
+  --popover: #ffffff;
+  --popover-foreground: #17171a;
+  --muted: #f1f1f4;
+  --muted-foreground: #565661;
+  --accent: #e9e9ee;
+  --accent-foreground: #17171a;
+  --border: #d9d9df;
+
+  /* Colour: actions */
+  --primary: #2346b0;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f1f4;
+  --secondary-foreground: #17171a;
+  --input: #84848f;
+  --ring: #2346b0;
+
+  /* Colour: status. Each works as text on the page and as a fill behind
+     its -foreground. Never let colour be the only signal (1.4.1). */
+  --destructive: #b42318;
+  --destructive-foreground: #ffffff;
+  --success: #17703a;
+  --success-foreground: #ffffff;
+  --warning: #8a5300;
+  --warning-foreground: #ffffff;
+  --info: #0a6283;
+  --info-foreground: #ffffff;
+
+  /* Colour: the backdrop that dims the page behind a modal dialog. */
+  --overlay: #00000080;
+
+  /* Typography. System fonts: no download, no licence, and text appears
+     at once. Sizes in rem so they follow the user's browser setting. */
+  --font-family-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-size-xs: 0.75rem;
+  --line-height-xs: 1rem;
+  --font-size-sm: 0.875rem;
+  --line-height-sm: 1.25rem;
+  --font-size-base: 1rem;
+  --line-height-base: 1.5rem;
+  --font-size-lg: 1.125rem;
+  --line-height-lg: 1.75rem;
+  --font-size-xl: 1.25rem;
+  --line-height-xl: 1.75rem;
+  --font-size-2xl: 1.5rem;
+  --line-height-2xl: 2rem;
+  --font-size-3xl: 1.875rem;
+  --line-height-3xl: 2.25rem;
+  --font-size-4xl: 2.25rem;
+  --line-height-4xl: 2.5rem;
+
+  /* Space. One unit; every gap and padding is a multiple of it. */
+  --space-unit: 0.25rem;
+
+  /* Layout. The page margin and gutter grow with the window, so small
+     screens keep their width for content (1.4.10 Reflow). Content stops at
+     a maximum width, and running text at a comfortable line length. */
+  --layout-margin: clamp(1rem, 4vw, 2.5rem);
+  --layout-gutter: clamp(1rem, 2vw, 1.5rem);
+  --layout-max-width: 80rem;
+  --layout-measure: 70ch;
+
+  /* Breakpoints, for reference only: media queries cannot read custom
+     properties, so these equal Tailwind's defaults (sm, md, lg, xl, 2xl)
+     and the classes use those. Change both together. */
+  --layout-breakpoint-sm: 40rem;
+  --layout-breakpoint-md: 48rem;
+  --layout-breakpoint-lg: 64rem;
+  --layout-breakpoint-xl: 80rem;
+  --layout-breakpoint-2xl: 96rem;
+
+  /* Shape */
+  --radius: 0.5rem;
+
+  /* Focus. Width and offset for the visible focus ring (2.4.7). */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+
+  /* Target size. 24 px is the WCAG 2.2 minimum (2.5.8); 44 px is the
+     comfortable size for touch. */
+  --target-min: 1.5rem;
+  --target-comfortable: 2.75rem;
+
+  /* Motion */
+  --motion-duration-fast: 120ms;
+  --motion-duration-normal: 200ms;
+  --motion-duration-slow: 320ms;
+  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-enter: cubic-bezier(0, 0, 0, 1);
+  --motion-ease-exit: cubic-bezier(0.3, 0, 1, 1);
+}
+
+.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --background: #121214;
+  --foreground: #f4f4f6;
+  --card: #18181b;
+  --card-foreground: #f4f4f6;
+  --popover: #18181b;
+  --popover-foreground: #f4f4f6;
+  --muted: #26262b;
+  --muted-foreground: #a9a9b4;
+  --accent: #2c2c32;
+  --accent-foreground: #f4f4f6;
+  --border: #33333a;
+
+  --primary: #8ea6ff;
+  --primary-foreground: #0d1640;
+  --secondary: #26262b;
+  --secondary-foreground: #f4f4f6;
+  --input: #7a7a85;
+  --ring: #8ea6ff;
+
+  --destructive: #ff8a7a;
+  --destructive-foreground: #2b0804;
+  --success: #5fd08e;
+  --success-foreground: #04210f;
+  --warning: #f2b84b;
+  --warning-foreground: #2a1b00;
+  --info: #6cc3ec;
+  --info-foreground: #03202e;
+
+  --overlay: #00000080;
+}
+
+/* Someone who asks for less motion gets none. 1ms rather than 0 so that
+   animationend and transitionend still fire for components that wait on
+   them. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-fast: 1ms;
+    --motion-duration-normal: 1ms;
+    --motion-duration-slow: 1ms;
+  }
+}

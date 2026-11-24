@@ -1,0 +1,32 @@
+{
+  "name": "justified",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/tokens",
+    "packages/patterns",
+    "adapters/shadcn",
+    "adapters/agents",
+    "examples"
+  ],
+  "scripts": {
+    "check": "tsx scripts/check-rules.ts && tsx scripts/check-public.ts",
+    "check-public": "tsx scripts/check-public.ts",
+    "similarity": "tsx scripts/similarity.ts",
+    "build": "npm run build --workspace packages/patterns && npm run build --workspace adapters/shadcn && npm run build --workspace adapters/agents",
+    "test": "npm run test --workspaces --if-present",
+    "storybook": "npm run dev --workspace examples",
+    "build-storybook": "npm run build --workspace examples"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "react": "19.1.10",
+    "react-dom": "19.1.10",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "yaml": "2.9.1"
+  },
+  "engines": {
+    "node": ">=22.22"
+  }
+}

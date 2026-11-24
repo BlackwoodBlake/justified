@@ -1,0 +1,36 @@
+import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
+import type { ComponentProps } from "react";
+
+import { CheckIcon, MinusIcon } from "../lib/icons";
+import { colourTransition, focusRing, targetArea } from "../lib/styles";
+import { cn } from "../lib/utils";
+
+/**
+ * A checkbox. Use it inside a Field with layout="inline", or in a FieldSet
+ * with one Field per option. Supports checked, unchecked and
+ * indeterminate. The clickable area is at least 24 px, and the label is
+ * clickable too.
+ */
+export function Checkbox({ className, ...props }: ComponentProps<typeof CheckboxPrimitive.Root>) {
+  return (
+    <CheckboxPrimitive.Root
+      data-slot="checkbox"
+      className={cn(
+        "peer group size-5 shrink-0 cursor-pointer rounded-sm border border-input bg-background text-primary-foreground",
+        "data-[state=checked]:border-primary data-[state=checked]:bg-primary",
+        "data-[state=indeterminate]:border-primary data-[state=indeterminate]:bg-primary",
+        "aria-invalid:border-destructive disabled:cursor-not-allowed disabled:opacity-50",
+        colourTransition,
+        focusRing,
+        targetArea,
+        className,
+      )}
+      {...props}
+    >
+      <CheckboxPrimitive.Indicator className="flex items-center justify-center">
+        <CheckIcon className="size-3.5 group-data-[state=indeterminate]:hidden" />
+        <MinusIcon className="hidden size-3.5 group-data-[state=indeterminate]:block" />
+      </CheckboxPrimitive.Indicator>
+    </CheckboxPrimitive.Root>
+  );
+}
