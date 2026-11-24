@@ -1,0 +1,57 @@
+# Publishes the npm packages with npm's trusted publishing: npm trusts this workflow file in
+# this repository, running in the "npm" environment, so no token is stored anywhere and every
+# version gets a provenance statement. Started by hand from main only, and the "npm"
+# environment waits for the maintainer's approval before the job runs.
+#
+# A package is published only when its version in package.json is not on npm yet, so
+# releasing means: bump the version in a pull request, merge it, then run this workflow.
+name: Publish
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write # lets npm verify that this workflow is the one it trusts
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # No dependency cache: a publishing job builds only from what npm ci installs now.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      # Trusted publishing needs npm 11.5.1 or later.
+      - run: npm install --global "npm@$NPM_VERSION"
+        env:
+          NPM_VERSION: 11.6.2
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+      - name: Publish versions that are not on npm yet
+        run: |
+          set -euo pipefail
+          for dir in packages/tokens packages/patterns adapters/agents; do
+            name=$(node -p "require('./$dir/package.json').name")
+            version=$(node -p "require('./$dir/package.json').version")
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "$name@$version is already on npm, skipped."
+            else
+              echo "Publishing $name@$version"
+              npm publish --workspace "$dir" --access public
+            fi
+          done
