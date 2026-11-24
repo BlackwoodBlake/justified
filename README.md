@@ -1,5 +1,7 @@
 # Justified by Blackwood & Blake
 
+[![check](https://github.com/blackwoodblake/justified/actions/workflows/check.yml/badge.svg?branch=main)](https://github.com/blackwoodblake/justified/actions/workflows/check.yml)
+
 An open design system on top of shadcn that starts with behaviour rules, each one tested against WCAG 2.2 and weighed by established design systems.
 
 **Website:** [blackwoodblake.com/design-system](https://blackwoodblake.com/design-system/), with every rule, its verdict and live Do and Don't examples.
