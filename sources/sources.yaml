@@ -1820,3 +1820,1598 @@
   read: 2026-11-24
   author: null
   platform: null
+
+- id: wcag-understanding-use-of-color
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 1.4.1: Use of Color"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html
+  version: "2.2"
+  page_updated: 2025-09-16
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-understanding-contrast-minimum
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 1.4.3: Contrast (Minimum)"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html
+  version: "2.2"
+  page_updated: 2026-10-04
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f73
+  system: wcag
+  role: law
+  title: "F73: Failure of Success Criterion 1.4.1 due to creating links that are not visually evident without color vision"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F73
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f81
+  system: wcag
+  role: law
+  title: "F81: Failure of Success Criterion 1.4.1 due to identifying required or error fields using color differences only"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F81
+  version: "2.2"
+  page_updated: 2026-08-10
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f83
+  system: wcag
+  role: law
+  title: "F83: Failure of Success Criterion 1.4.3 and 1.4.6 due to using background images that do not provide sufficient contrast with foreground text (or images of text)"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F83
+  version: "2.2"
+  page_updated: 2026-03-09
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-g183
+  system: wcag
+  role: law
+  title: "G183: Using a contrast ratio of at least 3:1 to distinguish inline text links from surrounding text"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/general/G183
+  version: "2.2"
+  page_updated: 2026-07-27
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-color-contrast
+  system: material
+  role: judge
+  title: "Accessibility designing: Color contrast"
+  url: https://m3.material.io/foundations/designing/color-contrast
+  version: M3
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-color-roles
+  system: material
+  role: judge
+  title: "Color roles"
+  url: https://m3.material.io/styles/color/roles
+  version: M3
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: apple-color
+  system: apple
+  role: judge
+  title: "Color"
+  url: https://developer.apple.com/design/human-interface-guidelines/color
+  version: null
+  page_updated: 2025-12-16
+  read: 2026-11-25
+  author: null
+  platform: all
+
+- id: apple-charting-data
+  system: apple
+  role: judge
+  title: "Charting data"
+  url: https://developer.apple.com/design/human-interface-guidelines/charting-data
+  version: null
+  page_updated: 2022-09-23
+  read: 2026-11-25
+  author: null
+  platform: all
+
+- id: carbon-color-accessibility
+  system: carbon
+  role: judge
+  title: "Accessibility: Color"
+  url: https://carbondesignsystem.com/guidelines/accessibility/color/
+  version: v11
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-color-overview
+  system: carbon
+  role: judge
+  title: "Color"
+  url: https://carbondesignsystem.com/elements/color/overview/
+  version: v11
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-data-visualization-color
+  system: carbon
+  role: judge
+  title: "Data visualization: Color palettes"
+  url: https://carbondesignsystem.com/data-visualization/color-palettes/
+  version: v11
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-tag
+  system: carbon
+  role: judge
+  title: "Tag usage"
+  url: https://carbondesignsystem.com/components/tag/usage/
+  version: v11
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-colour
+  system: govuk
+  role: witness
+  title: "Colour"
+  url: https://design-system.service.gov.uk/styles/colour/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-tag
+  system: govuk
+  role: witness
+  title: "Tag"
+  url: https://design-system.service.gov.uk/components/tag/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: nngroup-guidelines-for-visualizing-links
+  system: nngroup
+  role: witness
+  title: "Guidelines for Visualizing Links"
+  url: https://www.nngroup.com/articles/guidelines-for-visualizing-links/
+  version: null
+  page_updated: 2004-05-09
+  read: 2026-11-25
+  author: Jakob Nielsen
+  platform: null
+
+- id: nngroup-low-contrast
+  system: nngroup
+  role: witness
+  title: "Low-Contrast Text Is Not the Answer"
+  url: https://www.nngroup.com/articles/low-contrast/
+  version: null
+  page_updated: 2015-06-07
+  read: 2026-11-25
+  author: Katie Sherwin
+  platform: null
+
+- id: nngroup-visual-treatments-accessibility
+  system: nngroup
+  role: witness
+  title: "5 Visual Treatments that Improve Accessibility"
+  url: https://www.nngroup.com/articles/visual-treatments-accessibility/
+  version: null
+  page_updated: 2022-10-30
+  read: 2026-11-25
+  author: Kelley Gordon
+  platform: null
+
+- id: wcag-understanding-dragging-movements
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 2.5.7: Dragging Movements"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements.html
+  version: "2.2"
+  page_updated: 2026-08-10
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-understanding-pointer-gestures
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 2.5.1: Pointer Gestures"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/pointer-gestures.html
+  version: "2.2"
+  page_updated: 2026-08-10
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: apple-drag-and-drop
+  system: apple
+  role: judge
+  title: "Drag and drop"
+  url: https://developer.apple.com/design/human-interface-guidelines/drag-and-drop
+  version: null
+  page_updated: 2023-10-24
+  read: 2026-11-25
+  author: null
+  platform: all
+
+- id: apple-gestures
+  system: apple
+  role: judge
+  title: "Gestures"
+  url: https://developer.apple.com/design/human-interface-guidelines/gestures
+  version: null
+  page_updated: 2026-10-28
+  read: 2026-11-25
+  author: null
+  platform: all
+
+- id: material-gestures
+  system: material
+  role: judge
+  title: "Gestures"
+  url: https://m3.material.io/foundations/interaction/gestures
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-file-uploader
+  system: carbon
+  role: judge
+  title: "File uploader usage"
+  url: https://carbondesignsystem.com/components/file-uploader/usage/
+  version: "v11"
+  page_updated: 2026-09-30
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-file-uploader-accessibility
+  system: carbon
+  role: judge
+  title: "File uploader accessibility"
+  url: https://carbondesignsystem.com/components/file-uploader/accessibility/
+  version: "v11"
+  page_updated: 2026-09-30
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-file-upload
+  system: govuk
+  role: witness
+  title: "File upload"
+  url: https://design-system.service.gov.uk/components/file-upload/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: nngroup-drag-drop
+  system: nngroup
+  role: witness
+  title: "Drag–and–Drop: How to Design for Ease of Use"
+  url: https://www.nngroup.com/articles/drag-drop/
+  version: null
+  page_updated: 2020-02-23
+  read: 2026-11-25
+  author: Page Laubheimer
+  platform: null
+
+- id: carbon-slider-accessibility
+  system: carbon
+  role: judge
+  title: "Slider accessibility"
+  url: https://carbondesignsystem.com/components/slider/accessibility/
+  version: "v11"
+  page_updated: 2026-09-30
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-empty-states-pattern
+  system: carbon
+  role: judge
+  title: "Empty states"
+  url: https://carbondesignsystem.com/patterns/empty-states-pattern/
+  version: v11
+  page_updated: 2026-08-11
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-search-pattern
+  system: carbon
+  role: judge
+  title: "Search"
+  url: https://carbondesignsystem.com/patterns/search-pattern/
+  version: v11
+  page_updated: 2026-08-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-filtering-pattern
+  system: carbon
+  role: judge
+  title: "Filtering"
+  url: https://carbondesignsystem.com/patterns/filtering/
+  version: v11
+  page_updated: 2026-08-11
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: apple-searching
+  system: apple
+  role: judge
+  title: "Searching"
+  url: https://developer.apple.com/design/human-interface-guidelines/searching
+  version: null
+  page_updated: 2026-06-08
+  read: 2026-11-25
+  author: null
+  platform: all
+
+- id: apple-search-fields
+  system: apple
+  role: judge
+  title: "Search fields"
+  url: https://developer.apple.com/design/human-interface-guidelines/search-fields
+  version: null
+  page_updated: 2026-06-08
+  read: 2026-11-25
+  author: null
+  platform: "iOS, iPadOS, macOS, tvOS, visionOS, watchOS; no web guidance"
+
+- id: material-search
+  system: material
+  role: judge
+  title: "Search: guidelines"
+  url: https://m3.material.io/components/search/guidelines
+  version: M3
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: nngroup-empty-state-interface-design
+  system: nngroup
+  role: witness
+  title: "Designing Empty States in Complex Applications: 3 Guidelines"
+  url: https://www.nngroup.com/articles/empty-state-interface-design/
+  version: null
+  page_updated: 2021-09-19
+  read: 2026-11-25
+  author: Kate Kaplan
+  platform: null
+
+- id: nngroup-search-no-results-serp
+  system: nngroup
+  role: witness
+  title: "3 Guidelines for Search Engine \"No Results\" Pages"
+  url: https://www.nngroup.com/articles/search-no-results-serp/
+  version: null
+  page_updated: 2014-01-05
+  read: 2026-11-25
+  author: Kathryn Whitenton
+  platform: null
+
+- id: wcag-understanding-animation-from-interactions
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 2.3.3: Animation from Interactions"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html
+  version: "2.2"
+  page_updated: 2025-09-16
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-understanding-three-flashes-or-below-threshold
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 2.3.1: Three Flashes or Below Threshold"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/three-flashes-or-below-threshold.html
+  version: "2.2"
+  page_updated: 2025-09-17
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-c39
+  system: wcag
+  role: law
+  title: "C39: Using the CSS prefers-reduced-motion query to prevent motion"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/css/C39
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f16
+  system: wcag
+  role: law
+  title: "F16: Failure of Success Criterion 2.2.2 due to including scrolling content where movement is not essential to the activity without also including a mechanism to pause and restart the content"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F16
+  version: "2.2"
+  page_updated: 2025-07-15
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-g4
+  system: wcag
+  role: law
+  title: "G4: Allowing the content to be paused and restarted from where it was paused"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/general/G4
+  version: "2.2"
+  page_updated: 2025-07-15
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: apple-motion
+  system: apple
+  role: judge
+  title: "Motion"
+  url: https://developer.apple.com/design/human-interface-guidelines/motion
+  version: null
+  page_updated: 2025-09-09
+  read: 2026-11-25
+  author: null
+  platform: all
+
+- id: carbon-motion-overview
+  system: carbon
+  role: judge
+  title: "Motion: overview"
+  url: https://carbondesignsystem.com/elements/motion/overview/
+  version: v11
+  page_updated: 2026-08-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-motion-choreography
+  system: carbon
+  role: judge
+  title: "Motion: choreography"
+  url: https://carbondesignsystem.com/elements/motion/choreography/
+  version: v11
+  page_updated: 2026-08-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-motion-overview
+  system: material
+  role: judge
+  title: "Motion physics system: overview"
+  url: https://m3.material.io/styles/motion/overview/how-it-works
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-carousel-accessibility
+  system: material
+  role: judge
+  title: "Carousel: accessibility"
+  url: https://m3.material.io/components/carousel/accessibility
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: nngroup-auto-forwarding
+  system: nngroup
+  role: witness
+  title: "Auto-Forwarding Carousels and Accordions Annoy Users and Reduce Visibility"
+  url: https://www.nngroup.com/articles/auto-forwarding/
+  version: null
+  page_updated: 2013-01-19
+  read: 2026-11-25
+  author: Jakob Nielsen
+  platform: null
+
+- id: nngroup-animation-purpose-ux
+  system: nngroup
+  role: witness
+  title: "The Role of Animation and Motion in UX"
+  url: https://www.nngroup.com/articles/animation-purpose-ux/
+  version: null
+  page_updated: 2020-01-12
+  read: 2026-11-25
+  author: Page Laubheimer
+  platform: null
+
+- id: nngroup-parallax-usability
+  system: nngroup
+  role: witness
+  title: "What Parallax Lacks"
+  url: https://www.nngroup.com/articles/parallax-usability/
+  version: null
+  page_updated: 2019-01-20
+  read: 2026-11-25
+  author: Katie Sherwin
+  platform: null
+
+- id: material-carousel
+  system: material
+  role: judge
+  title: "Carousel: guidelines"
+  url: https://m3.material.io/components/carousel/guidelines
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-motion-transitions
+  system: material
+  role: judge
+  title: "Transitions: transition patterns"
+  url: https://m3.material.io/styles/motion/transitions/transition-patterns
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-motion-applying-transitions
+  system: material
+  role: judge
+  title: "Transitions: applying transitions"
+  url: https://m3.material.io/styles/motion/transitions/applying-transitions
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: nngroup-animation-duration
+  system: nngroup
+  role: witness
+  title: "Executing UX Animations: Duration and Motion Characteristics"
+  url: https://www.nngroup.com/articles/animation-duration/
+  version: null
+  page_updated: 2020-02-09
+  read: 2026-11-25
+  author: Page Laubheimer
+  platform: null
+
+- id: nngroup-scrolljacking-101
+  system: nngroup
+  role: witness
+  title: "Scrolljacking 101"
+  url: https://www.nngroup.com/articles/scrolljacking-101/
+  version: null
+  page_updated: 2023-08-06
+  read: 2026-11-25
+  author: Sara Paul
+  platform: null
+
+- id: nngroup-scroll-animations
+  system: nngroup
+  role: witness
+  title: "Scroll-Triggered Text Animations Delay Users"
+  url: https://www.nngroup.com/articles/scroll-animations/
+  version: null
+  page_updated: 2017-04-16
+  read: 2026-11-25
+  author: Aurora Harley
+  platform: null
+
+- id: wcag-understanding-page-titled
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 2.4.2: Page Titled"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/page-titled.html
+  version: "2.2"
+  page_updated: 2026-03-09
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-understanding-non-text-content
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 1.1.1: Non-text Content"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/non-text-content.html
+  version: "2.2"
+  page_updated: 2026-09-06
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-understanding-bypass-blocks
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 2.4.1: Bypass Blocks"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/bypass-blocks.html
+  version: "2.2"
+  page_updated: 2026-02-09
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-h42
+  system: wcag
+  role: law
+  title: "H42: Using h1-h6 to identify headings"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/html/H42
+  version: "2.2"
+  page_updated: 2026-09-06
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-g141
+  system: wcag
+  role: law
+  title: "G141: Organizing a page using headings"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/general/G141
+  version: "2.2"
+  page_updated: 2026-03-09
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f2
+  system: wcag
+  role: law
+  title: "F2: Failure of Success Criterion 1.3.1 due to using changes in text presentation to convey information without using the appropriate markup or text"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F2
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f43
+  system: wcag
+  role: law
+  title: "F43: Failure of Success Criterion 1.3.1 due to using structural markup in a way that does not represent relationships in the content"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F43
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-h25
+  system: wcag
+  role: law
+  title: "H25: Providing a title using the title element"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/html/H25
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-g88
+  system: wcag
+  role: law
+  title: "G88: Providing descriptive titles for web pages"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/general/G88
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f25
+  system: wcag
+  role: law
+  title: "F25: Failure of Success Criterion 2.4.2 due to the title of a web page not identifying the contents"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F25
+  version: "2.2"
+  page_updated: 2025-09-17
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-aria11
+  system: wcag
+  role: law
+  title: "ARIA11: Using ARIA landmarks to identify regions of a page"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/aria/ARIA11
+  version: "2.2"
+  page_updated: 2026-10-04
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f30
+  system: wcag
+  role: law
+  title: "F30: Failure of Success Criterion 1.1.1 and 1.2.1 due to using text alternatives that are not alternatives (e.g., filenames or placeholder text)"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F30
+  version: "2.2"
+  page_updated: 2025-07-15
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f39
+  system: wcag
+  role: law
+  title: "F39: Failure of Success Criterion 1.1.1 due to providing a text alternative that is not null (e.g., alt='spacer' or alt='image') for images that should be ignored by assistive technology"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F39
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-h67
+  system: wcag
+  role: law
+  title: "H67: Using null alt text and no title attribute on img elements for images that assistive technology should ignore"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/html/H67
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-accessibility-developers
+  system: carbon
+  role: judge
+  title: "Accessibility: Developers"
+  url: https://carbondesignsystem.com/building-blocks/foundations/accessibility/developers
+  version: null
+  page_updated: 2026-09-25
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-ui-shell-header-accessibility
+  system: carbon
+  role: judge
+  title: "UI shell header: Accessibility"
+  url: https://carbondesignsystem.com/building-blocks/core/components/ui-shell-header/accessibility
+  version: null
+  page_updated: 2026-10-02
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-alt-text
+  system: material
+  role: judge
+  title: "Alt text"
+  url: https://m3.material.io/foundations/content-design/alt-text
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-headings
+  system: govuk
+  role: witness
+  title: "Headings"
+  url: https://design-system.service.gov.uk/styles/headings/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-images
+  system: govuk
+  role: witness
+  title: "Images"
+  url: https://design-system.service.gov.uk/styles/images/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-skip-link
+  system: govuk
+  role: witness
+  title: "Skip link"
+  url: https://design-system.service.gov.uk/components/skip-link/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-writing-for-user-interfaces
+  system: govuk
+  role: witness
+  title: "Writing for user interfaces"
+  url: https://www.gov.uk/service-manual/design/writing-for-user-interfaces
+  version: null
+  page_updated: 2018-04-16
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: nngroup-write-alt-text
+  system: nngroup
+  role: witness
+  title: "Alt Text: What to Write"
+  url: https://www.nngroup.com/articles/write-alt-text/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: Emma Cionca, Tanner Kohler
+  platform: null
+
+- id: nngroup-microcontent-headlines-page-titles
+  system: nngroup
+  role: witness
+  title: "Microcontent: How to Write Headlines, Page Titles, and Subject Lines"
+  url: https://www.nngroup.com/articles/microcontent-how-to-write-headlines-page-titles-and-subject-lines/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: Hoa Loranger, Jakob Nielsen
+  platform: null
+
+- id: nngroup-navigation-you-are-here
+  system: nngroup
+  role: witness
+  title: "Navigation: You Are Here"
+  url: https://www.nngroup.com/articles/navigation-you-are-here/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: Susan Farrell
+  platform: null
+
+- id: carbon-data-table-accessibility
+  system: carbon
+  role: judge
+  title: "Data table: accessibility"
+  url: https://carbondesignsystem.com/components/data-table/accessibility/
+  version: null
+  page_updated: 2026-09-30
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: apple-lists-and-tables
+  system: apple
+  role: judge
+  title: "Lists and tables"
+  url: https://developer.apple.com/design/human-interface-guidelines/lists-and-tables
+  version: null
+  page_updated: 2023-06-21
+  read: 2026-11-25
+  author: null
+  platform: all
+
+- id: material-lists
+  system: material
+  role: judge
+  title: "Lists: guidelines"
+  url: https://m3.material.io/components/lists/guidelines
+  version: M3
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-table
+  system: govuk
+  role: witness
+  title: "Table"
+  url: https://design-system.service.gov.uk/components/table/
+  version: null
+  page_updated: 2024-02-01
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: nngroup-data-tables
+  system: nngroup
+  role: witness
+  title: "Data Tables: Four Major User Tasks"
+  url: https://www.nngroup.com/articles/data-tables/
+  version: null
+  page_updated: 2022-04-03
+  read: 2026-11-25
+  author: Page Laubheimer
+  platform: null
+
+- id: wcag-technique-h51
+  system: wcag
+  role: law
+  title: "H51: Using table markup to present tabular information"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/html/H51
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-h63
+  system: wcag
+  role: law
+  title: "H63: Using the scope attribute to associate header cells with data cells in data tables"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/html/H63
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-h39
+  system: wcag
+  role: law
+  title: "H39: Using caption elements to associate data table captions with data tables"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/html/H39
+  version: "2.2"
+  page_updated: 2026-05-11
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f91
+  system: wcag
+  role: law
+  title: "F91: Failure of Success Criterion 1.3.1 for not correctly marking up table headers"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F91
+  version: "2.2"
+  page_updated: 2026-01-26
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: nngroup-mobile-tables
+  system: nngroup
+  role: witness
+  title: "Mobile Tables: Comparisons and Other Data Tables"
+  url: https://www.nngroup.com/articles/mobile-tables/
+  version: null
+  page_updated: 2017-09-17
+  read: 2026-11-25
+  author: Amy Schade
+  platform: null
+
+- id: wcag-technique-f42
+  system: wcag
+  role: law
+  title: "F42: Failure of Success Criteria 1.3.1, 2.1.1, 2.1.3, or 4.1.2 when emulating links"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F42
+  version: "2.2"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f54
+  system: wcag
+  role: law
+  title: "F54: Failure of Success Criterion 2.1.1 due to using only pointing-device-specific event handlers (including gesture) for a function"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F54
+  version: "2.2"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-understanding-location
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 2.4.8: Location"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/location.html
+  version: "2.2"
+  page_updated: 2025-09-16
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-aria26
+  system: wcag
+  role: law
+  title: "ARIA26: Using aria-current to identify the current item in a set"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/aria/ARIA26
+  version: "2.2"
+  page_updated: 2026-03-09
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f66
+  system: wcag
+  role: law
+  title: "F66: Failure of Success Criterion 3.2.3 due to presenting navigation links in a different relative order on different pages"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F66
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-navigation-bar
+  system: material
+  role: judge
+  title: "Navigation bar: guidelines"
+  url: https://m3.material.io/components/navigation-bar/guidelines
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-navigation-bar-accessibility
+  system: material
+  role: judge
+  title: "Navigation bar: accessibility"
+  url: https://m3.material.io/components/navigation-bar/accessibility
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-navigation-rail-accessibility
+  system: material
+  role: judge
+  title: "Navigation rail: accessibility"
+  url: https://m3.material.io/components/navigation-rail/accessibility
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: apple-tab-bars
+  system: apple
+  role: judge
+  title: "Tab bars"
+  url: https://developer.apple.com/design/human-interface-guidelines/tab-bars
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: "all platforms; written for native apps, not the web"
+
+- id: carbon-ui-shell-left-panel
+  system: carbon
+  role: judge
+  title: "UI shell left panel: usage"
+  url: https://carbondesignsystem.com/components/UI-shell-left-panel/usage/
+  version: null
+  page_updated: 2026-10-02
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-ui-shell-left-panel-accessibility
+  system: carbon
+  role: judge
+  title: "UI shell left panel: accessibility"
+  url: https://carbondesignsystem.com/components/UI-shell-left-panel/accessibility/
+  version: null
+  page_updated: 2026-10-02
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-breadcrumb
+  system: carbon
+  role: judge
+  title: "Breadcrumb: usage"
+  url: https://carbondesignsystem.com/components/breadcrumb/usage/
+  version: null
+  page_updated: 2026-09-30
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-breadcrumb-accessibility
+  system: carbon
+  role: judge
+  title: "Breadcrumb: accessibility"
+  url: https://carbondesignsystem.com/components/breadcrumb/accessibility/
+  version: null
+  page_updated: 2026-09-30
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-service-navigation
+  system: govuk
+  role: witness
+  title: "Service navigation"
+  url: https://design-system.service.gov.uk/components/service-navigation/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-navigate-a-service
+  system: govuk
+  role: witness
+  title: "Help users to navigate a service"
+  url: https://design-system.service.gov.uk/patterns/navigate-a-service/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-breadcrumbs
+  system: govuk
+  role: witness
+  title: "Breadcrumbs"
+  url: https://design-system.service.gov.uk/components/breadcrumbs/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: apple-charts
+  system: apple
+  role: judge
+  title: "Charts"
+  url: https://developer.apple.com/design/human-interface-guidelines/charts
+  version: null
+  page_updated: 2022-09-23
+  read: 2026-11-25
+  author: null
+  platform: all
+
+- id: material-lists-accessibility
+  system: material
+  role: judge
+  title: "Lists: accessibility"
+  url: https://m3.material.io/components/lists/accessibility
+  version: M3
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-menus-accessibility
+  system: material
+  role: judge
+  title: "Menus: accessibility"
+  url: https://m3.material.io/components/menus/accessibility
+  version: M3
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-badges-accessibility
+  system: material
+  role: judge
+  title: "Badges: accessibility"
+  url: https://m3.material.io/components/badges/accessibility
+  version: M3
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-understanding-on-input
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 3.2.2: On Input"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/on-input.html
+  version: "2.2"
+  page_updated: 2026-06-28
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-understanding-on-focus
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 3.2.1: On Focus"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/on-focus.html
+  version: "2.2"
+  page_updated: 2025-09-16
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f36
+  system: wcag
+  role: law
+  title: "F36: Failure of Success Criterion 3.2.2 due to automatically submitting a form and presenting new content without prior warning when the last field in the form is given a value"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F36
+  version: "2.2"
+  page_updated: 2026-08-10
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f37
+  system: wcag
+  role: law
+  title: "F37: Failure of Success Criterion 3.2.2 due to launching a new window without prior warning when the selection of a radio button, check box or select list is changed"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F37
+  version: "2.2"
+  page_updated: 2026-03-09
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-f55
+  system: wcag
+  role: law
+  title: "F55: Failure of Success Criteria 2.1.1, 2.4.7, 2.4.13, and 3.2.1 due to using script to remove focus when focus is received"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F55
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-g80
+  system: wcag
+  role: law
+  title: "G80: Providing a submit button to initiate a change of context"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/general/G80
+  version: "2.2"
+  page_updated: 2025-07-15
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-h32
+  system: wcag
+  role: law
+  title: "H32: Providing submit buttons"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/html/H32
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-h84
+  system: wcag
+  role: law
+  title: "H84: Using a button with a select element to perform an action"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/html/H84
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-g13
+  system: wcag
+  role: law
+  title: "G13: Describing what will happen before a change to a form control that causes a change of context to occur is made"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/general/G13
+  version: "2.2"
+  page_updated: 2026-08-10
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-scr19
+  system: wcag
+  role: law
+  title: "SCR19: Using an onchange event on a select element without causing a change of context"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/client-side-script/SCR19
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: wcag-technique-g107
+  system: wcag
+  role: law
+  title: "G107: Using \"activate\" rather than \"focus\" as a trigger for changes of context"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/general/G107
+  version: "2.2"
+  page_updated: 2025-07-15
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-menus
+  system: material
+  role: judge
+  title: "Menus: guidelines"
+  url: https://m3.material.io/components/menus/guidelines
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-radio-button
+  system: material
+  role: judge
+  title: "Radio button: guidelines"
+  url: https://m3.material.io/components/radio-button/guidelines
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-checkbox
+  system: material
+  role: judge
+  title: "Checkbox: guidelines"
+  url: https://m3.material.io/components/checkbox/guidelines
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-switch
+  system: material
+  role: judge
+  title: "Switch: guidelines"
+  url: https://m3.material.io/components/switch/guidelines
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-chips
+  system: material
+  role: judge
+  title: "Chips: guidelines"
+  url: https://m3.material.io/components/chips/guidelines
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: material-segmented-buttons
+  system: material
+  role: judge
+  title: "Segmented buttons: guidelines"
+  url: https://m3.material.io/components/segmented-buttons/guidelines
+  version: "M3"
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: apple-pop-up-buttons
+  system: apple
+  role: judge
+  title: "Pop-up buttons"
+  url: https://developer.apple.com/design/human-interface-guidelines/pop-up-buttons
+  version: null
+  page_updated: 2023-10-24
+  read: 2026-11-25
+  author: null
+  platform: "all; no web guidance"
+
+- id: apple-pull-down-buttons
+  system: apple
+  role: judge
+  title: "Pull-down buttons"
+  url: https://developer.apple.com/design/human-interface-guidelines/pull-down-buttons
+  version: null
+  page_updated: 2022-09-14
+  read: 2026-11-25
+  author: null
+  platform: "all; no web guidance"
+
+- id: apple-pickers
+  system: apple
+  role: judge
+  title: "Pickers"
+  url: https://developer.apple.com/design/human-interface-guidelines/pickers
+  version: null
+  page_updated: 2023-06-05
+  read: 2026-11-25
+  author: null
+  platform: "all; no web guidance"
+
+- id: apple-toggles
+  system: apple
+  role: judge
+  title: "Toggles"
+  url: https://developer.apple.com/design/human-interface-guidelines/toggles
+  version: null
+  page_updated: 2024-03-29
+  read: 2026-11-25
+  author: null
+  platform: "all; no web guidance"
+
+- id: apple-segmented-controls
+  system: apple
+  role: judge
+  title: "Segmented controls"
+  url: https://developer.apple.com/design/human-interface-guidelines/segmented-controls
+  version: null
+  page_updated: 2023-06-21
+  read: 2026-11-25
+  author: null
+  platform: "all; no web guidance"
+
+- id: carbon-dropdown
+  system: carbon
+  role: judge
+  title: "Dropdown: usage"
+  url: https://carbondesignsystem.com/components/dropdown/usage/
+  version: v11
+  page_updated: 2026-09-30
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-dropdown-accessibility
+  system: carbon
+  role: judge
+  title: "Dropdown: accessibility"
+  url: https://carbondesignsystem.com/components/dropdown/accessibility/
+  version: v11
+  page_updated: 2026-09-30
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-select
+  system: carbon
+  role: judge
+  title: "Select: usage"
+  url: https://carbondesignsystem.com/components/select/usage/
+  version: v11
+  page_updated: 2026-09-30
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-toggle
+  system: carbon
+  role: judge
+  title: "Toggle: usage"
+  url: https://carbondesignsystem.com/components/toggle/usage/
+  version: v11
+  page_updated: 2026-09-30
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: carbon-radio-button
+  system: carbon
+  role: judge
+  title: "Radio button: usage"
+  url: https://carbondesignsystem.com/components/radio-button/usage/
+  version: v11
+  page_updated: 2026-09-30
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-radios
+  system: govuk
+  role: witness
+  title: "Radios"
+  url: https://design-system.service.gov.uk/components/radios/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-select
+  system: govuk
+  role: witness
+  title: "Select"
+  url: https://design-system.service.gov.uk/components/select/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-checkboxes
+  system: govuk
+  role: witness
+  title: "Checkboxes"
+  url: https://design-system.service.gov.uk/components/checkboxes/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: govuk-date-input
+  system: govuk
+  role: witness
+  title: "Date input"
+  url: https://design-system.service.gov.uk/components/date-input/
+  version: null
+  page_updated: null
+  read: 2026-11-25
+  author: null
+  platform: null
+
+- id: nngroup-drop-down-menus
+  system: nngroup
+  role: witness
+  title: "Dropdowns: Design Guidelines"
+  url: https://www.nngroup.com/articles/drop-down-menus/
+  version: null
+  page_updated: 2017-06-11
+  read: 2026-11-25
+  author: Angie Li
+  platform: null
+
+- id: nngroup-applying-filters
+  system: nngroup
+  role: witness
+  title: "User Intent Affects Filter Design"
+  url: https://www.nngroup.com/articles/applying-filters/
+  version: null
+  page_updated: 2016-02-07
+  read: 2026-11-25
+  author: Katie Sherwin
+  platform: null
+
+- id: nngroup-checkboxes-vs-radio-buttons
+  system: nngroup
+  role: witness
+  title: "Checkboxes vs. Radio Buttons"
+  url: https://www.nngroup.com/articles/checkboxes-vs-radio-buttons/
+  version: null
+  page_updated: 2004-09-26
+  read: 2026-11-25
+  author: Jakob Nielsen
+  platform: null
+
+- id: nngroup-toggle-switch-guidelines
+  system: nngroup
+  role: witness
+  title: "Toggle-Switch Guidelines"
+  url: https://www.nngroup.com/articles/toggle-switch-guidelines/
+  version: null
+  page_updated: 2018-07-29
+  read: 2026-11-25
+  author: Alita Kendrick
+  platform: null

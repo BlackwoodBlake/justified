@@ -6,7 +6,7 @@ const preview: Preview = {
   parameters: {
     // Fail the accessibility panel's checks instead of only listing them.
     a11y: { test: "error" },
-    options: { storySort: { order: ["Foundations", ["Colour", "Typography", "Space and shape", "Layout", "Focus and motion"], "Components", "Rules", ["Actions", "Destructive actions", "Dialogs", "Feedback", "Forms", "Keyboard", "Layout", "States", "Text"]] } },
+    options: { storySort: { order: ["Foundations", ["Colour", "Typography", "Space and shape", "Layout", "Focus and motion"], "Components", "Rules", ["Actions", "Colour and motion", "Destructive actions", "Dialogs", "Feedback", "Forms", "Keyboard", "Layout", "Navigation", "Page structure", "States", "Tables", "Text"]] } },
   },
   globalTypes: {
     theme: {

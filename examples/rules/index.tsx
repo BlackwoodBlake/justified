@@ -7,6 +7,9 @@ import { ACT003b } from "./ACT-003b";
 import { ACT004 } from "./ACT-004";
 import { ACT005 } from "./ACT-005";
 import { ACT006 } from "./ACT-006";
+import { ACT007a } from "./ACT-007a";
+import { ACT007b } from "./ACT-007b";
+import { ACT008 } from "./ACT-008";
 import { DLG001 } from "./DLG-001";
 import { DLG002 } from "./DLG-002";
 import { DLG003 } from "./DLG-003";
@@ -33,18 +36,46 @@ import { FRM008 } from "./FRM-008";
 import { FRM009 } from "./FRM-009";
 import { FRM010 } from "./FRM-010";
 import { FRM011 } from "./FRM-011";
+import { FRM012a } from "./FRM-012a";
+import { FRM012b } from "./FRM-012b";
+import { FRM013 } from "./FRM-013";
 import { KBD001 } from "./KBD-001";
 import { KBD002 } from "./KBD-002";
 import { LAY001 } from "./LAY-001";
 import { LAY002 } from "./LAY-002";
+import { NAV002a } from "./NAV-002a";
+import { NAV002b } from "./NAV-002b";
+import { NAV003 } from "./NAV-003";
+import { NAV004 } from "./NAV-004";
 import { STA001 } from "./STA-001";
+import { STA002a } from "./STA-002a";
+import { STA002b } from "./STA-002b";
+import { STA003 } from "./STA-003";
 import { STA004 } from "./STA-004";
 import { STA005a } from "./STA-005a";
 import { STA005b } from "./STA-005b";
+import { STR001 } from "./STR-001";
+import { STR002a } from "./STR-002a";
+import { STR002b } from "./STR-002b";
+import { STR003 } from "./STR-003";
+import { STR004 } from "./STR-004";
+import { STR005 } from "./STR-005";
+import { TBL001 } from "./TBL-001";
+import { TBL002 } from "./TBL-002";
+import { TBL003 } from "./TBL-003";
+import { TBL004 } from "./TBL-004";
 import { TXT001a } from "./TXT-001a";
 import { TXT002a } from "./TXT-002a";
 import { TXT002b } from "./TXT-002b";
 import { TXT003 } from "./TXT-003";
+import { VIS001 } from "./VIS-001";
+import { VIS002 } from "./VIS-002";
+import { VIS003a } from "./VIS-003a";
+import { VIS003b } from "./VIS-003b";
+import { VIS004 } from "./VIS-004";
+import { VIS005 } from "./VIS-005";
+import { VIS006 } from "./VIS-006";
+import { VIS007 } from "./VIS-007";
 
 /*
  * Live Do and Don't examples for the rules. Every example is our own and
@@ -62,6 +93,9 @@ export const ruleExamples: RuleExamples[] = [
   ACT004,
   ACT005,
   ACT006,
+  ACT007a,
+  ACT007b,
+  ACT008,
   DLG001,
   DLG002,
   DLG003,
@@ -87,18 +121,46 @@ export const ruleExamples: RuleExamples[] = [
   FRM009,
   FRM010,
   FRM011,
+  FRM012a,
+  FRM012b,
+  FRM013,
   KBD001,
   KBD002,
   LAY001,
   LAY002,
+  NAV002a,
+  NAV002b,
+  NAV003,
+  NAV004,
   STA001,
+  STA002a,
+  STA002b,
+  STA003,
   STA004,
   STA005a,
   STA005b,
+  STR001,
+  STR002a,
+  STR002b,
+  STR003,
+  STR004,
+  STR005,
+  TBL001,
+  TBL002,
+  TBL003,
+  TBL004,
   TXT001a,
   TXT002a,
   TXT002b,
   TXT003,
+  VIS001,
+  VIS002,
+  VIS003a,
+  VIS003b,
+  VIS004,
+  VIS005,
+  VIS006,
+  VIS007,
 ];
 
 const byId = new Map(ruleExamples.map((r) => [r.id, r]));

@@ -61,7 +61,7 @@ function MotionDemo() {
           <li key={d} className="relative h-8 rounded-md bg-muted">
             <span
               aria-hidden="true"
-              className="absolute top-1 left-1 size-6 rounded-sm bg-primary"
+              className="absolute top-1 left-1 size-6 rounded-sm bg-primary motion-reduce:transition-none!"
               style={{
                 transform: moved ? "translateX(calc(min(30rem, 70vw)))" : "none",
                 transition: `transform var(--motion-duration-${d}) var(--motion-ease-standard)`,
@@ -79,7 +79,7 @@ export const Motion: Story = {
     <div className="flex max-w-3xl flex-col gap-6">
       <p className="text-sm text-muted-foreground">
         Motion explains a change; it never decorates. If the reader asks for reduced motion in their system settings,
-        every duration drops to 1 ms and things change at once.
+        movement like this jumps to its end at once, while short fades and colour changes keep their duration (VIS-006).
       </p>
       <dl className="grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
         {DURATIONS.map((d) => (

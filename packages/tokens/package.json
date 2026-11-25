@@ -1,6 +1,6 @@
 {
   "name": "@blackwoodblake/justified-tokens",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Colour, typography, space, shape, focus, target size and motion tokens for Justified by Blackwood & Blake, as CSS custom properties.",
   "keywords": [
     "design-tokens",
