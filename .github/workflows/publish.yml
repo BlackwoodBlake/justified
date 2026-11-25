@@ -1,10 +1,14 @@
-# Publishes the npm packages with npm's trusted publishing: npm trusts this workflow file in
+# Stages the npm packages with npm's trusted publishing: npm trusts this workflow file in
 # this repository, running in the "npm" environment, so no token is stored anywhere and every
 # version gets a provenance statement. Started by hand from main only, and the "npm"
 # environment waits for the maintainer's approval before the job runs.
 #
-# A package is published only when its version in package.json is not on npm yet, so
-# releasing means: bump the version in a pull request, merge it, then run this workflow.
+# The workflow only stages a version. It goes live when a maintainer approves it on
+# npmjs.com with two-factor authentication, so this workflow alone can never publish.
+#
+# A package is staged only when its version in package.json is not on npm yet, so
+# releasing means: bump the version in a pull request, merge it, run this workflow, then
+# approve each staged version on npmjs.com.
 name: Publish
 
 on:
@@ -36,15 +40,15 @@ jobs:
           node-version: 24
           # Writes the .npmrc that points npm at the registry; trusted publishing needs it.
           registry-url: https://registry.npmjs.org
-      # Trusted publishing needs npm 11.5.1 or later.
+      # Staged publishing needs npm 11.15.0 or later.
       - run: npm install --global "npm@$NPM_VERSION"
         env:
-          NPM_VERSION: 11.6.2
+          NPM_VERSION: 11.21.2
       - run: npm ci
       - run: npm run check
       - run: npm test
       - run: npm run build
-      - name: Publish versions that are not on npm yet
+      - name: Stage versions that are not on npm yet
         run: |
           set -euo pipefail
           for dir in packages/tokens packages/patterns adapters/agents; do
@@ -53,7 +57,7 @@ jobs:
             if npm view "$name@$version" version >/dev/null 2>&1; then
               echo "$name@$version is already on npm, skipped."
             else
-              echo "Publishing $name@$version"
-              npm publish --workspace "$dir" --access public
+              echo "Staging $name@$version"
+              (cd "$dir" && npm stage publish --access public)
             fi
           done
