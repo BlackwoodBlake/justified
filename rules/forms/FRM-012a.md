@@ -23,6 +23,13 @@ stances:
   govuk:    { stance: supports, sources: [govuk-date-input] }
   nngroup:  { stance: supports, sources: [nngroup-checkboxes-vs-radio-buttons] }
 conflicts_checked: 2026-11-25
+check: review
+how_to_check:
+  - 'An `onValueChange`, `onCheckedChange` or `onChange` on a `Select`, `RadioGroup`, `Checkbox`, `Switch` or input that calls `router.push` to another page, `navigate()`, `window.location`, `window.open` or opens a `Dialog`. Leave it if text before the control says so, or if only search params change for the same view.'
+  - 'A value change or `onBlur` that calls `form.handleSubmit()`, `requestSubmit()` or a server action that sends the form, with no notice before the control. Saving a setting in the background is fine (see Exceptions).'
+  - '`InputOTP` with an `onComplete` that sends the code, or a date part that calls `.focus()` on the next part, with no text before the field saying so.'
+  - 'A notice given only in a `Tooltip`, a `placeholder` or text after the control. It must come before the control in reading order.'
+  - 'Change a filter, sort or radio with the keyboard and see whether focus stays on the control rather than moving to the first result or elsewhere.'
 changelog:
   - version: "1.0.0"
     date: 2026-11-25

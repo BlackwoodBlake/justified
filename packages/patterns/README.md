@@ -27,6 +27,7 @@ const forms = rules.filter((rule) => rule.area === "forms");
 | `verdict`, `judges` | The verdict, and how many judges spoke and agreed |
 | `status`, `version`, `changelog` | `decided` or `proposed`, the version and its history |
 | `law`, `stances`, `sources` | The WCAG criteria, and each source's stance with the pages it rests on |
+| `check`, `how_to_check` | How a break is found (`lint`, `runtime`, `review` or `manual`), and what to look for in code or on the running page. A hit means the text may be broken, never that it is. |
 | `body` | The full text in Markdown: Why, Do, Don't and Exceptions |
 
 Every text also has its own page under [blackwoodblake.com/design-system/patterns](https://blackwoodblake.com/design-system/patterns/), with live examples. The same data is served as [rules.json](https://blackwoodblake.com/design-system/patterns/rules.json) if you would rather not install anything.

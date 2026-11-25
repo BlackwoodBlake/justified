@@ -19,6 +19,12 @@ stances:
   govuk:    { stance: supports, sources: [govuk-button] }
   nngroup:  { stance: supports, sources: [nngroup-confirmation-dialog] }
 conflicts_checked: 2026-11-24
+check: review
+how_to_check:
+  - 'For each confirmation question, ask whether the whole previous state can come back right after, for the person who acted. If it can, the question should go and *Undo* take its place.'
+  - 'For each step without a question, ask whether it erases stored data with no way back, moves money or commits the person, such as *Pay*, *Send invoice* or a permanent delete. Those need a question.'
+  - 'A question before a routine step that can be switched back, such as hiding a column, changing a setting or archiving, or before a chat message, comment or reaction.'
+  - 'A payment or legal step treated as reversible because a short-lived *Undo* shows, or a bulk step whose *Undo* brings back only part of what has value. Leave alone closing a dialog with unsaved input.'
 changelog:
   - version: "1.0.3"
     date: 2026-11-24

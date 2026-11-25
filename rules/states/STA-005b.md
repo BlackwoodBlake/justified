@@ -19,6 +19,11 @@ stances:
   govuk:    { stance: supports, sources: [govuk-button] }
   nngroup:  { stance: silent }
 conflicts_checked: 2026-11-24
+check: runtime
+how_to_check:
+  - 'Slow the network, double-click the button, then press Enter twice in a field of the same form, and count the requests sent. More than one is a break. Leave alone searches, refreshes and filters (see Exceptions).'
+  - 'A send handler with no guard for a request in flight: no check of `isSubmitting`, `isPending` or a ref set on the first press, and no `disabled` or `aria-disabled` while it runs.'
+  - 'A guard only on the button''s `onClick`, while the form''s `onSubmit` can still send again when Enter is pressed in a field.'
 changelog:
   - version: "1.0.1"
     date: 2026-11-24

@@ -23,6 +23,13 @@ stances:
   govuk:    { stance: silent }
   nngroup:  { stance: silent }
 conflicts_checked: 2026-11-25
+check: lint
+how_to_check:
+  - 'A shadcn `SidebarMenuButton` or `SidebarMenuSubButton` with `isActive` whose link has no `aria-current`, such as `<SidebarMenuButton asChild isActive={active}><Link href="/invoices">`, and no visually hidden text such as "(current page)" inside the link. React Router''s `NavLink` as the child sets it itself.'
+  - 'A navigation link whose current state is only a class, such as `cn(active && "bg-accent font-semibold")` on a Next.js `Link`, with no `aria-current` set from the same condition and no visually hidden "(current page)" text.'
+  - 'A Radix `NavigationMenu.Link` styled as current through a class but given no `active` prop.'
+  - '`aria-current` on an `li`, `div` or other wrapper instead of the `a`, or `aria-selected` used on a menu link in its place.'
+  - '`aria-current` set on every item of a menu, or `"page"` able to match two items in the same menu. On a page that is not in the menu, `aria-current="true"` on its section''s item is fine.'
 changelog:
   - version: "1.0.0"
     date: 2026-11-25

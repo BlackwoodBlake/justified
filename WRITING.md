@@ -57,8 +57,26 @@ Templates for each file are in `templates/`.
   It also holds a short name of two to four words for menus, for example
   "Visible label"; the rule's stories in Storybook use it in their title.
   The body holds the rule in one to three short sentences (60 words at
-  most; `npm run check` warns above that), why it matters, Do and Don't
-  cases and exceptions.
+  most; `npm run check` warns above that). A rule that applies only in a
+  certain situation opens with it, such as "When a navigation menu
+  shows ..." or "In a dialog that ...", so a person or an agent can tell
+  first whether the rule applies at all. The body goes on with why it
+  matters, Do and Don't cases and exceptions.
+- **How to check.** Two frontmatter fields say how to find a break of
+  the rule. `how_to_check` lists one to five things to look for, such as
+  `mode: "onChange"` in react-hook-form or a submit button with
+  `disabled={!isValid}`. It is written from the rule, never from a
+  source, and is neither stricter nor looser than the rule: a hit means
+  the rule may be broken, and code that follows the rule never matches.
+  `check` names the one layer that finds a break without false hits:
+  - `lint`: the common break shows for certain in the code (JSX, class
+    names, props, form settings).
+  - `runtime`: it shows only when the page runs, such as where focus
+    goes, what is announced or what the title becomes.
+  - `review`: someone has to judge it, such as whether a heading says
+    what its part holds.
+  - `manual`: it takes a person or assistive technology, such as how a
+    screen reader reads the page.
 - **Review report.** Approved, or a list of changes, after the checks
   under *Check before merging*.
 

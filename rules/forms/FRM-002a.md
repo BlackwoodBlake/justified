@@ -35,6 +35,13 @@ stances:
   govuk:    { stance: supports, sources: [govuk-error-message, govuk-validation, govuk-error-summary] }
   nngroup:  { stance: supports, sources: [nngroup-errors-forms] }
 conflicts_checked: 2026-11-21
+check: review
+how_to_check:
+  - 'Field errors sent only to `toast.error()`, an `<Alert>` at the top or a `Dialog`, with no message at the field, such as no `<FormMessage />` or `Field` `error`. Problems that belong to no field, such as a service that is down, are fine there (see Exceptions).'
+  - 'A field marked in error only by colour, such as `aria-invalid:border-destructive` or `border-red-500`, with no error text.'
+  - 'An error message shown only in a `Tooltip` or `HoverCard` on an icon, instead of as text at the field.'
+  - 'A control with `aria-invalid="true"` whose `aria-describedby` is missing or does not include the `id` of its visible error message.'
+  - 'When the server rejects a value, such as an email address already in use, does the message show at that field and not only at the top?'
 changelog:
   - version: "1.0.2"
     date: 2026-11-21

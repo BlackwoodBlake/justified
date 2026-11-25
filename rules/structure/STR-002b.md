@@ -19,6 +19,12 @@ stances:
   govuk:    { stance: supports, sources: [govuk-writing-for-user-interfaces] }
   nngroup:  { stance: supports, sources: [nngroup-microcontent-headlines-page-titles] }
 conflicts_checked: 2026-11-25
+check: review
+how_to_check:
+  - 'Read the view''s headings as a list, without the content below them. Does each say what its part holds or is for, or would it fit any part of any page, such as "Details", "Info" or "Section 2"? One word that names the part, such as "Members", is fine.'
+  - 'The same heading text on every card in a grid or every section of a view, such as each `CardTitle` reading "Details".'
+  - 'A heading that is only a number or a clever line, such as "Section 1" or "The fun part", over content it does not name.'
+  - 'A `DialogTitle` or `SheetTitle` whose words do not say what the dialog is for, such as "Dialog" or "Details".'
 changelog:
   - version: "1.0.0"
     date: 2026-11-25

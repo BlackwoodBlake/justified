@@ -27,6 +27,13 @@ stances:
   govuk:    { stance: silent }
   nngroup:  { stance: silent }
 conflicts_checked: 2026-11-21
+check: lint
+how_to_check:
+  - 'A `Button size="icon"`, or a `button` whose only child is an icon such as a lucide-react component, with no `aria-label`, `aria-labelledby` or `title` and no visually hidden text such as `<span className="sr-only">` inside it.'
+  - 'A button with visible text and an `aria-label` that does not contain that text in the same order, such as `aria-label="Go to payment"` on a button showing "Continue". Leave alone text that stands for a function, such as "A+" (see Exceptions).'
+  - 'An icon button named after its picture, such as "Gear", "Bin" or "Three dots", or with the role in its name, such as "Remove attachment button", instead of what pressing it does.'
+  - 'An icon button whose only name comes from a wrapping `Tooltip` or its `TooltipContent`, with nothing set on the button itself.'
+  - 'An icon beside visible text that carries its own `aria-label` or `<title>` and has no `aria-hidden="true"`, so its words join the button''s name.'
 changelog:
   - version: "1.0.1"
     date: 2026-11-21

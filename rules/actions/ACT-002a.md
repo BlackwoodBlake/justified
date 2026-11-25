@@ -15,6 +15,11 @@ stances:
   govuk:    { stance: supports, sources: [govuk-button] }
   nngroup:  { stance: supports, sources: [nngroup-ok-cancel] }
 conflicts_checked: 2026-11-24
+check: lint
+how_to_check:
+  - 'Two or more `Button`s or `AlertDialogAction`s in one action row, such as a `DialogFooter`, `AlertDialogFooter`, `CardFooter` or a form''s button `div`, with `variant="default"` or `variant="destructive"`. No `variant` counts as `default`. Skip buttons in branches of a condition that never show together.'
+  - '`variant="destructive"` on a remove action beside a `variant="default"` save action in the same row, such as "Delete contact" next to "Save contact".'
+  - 'A "Cancel" button that is the one filled button in a confirmation, such as a `Button` with no `variant` inside `DialogClose`, while the main action is quieter. Ask whether backing out is really what most people want there. A row with no emphasised button is fine.'
 changelog:
   - version: "1.0.2"
     date: 2026-11-24

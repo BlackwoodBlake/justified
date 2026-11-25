@@ -27,6 +27,12 @@ stances:
   govuk:    { stance: supports, sources: [govuk-button] }
   nngroup:  { stance: supports, sources: [nngroup-progress-indicators, nngroup-response-times] }
 conflicts_checked: 2026-11-24
+check: runtime
+how_to_check:
+  - 'Slow the network, press a button that sends, saves or deletes, and see whether a sign that it is working shows and stays until the reply. Leave alone replies that come at once and switches that show their new state at once (see Exceptions).'
+  - 'A submit or save button that does not use `isSubmitting` from react-hook-form, `isPending` from a mutation or `pending` from `useFormStatus`, with no other working sign nearby. A classic form post that loads a new page is left alone (see Exceptions).'
+  - 'A working label put back on a fixed timer, such as a `setTimeout` that restores *Send* while the request is still running.'
+  - 'A dialog that closes on Escape, *Cancel* or the close icon while its request is still running, so the work goes on with no sign of how it ended. Leave it alone when closing withdraws the request and the view says so.'
 changelog:
   - version: "1.0.0"
     date: 2026-11-24

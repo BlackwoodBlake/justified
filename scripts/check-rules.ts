@@ -87,6 +87,10 @@ const STANCE_SYSTEMS: System[] = ["material", "apple", "carbon", "govuk", "nngro
 const STANCES = ["supports", "opposes", "silent"];
 const STATUSES = ["proposed", "decided", "stable"];
 const VERDICTS = ["requirement", "unanimous", "majority", "split", "insufficient-evidence"];
+/** How a break of the rule can be found: in the code, on the running page, by judgement, or by a person. */
+const CHECKS = ["lint", "runtime", "review", "manual"];
+const HOW_TO_CHECK_MAX = 5;
+const HOW_TO_CHECK_WORDS = 50;
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const SEMVER = /^\d+\.\d+\.\d+$/;
@@ -292,6 +296,18 @@ function checkRule(file: string, rulesDir: string, sources: Map<string, Source>,
     }
   }
   if (!isoDate(fm.conflicts_checked)) p("conflicts_checked must be the date of the last conflict check (YYYY-MM-DD)");
+
+  // how a break is found
+  if (!CHECKS.includes(fm.check as string)) p(`check must be one of ${CHECKS.join(", ")}`);
+  const how = fm.how_to_check;
+  if (!Array.isArray(how) || how.length === 0 || how.length > HOW_TO_CHECK_MAX)
+    p(`how_to_check must list 1 to ${HOW_TO_CHECK_MAX} things to look for`);
+  else
+    how.forEach((line, i) => {
+      if (!isText(line)) return p(`how_to_check[${i}] must be a sentence`);
+      const words = line.trim().split(/\s+/).length;
+      if (words > HOW_TO_CHECK_WORDS) p(`how_to_check[${i}] is ${words} words; keep it to ${HOW_TO_CHECK_WORDS}`);
+    });
 
   // law
   let requiredByLaw = false;

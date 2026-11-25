@@ -19,6 +19,13 @@ stances:
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-confirmation-dialog, nngroup-user-control-and-freedom] }
 conflicts_checked: 2026-11-24
+check: review
+how_to_check:
+  - 'For each delete, archive, remove or bulk change, ask whether the product can bring back the whole previous state. If it can, the step should run at once and offer *Undo*, with no confirmation question first.'
+  - 'Code that erases a record for good, such as a hard `DELETE`, and ask whether a soft delete to *Deleted items*, an archive or a kept history could make it reversible.'
+  - 'A sonner `toast` with an *Undo* `action` that closes by itself while the person is still in the view, because neither it nor the `Toaster` sets `duration: Infinity`.'
+  - 'An *Undo* that restores only part, such as the item without its files, comments or place in the list, or an *Undo* shown for something that has left the product, such as a sent email.'
+  - 'An *Undo* reachable only by Ctrl+Z with nothing on screen, or a message with *Undo* that takes focus when it appears.'
 changelog:
   - version: "1.0.3"
     date: 2026-11-24

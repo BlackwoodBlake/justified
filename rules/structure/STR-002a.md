@@ -19,6 +19,12 @@ stances:
   govuk:    { stance: supports, sources: [govuk-headings] }
   nngroup:  { stance: silent }
 conflicts_checked: 2026-11-25
+check: review
+how_to_check:
+  - 'A `p`, `div` or `span` with heading-like classes, such as `text-lg font-semibold` or `text-2xl font-bold`, as the first line of a section, card, panel or dialog. Does it head that part? Then it must be `h1` to `h6`, or `role="heading"` with `aria-level`.'
+  - 'A shadcn `CardTitle` or `AlertTitle` whose text heads the card or alert, with no `h2` to `h6` inside it and its element unchanged; or a `SidebarGroupLabel` that heads a group of links without `asChild` and a heading inside.'
+  - 'A `DialogTitle`, `SheetTitle`, `AlertDialogTitle` or `DrawerTitle` replaced by a styled `p` or `div`.'
+  - 'Heading markup on text that heads nothing, such as a price on a plan card or the small caption under a number on a dashboard tile. A `label`, `legend` or table `caption` is not a heading and is left alone.'
 changelog:
   - version: "1.0.0"
     date: 2026-11-25

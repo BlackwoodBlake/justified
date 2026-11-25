@@ -15,6 +15,12 @@ stances:
   govuk:    { stance: silent }
   nngroup:  { stance: opposes, sources: [nngroup-ok-cancel] }
 conflicts_checked: 2026-11-24
+check: lint
+how_to_check:
+  - 'An `AlertDialogAction` written before `AlertDialogCancel` inside `AlertDialogFooter`, or inside `DialogFooter` a confirming `Button` written before the "Cancel" button or the `DialogClose` that wraps it.'
+  - 'A `Button` written after the confirming button in a dialog footer, such as "Remind me later", so the confirming one is no longer last.'
+  - 'A dialog footer, or a row inside it, with `flex-row-reverse`, `sm:flex-row-reverse` or `order-*` classes that show the confirming button before Cancel, or `justify-start` on a side-by-side row that leaves it away from the trailing end. Leave alone stacked buttons and buttons that fill the row (see Exceptions).'
+  - 'In a multi-step dialog, step buttons such as "Back" and "Next" that are split apart, or with the forward one not last. Leave alone a way out that stands alone at the leading edge (see Exceptions).'
 changelog:
   - version: "1.0.1"
     date: 2026-11-24

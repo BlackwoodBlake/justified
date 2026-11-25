@@ -23,6 +23,11 @@ stances:
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-checkboxes-vs-radio-buttons, nngroup-drop-down-menus, nngroup-toggle-switch-guidelines] }
 conflicts_checked: 2026-11-25
+check: lint
+how_to_check:
+  - 'A `Select`, `RadioGroup`, `Checkbox`, `Switch`, `ToggleGroup` or `DropdownMenuRadioItem` whose `onValueChange` or `onCheckedChange` calls `router.push`, `navigate()`, `window.location` or `window.open` to go to another page or step, even with a notice. Leave alone a change of search params that filters or sorts the same view.'
+  - 'A value change on such a control that calls `form.handleSubmit()`, `requestSubmit()` or runs a command such as export. A switch that applies and saves its own setting in place is fine.'
+  - 'A `ToggleGroup` or filter chip group with an item that runs a command or opens another page, such as "Export tasks" or "Add a task".'
 changelog:
   - version: "1.0.0"
     date: 2026-11-25

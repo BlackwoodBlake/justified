@@ -27,6 +27,13 @@ stances:
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-drag-drop] }
 conflicts_checked: 2026-11-25
+check: lint
+how_to_check:
+  - 'A dnd-kit `DndContext` with `KeyboardSensor` in its `sensors`, or no `sensors` at all, which includes it by default, that passes no `accessibility.announcements` with `onDragStart`, `onDragOver`, `onDragEnd` and `onDragCancel`, so the default messages read out ids.'
+  - 'Announcement functions that put `active.id` or `over.id` straight into the text, unless the id is the visible label, or give positions in pixels or as a zero-based index, instead of the visible label and a position such as "2 of 5".'
+  - '`aria-grabbed` or `aria-dropeffect` used to tell assistive technology about a move. Both are deprecated and not read, so check that words are announced as well.'
+  - 'A live region of your own inside the `SortableContext` or the list that re-renders on each move, so nothing is read.'
+  - 'With a screen reader on, pick an item up with the keyboard, move it one step, then press Escape: are the pick-up, the new position and the cancel each read in words?'
 changelog:
   - version: "1.0.0"
     date: 2026-11-25
