@@ -6,6 +6,12 @@ An open design system on top of shadcn that starts with behaviour rules, each on
 
 **Website:** [blackwoodblake.com/design-system](https://blackwoodblake.com/design-system/), with every rule, its verdict and live Do and Don't examples.
 
+## Rigour is beautiful
+
+> Good digital services shouldn't come down to luck. I want it to be easy to build services that are consistent, usable and accessible to everyone, whether a person or an AI writes the code.
+>
+> Carl Magnus Swahn, Blackwood & Blake
+
 ## Why behaviour rules
 
 shadcn and Radix give you well-built parts: a dialog that traps focus, a button with the right role. They do not decide how the parts should behave in your product: whether a send button may be disabled, which button goes last in a dialog, when an error appears. Those decisions are where interfaces, and AI coding agents, most often go wrong. Justified writes them down as short rules with ids, such as FRM-002a, so people and agents can build and review by them.
