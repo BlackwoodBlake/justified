@@ -1,6 +1,6 @@
 # @blackwoodblake/justified-agents
 
-The behaviour rules of Justified by Blackwood & Blake as instructions for AI coding agents: a skill for Claude Code, and an `AGENTS.md` for any agent that reads an instructions file. With them, an agent builds and reviews interface code by the rules and names each one by its id, such as FRM-002a.
+The behaviour rules of Justified by Blackwood & Blake as instructions for AI coding agents: a skill for Claude Code, a second skill that reviews code against the rules, and an `AGENTS.md` for any agent that reads an instructions file. With them, an agent builds and reviews interface code by the rules and names each one by its id, such as FRM-002a.
 
 ## Install
 
@@ -13,6 +13,7 @@ The package holds files only, no code.
 | File | For |
 | --- | --- |
 | `dist/skills/justified/` | Claude Code: `SKILL.md`, with every full rule in `rules/` |
+| `dist/skills/justified-review/` | Claude Code: a review of changed code against every rule, with `checks.md` and every full rule |
 | `dist/AGENTS.md` | Any agent that reads an instructions file |
 | `dist/AGENTS-full.md` | An agent that cannot open links: every rule in full, in one file |
 | `dist/rules/<id>.md` | One full rule per file: Why, Do, Don't and Exceptions |
@@ -24,7 +25,14 @@ Copy the skill into your project, so Claude Code loads it when you work on inter
 ```sh
 mkdir -p .claude/skills
 cp -R node_modules/@blackwoodblake/justified-agents/dist/skills/justified .claude/skills/
+cp -R node_modules/@blackwoodblake/justified-agents/dist/skills/justified-review .claude/skills/
 ```
+
+## Review
+
+With the review skill installed, run `/justified-review` in Claude Code. It reviews your uncommitted changes, or the current branch if there are none; name files, a folder or a branch to review those instead. The report lists each place that may break a rule, by file, line and rule id, with the verdict, what is wrong, how to fix it and a link to the rule. What it can only see in a running app it lists for you to check there.
+
+A review finds some problems, not all. "No problems found against Justified's rules" does not mean a product is accessible; test with real people and assistive technology. Each full rule also ends with *How to check*: what to look for in code.
 
 For another agent, copy `dist/AGENTS.md` to where it looks for instructions, for example `AGENTS.md` in the project root.
 
