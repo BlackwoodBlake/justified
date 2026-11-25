@@ -12,11 +12,11 @@
   ],
   "homepage": "https://blackwoodblake.com/design-system/",
   "bugs": {
-    "url": "https://github.com/blackwoodblake/justified/issues"
+    "url": "https://github.com/BlackwoodBlake/justified/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/blackwoodblake/justified.git",
+    "url": "git+https://github.com/BlackwoodBlake/justified.git",
     "directory": "packages/patterns"
   },
   "license": "MIT AND CC-BY-4.0",
