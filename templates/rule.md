@@ -4,7 +4,7 @@
 id: ACT-000
 title: Sentence case, says what to do
 short: Two to four words      # for menus such as Storybook's; 30 characters at most, unique
-area: actions                # actions | dialogs | destructive | feedback | forms | keyboard | layout | navigation | states | text
+area: actions                # actions | dialogs | destructive | feedback | forms | keyboard | layout | navigation | states | structure | tables | text | visual
 status: proposed             # proposed | decided | stable
 version: "1.0.0"
 verdict: unanimous           # requirement | unanimous | majority | split | insufficient-evidence

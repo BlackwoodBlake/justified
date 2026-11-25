@@ -47,7 +47,10 @@ export const AREAS: Record<string, string> = {
   LAY: "layout",
   NAV: "navigation",
   STA: "states",
+  STR: "structure",
+  TBL: "tables",
   TXT: "text",
+  VIS: "visual",
 };
 
 /** How each area is named in Storybook's menu: Rules/<label>/<id> <short>. */
@@ -61,7 +64,10 @@ const AREA_LABELS: Record<string, string> = {
   layout: "Layout",
   navigation: "Navigation",
   states: "States",
+  structure: "Page structure",
+  tables: "Tables",
   text: "Text",
+  visual: "Colour and motion",
 };
 const SHORT_MAX = 30;
 const shorts = new Map<string, string>();

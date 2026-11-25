@@ -157,13 +157,7 @@
   --overlay: #00000080;
 }
 
-/* Someone who asks for less motion gets none. 1ms rather than 0 so that
-   animationend and transitionend still fire for components that wait on
-   them. */
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --motion-duration-fast: 1ms;
-    --motion-duration-normal: 1ms;
-    --motion-duration-slow: 1ms;
-  }
-}
+/* Reduced motion is not handled here by shrinking every duration: that would
+   also remove the short fades that people who ask for less motion can still
+   use (VIS-006). Each component turns off its own movement with
+   `motion-reduce:` and keeps its fades and colour changes. */

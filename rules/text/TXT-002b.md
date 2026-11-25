@@ -4,7 +4,7 @@ title: Open tooltips on focus too, and keep what people need on the page
 short: Tooltips
 area: text
 status: decided
-version: "1.0.0"
+version: "1.0.1"
 verdict: unanimous
 judges: { spoken: 2, agreeing: 2 }
 law:
@@ -18,8 +18,11 @@ stances:
   carbon:   { stance: supports, sources: [carbon-tooltip, carbon-tooltip-accessibility] }
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-tooltip-guidelines] }
-conflicts_checked: 2026-11-22
+conflicts_checked: 2026-11-25
 changelog:
+  - version: "1.0.1"
+    date: 2026-11-25
+    note: Points to TBL-003 for actions that appear on hover in a table row.
   - version: "1.0.0"
     date: 2026-11-22
     note: First version.
@@ -52,5 +55,5 @@ A tooltip that only opens on hover does not exist for someone who uses a keyboar
 
 - **The name of an icon-only button.** A tooltip on an icon-only button may show its name, in the same words as its accessible name, such as the tooltip "Share" on a button named "Share". The accessible name itself is set on the button, as ACT-001b says.
 - **Other rules cover these cases.** Field errors follow FRM-002a, the reason a button is unavailable follows ACT-005, the meaning of a required marker follows FRM-005, and labels follow FRM-001.
-- **Actions, not information.** This rule covers information. Actions that appear on hover, such as row buttons, are covered by KBD-001.
+- **Actions, not information.** This rule covers information. Actions that appear on hover, such as row buttons, are covered by KBD-001, and in a table row by TBL-003.
 - **Not decided here.** Whether a tooltip may hold links or buttons is not covered by this rule.

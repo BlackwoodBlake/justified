@@ -24,6 +24,8 @@ With Tailwind CSS v4, import both files in your main CSS file, tokens first:
 
 Dark mode applies with a `.dark` class or `data-theme="dark"` on an ancestor.
 
+The motion durations stay the same when someone asks their system for less motion. Since 0.2.0 the tokens no longer shorten them, because that also removed the short fades people can still use. Turn off movement in each component with Tailwind's `motion-reduce:` variant and keep its fades, as [VIS-006](https://blackwoodblake.com/design-system/patterns/vis-006/) describes.
+
 If you use the shadcn CLI, you can add the theme from the registry instead, which copies the values into your own CSS: [Use with shadcn](https://blackwoodblake.com/design-system/get-started/shadcn/). To use your own colours, see [Change the theme](https://blackwoodblake.com/design-system/get-started/theming/).
 
 ## Accessibility

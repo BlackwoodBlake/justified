@@ -47,9 +47,6 @@ const tokens = readFileSync(join(tokensDir, "tokens.css"), "utf8").replace(/\/\*
 const theme = readFileSync(join(tokensDir, "theme.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
 const light = tokens.match(/:root\s*\{([^}]*)\}/)?.[1] ?? fail("no :root block in tokens.css");
 const dark = tokens.match(/\.dark,\s*\[data-theme="dark"\]\s*\{([^}]*)\}/)?.[1] ?? fail("no dark block in tokens.css");
-const reduced =
-  tokens.match(/@media \(prefers-reduced-motion: reduce\)\s*\{\s*:root\s*\{([^}]*)\}/)?.[1] ??
-  fail("no reduced-motion block");
 const inline = theme.match(/@theme inline\s*\{([^}]*)\}/)?.[1] ?? fail("no @theme inline block in theme.css");
 
 const themeItem = {
@@ -63,9 +60,6 @@ const themeItem = {
   css: {
     ":root": { "color-scheme": "light" },
     ".dark": { "color-scheme": "dark" },
-    "@media (prefers-reduced-motion: reduce)": {
-      ":root": Object.fromEntries(Object.entries(vars(reduced)).map(([k, v]) => [`--${k}`, v])),
-    },
   },
 };
 

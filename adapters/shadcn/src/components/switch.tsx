@@ -29,7 +29,7 @@ export function Switch({ className, ...props }: ComponentProps<typeof SwitchPrim
       <SwitchPrimitive.Thumb
         className={cn(
           "pointer-events-none block size-5 rounded-full bg-background shadow-sm",
-          "transition-transform duration-(--motion-duration-fast) ease-standard",
+          "transition-transform duration-(--motion-duration-fast) ease-standard motion-reduce:transition-none",
           "data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0",
         )}
       />
