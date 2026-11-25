@@ -23,6 +23,13 @@ stances:
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-cancel-vs-close, nngroup-confirmation-dialog, nngroup-modal-nonmodal] }
 conflicts_checked: 2026-11-24
+check: runtime
+how_to_check:
+  - 'In a full-screen dialog, type in a field, then try Cancel, the close icon, Escape, a swipe and the browser back button, and see whether every way that discards asks first.'
+  - 'Open the full-screen dialog and close it with nothing typed, or after typing and deleting, and see whether it closes at once with no question.'
+  - 'When the question opens, see whether focus starts on Cancel, whether Escape and Cancel keep every value, and whether focus returns to where it was.'
+  - 'An `onOpenChange`, `onEscapeKeyDown` or `popstate` handler that closes the full-screen dialog without the same unsaved-changes check that Cancel uses.'
+  - 'A question with a third button such as "Save as draft", choices named "Yes" and "No", or a question shown when the way out keeps a draft.'
 changelog:
   - version: "1.0.3"
     date: 2026-11-24

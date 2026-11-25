@@ -23,6 +23,13 @@ stances:
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-cancel-vs-close, nngroup-confirmation-dialog, nngroup-modal-nonmodal] }
 conflicts_checked: 2026-11-24
+check: runtime
+how_to_check:
+  - 'In a dialog or sheet that does not fill the screen, fill in two fields or a multi-line field, then try Cancel, the close icon, Escape, a backdrop press and a swipe, and see whether every way that discards asks first.'
+  - 'Change nothing, or only one short field, one pick or one switch, then close the dialog, and see whether it closes at once with no question (see Exceptions).'
+  - 'See whether the question replaces the dialog''s content instead of opening a second dialog on top, and whether its heading becomes the dialog''s name through `aria-labelledby`.'
+  - 'An `onOpenChange`, `onEscapeKeyDown`, `onPointerDownOutside` or `onInteractOutside` handler that closes the dialog without the unsaved-changes check that Cancel uses.'
+  - 'A change check that counts key presses or touched fields instead of comparing values with what the view started with, such as `touchedFields` in place of `isDirty`.'
 changelog:
   - version: "1.0.0"
     date: 2026-11-24

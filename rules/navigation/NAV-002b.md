@@ -19,6 +19,13 @@ stances:
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-navigation-you-are-here] }
 conflicts_checked: 2026-11-25
+check: review
+how_to_check:
+  - 'The classes for the current item, such as `data-[active=true]:` styles or an `active &&` branch. Do they change only colour, such as `text-foreground` against `text-muted-foreground`, or a faint tint? Look for heavier text, a filled icon, a shape behind the item that meets VIS-004, or a bar beside it.'
+  - 'A shadcn `SidebarMenuSubButton` with `isActive` and only its default classes, which change colour only.'
+  - 'Whether the current style matches the hover style, so the item under the pointer looks current too. In shadcn''s `SidebarMenuButton`, only `font-medium` tells them apart.'
+  - 'How the current item is chosen: from the route, such as `usePathname()` or `useLocation()`, not from state set on click; and so that only one item matches, with `/` matched exactly rather than by `pathname.startsWith`.'
+  - 'Collapse the sidebar to icons with `collapsible="icon"` and see whether the current item still has a cue that is not colour alone, such as a filled icon or a border.'
 changelog:
   - version: "1.0.0"
     date: 2026-11-25

@@ -27,6 +27,13 @@ stances:
   govuk:    { stance: supports, sources: [govuk-tag] }
   nngroup:  { stance: supports, sources: [nngroup-visual-treatments-accessibility] }
 conflicts_checked: 2026-11-25
+check: review
+how_to_check:
+  - 'A `Badge`, dot or table cell whose only content is a colour, such as `<Badge className="bg-green-500" />` or a `size-2 rounded-full` span with no text or distinct icon beside it.'
+  - 'Badges or icons that differ only by `variant` or colour while their text, icon and shape are the same.'
+  - 'A field marked wrong only by `aria-invalid:border-destructive`, with no visible message; or a meaning given only in an `sr-only` span.'
+  - 'Active tab, selected card or chart series told apart only by colour, such as `text-foreground` against `text-muted-foreground` or legend squares with no names. Look at the screen in grayscale and ask whether each state still reads.'
+  - 'Instructions that name a colour, such as ''shown in red''. Leave alone decoration, tags that show their name, and visited links (see Exceptions).'
 changelog:
   - version: "1.0.0"
     date: 2026-11-25

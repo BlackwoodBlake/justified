@@ -19,6 +19,13 @@ stances:
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-empty-state-interface-design] }
 conflicts_checked: 2026-11-25
+check: review
+how_to_check:
+  - 'The shadcn data table''s default empty row, a `TableCell colSpan={columns.length}` reading "No results.", on a list that is empty because nothing has been added yet.'
+  - '`items.map(...)` with no branch for an empty array, so once loading has finished the heading sits over blank space.'
+  - 'An empty message such as "No data" or "Nothing here". Read it and ask: does it say what will appear in this space?'
+  - 'An empty space where the person can add the first item but no button or link offers it. Leave it alone when the person cannot add items, items arrive on their own, or the line points to the same action already in the page header.'
+  - 'An empty message shown in a toast or a page-wide banner instead of inside the list, table, card or panel it is about.'
 changelog:
   - version: "1.0.0"
     date: 2026-11-25

@@ -19,6 +19,12 @@ stances:
   govuk:    { stance: supports, sources: [govuk-button, govuk-question-pages] }
   nngroup:  { stance: supports, sources: [nngroup-ui-copy, nngroup-ok-cancel, nngroup-confirmation-dialog] }
 conflicts_checked: 2026-11-24
+check: review
+how_to_check:
+  - 'A `Button` or `AlertDialogAction` whose visible text is only "OK", "Yes", "No" or "Submit". Leave alone the lone button of a message that only informs, and the button that confirms a date or time picker (see Exceptions).'
+  - 'A button labelled with a noun alone, such as "Report" or "Settings", or a vague verb such as "Manage" or "Confirm", on an action that does something.'
+  - 'A button that saves, sends, creates or removes something labelled "Continue", "Done", "Close" or "Next". Those words are fine only where nothing new is committed or the work is already kept (see Exceptions).'
+  - 'Read each action button with its dialog title, heading, row or card: does the label start with a verb, and does the label or that context say what it acts on? On repeated row buttons the object may sit in the accessible name.'
 changelog:
   - version: "1.0.2"
     date: 2026-11-24

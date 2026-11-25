@@ -1,6 +1,6 @@
 {
   "name": "@blackwoodblake/justified-patterns",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The behaviour rules of Justified by Blackwood & Blake as data, with verdicts and source stances.",
   "keywords": [
     "design-system",

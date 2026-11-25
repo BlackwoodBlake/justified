@@ -23,6 +23,12 @@ stances:
   govuk:    { stance: supports, sources: [govuk-button, govuk-question-pages, govuk-page-template] }
   nngroup:  { stance: supports, sources: [nngroup-ok-cancel] }
 conflicts_checked: 2026-11-24
+check: review
+how_to_check:
+  - 'A button that acts on one card, row, photo or form placed outside that part, such as "Delete photo" in the page header, or a single "Save" on a page with several separate forms. Dialogs, sheets and side panels are outside the rule.'
+  - 'A button that acts on the whole page, such as "New booking", rendered inside the first card or row of a list instead of the page header, action bar or floating button.'
+  - 'Compare pages of the same kind at the same window size: does each task, such as "Add stop", sit in the same area and position on every one? A move at a very different window size is fine.'
+  - 'Product-wide controls, such as a language picker or "Contact support", rendered in one page''s own header instead of the top bar shown on every page.'
 changelog:
   - version: "1.0.1"
     date: 2026-11-24

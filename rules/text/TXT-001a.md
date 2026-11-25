@@ -23,6 +23,12 @@ stances:
   govuk:    { stance: supports, sources: [govuk-error-message, govuk-error-summary, govuk-validation] }
   nngroup:  { stance: supports, sources: [nngroup-error-message-guidelines, nngroup-errors-forms] }
 conflicts_checked: 2026-11-24
+check: review
+how_to_check:
+  - 'A problem message that is only a verdict or a code, such as "Invalid value", "Error", "Something went wrong" or "B-4031".'
+  - 'zod''s default texts left in place at a field, such as "Required" or "String must contain at least 1 character(s)" in zod 3, or "Invalid input" in zod 4, instead of a message that says what is wrong or what to do.'
+  - 'A message that names an internal key, such as "billing_zip is missing", or that sits away from its thing, such as in a toast, without naming the file, field or item by its visible name.'
+  - 'A message that stops after the fault, such as "Payment declined.", with no fix, retry, wait or place to get help in its text or a control beside it. Leave alone sign-in and security messages that name only the pair (see Exceptions).'
 changelog:
   - version: "1.0.2"
     date: 2026-11-24

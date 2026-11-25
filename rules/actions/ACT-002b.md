@@ -15,6 +15,12 @@ stances:
   govuk:    { stance: supports, sources: [govuk-button, govuk-question-pages] }
   nngroup:  { stance: silent }
 conflicts_checked: 2026-11-24
+check: review
+how_to_check:
+  - 'Count the `Button`s with `variant="default"`, `variant="destructive"` or no `variant` on a whole route''s page, leaving out the product''s top bar and anything inside a `Dialog`, `AlertDialog`, `Sheet`, `Drawer` or side panel. More than one may break the rule.'
+  - 'A `Button` with no `variant`, or `variant="default"`, inside a `.map()` over cards, rows or sections, such as a filled "Choose" on every offer card or a filled "Save" in every settings section.'
+  - 'A filled `variant="destructive"` button on a page that already has a filled main button, unless the page exists for that deletion.'
+  - 'Read the page: does its one filled button serve the page''s main task, while banners, sections, cards and rows use `outline`, `secondary` or `ghost`? A page with no filled button is fine.'
 changelog:
   - version: "1.0.2"
     date: 2026-11-24

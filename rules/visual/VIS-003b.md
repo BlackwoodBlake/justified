@@ -23,6 +23,11 @@ stances:
   govuk:    { stance: supports, sources: [govuk-links] }
   nngroup:  { stance: supports, sources: [nngroup-guidelines-for-visualizing-links] }
 conflicts_checked: 2026-11-25
+check: lint
+how_to_check:
+  - 'An `<a>` or router `Link` inside a `<p>`, `FormDescription`, `AlertDescription`, `DialogDescription` or a table cell beside plain text, with no `underline` or other cue beyond colour, such as `font-semibold`. Leave alone links styled as buttons, lists of links (see Exceptions) and `prose` text that underlines links.'
+  - 'A link in running text with `hover:underline` or `focus:underline` but no `underline` at rest, or with `no-underline`.'
+  - 'The `a` mapping passed to an MDX or Markdown renderer (such as `components={{ a: ... }}`) that does not add `underline`.'
 changelog:
   - version: "1.0.0"
     date: 2026-11-25

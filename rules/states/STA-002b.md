@@ -19,6 +19,13 @@ stances:
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-empty-state-interface-design] }
 conflicts_checked: 2026-11-25
+check: review
+how_to_check:
+  - 'A list kept as `useState([])`, filled by a fetch in `useEffect`, that renders the empty state on `items.length === 0` with no separate loading state. Leave it alone when the items come with the page and nothing is fetched.'
+  - '`data ?? []` or `data || []` from TanStack Query, SWR or similar passed to a table, a list or a `.length === 0` check, with no earlier branch for `isPending` or `isLoading`.'
+  - '`catch { setItems([]) }`, or an `isError` that falls through to the empty state, so a failed fetch reads as an empty list.'
+  - 'A Suspense boundary around fetched content with `fallback={null}`, or `CommandEmpty` in a command menu that searches the server, shown while the request is still running.'
+  - 'Rows that go empty when a filter or the query key changes, with no `placeholderData: keepPreviousData` and no loading branch, so the empty row shows during the request.'
 changelog:
   - version: "1.0.0"
     date: 2026-11-25

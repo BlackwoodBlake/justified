@@ -27,6 +27,13 @@ stances:
   govuk:    { stance: supports, sources: [govuk-file-upload, govuk-question-pages] }
   nngroup:  { stance: supports, sources: [nngroup-drag-drop] }
 conflicts_checked: 2026-11-25
+check: review
+how_to_check:
+  - 'A dnd-kit `useSortable` or `useDraggable` item with no buttons, menu or field that makes the same move by pressing, such as "Move up", "Move down" or "Move to Done". A `KeyboardSensor` alone does not count.'
+  - 'A react-dropzone `useDropzone` with `noClick: true` and no `Button` that calls `open()`, or any file drop area with no way to choose a file by pressing.'
+  - 'A shadcn `Carousel` without `CarouselPrevious` and `CarouselNext`, a `ResizablePanel` with no button or menu that sets its size, or a Vaul `Drawer` with `modal={false}` and no close button.'
+  - 'Custom drag code with `onPointerMove` or `onTouchMove` that sets a value or position, such as a knob or a two-thumb range, with no field or buttons beside it. Leave alone drawing and signature pads (see Exceptions).'
+  - 'A swipe on a row as the only other way to an action, such as deleting or marking as paid, with no row menu or button for it.'
 changelog:
   - version: "1.0.0"
     date: 2026-11-25

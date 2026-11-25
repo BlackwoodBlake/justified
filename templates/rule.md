@@ -21,6 +21,9 @@ stances:                     # every judge and witness; silent when the source d
   govuk:    { stance: silent }
   nngroup:  { stance: silent }
 conflicts_checked: 2026-11-21
+check: review                # lint | runtime | review | manual: how a break is found (see WRITING.md)
+how_to_check:                # 1 to 5 things to look for, 50 words each at most; never stricter or looser than the rule
+  - What in the code, or on the running page, shows that the rule may be broken.
 changelog:
   - version: "1.0.0"
     date: 2026-11-21

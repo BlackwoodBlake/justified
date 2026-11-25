@@ -23,6 +23,13 @@ stances:
   govuk:    { stance: silent }
   nngroup:  { stance: silent }
 conflicts_checked: 2026-11-22
+check: runtime
+how_to_check:
+  - 'Open each tooltip and hover card by hover and by keyboard focus, press Escape, and see whether it closes while the pointer and focus stay where they are.'
+  - 'Move the pointer from the trigger onto the content and rest there, and see whether it stays open on the way and for as long as the pointer is on it.'
+  - 'Hover content built by hand with `onMouseEnter` and `onMouseLeave`, closed when the pointer leaves the trigger alone, with no Escape key handler, or closed by a `setTimeout` while still hovered.'
+  - 'Radix settings that change this: `disableHoverableContent` on `Tooltip` or `TooltipProvider`, or `closeDelay={0}` on a `HoverCard` that sits apart from its trigger.'
+  - 'Leave alone the browser''s own `title` tooltip, content opened by a click, tap or Enter such as `Popover` or `DropdownMenu`, and Escape for content that reports an input error (see Exceptions).'
 changelog:
   - version: "1.0.0"
     date: 2026-11-22

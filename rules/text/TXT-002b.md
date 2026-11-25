@@ -19,6 +19,12 @@ stances:
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-tooltip-guidelines] }
 conflicts_checked: 2026-11-25
+check: review
+how_to_check:
+  - '`TooltipTrigger asChild` around an element that cannot take focus, such as a plain `span`, `div` or icon with no `tabIndex`.'
+  - 'A tooltip built by hand that opens on `onMouseEnter` or `onPointerEnter` with no `onFocus`. Tab to the trigger and see whether it appears.'
+  - 'A tooltip, often on an info icon, that holds something needed to finish the task, such as a format, a deadline or a price rule. Ask: could the person finish without opening it? A tooltip repeating an icon-only button''s name is fine.'
+  - 'A chart whose exact values appear only in tooltips, when the person needs those values and no table or list on the page holds them.'
 changelog:
   - version: "1.0.1"
     date: 2026-11-25

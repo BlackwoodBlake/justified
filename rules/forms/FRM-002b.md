@@ -23,6 +23,13 @@ stances:
   govuk:    { stance: opposes, sources: [govuk-validation] }
   nngroup:  { stance: supports, sources: [nngroup-errors-forms] }
 conflicts_checked: 2026-11-24
+check: lint
+how_to_check:
+  - '`useForm({ mode: "onChange" })` or `mode: "all"` in react-hook-form, which shows new errors while people type, unless the field creates a new value with its rules listed beside it, such as a new password (see Exceptions).'
+  - '`mode: "onBlur"` or `mode: "onTouched"` in react-hook-form. Both check a field on blur even when it was only tabbed past. `onBlur` also keeps a shown error until the field is left again, and `onTouched` shows new errors while typing once a field is touched.'
+  - '`reValidateMode: "onBlur"` or `reValidateMode: "onSubmit"`, which, once the form has been sent, keeps a shown error after the value is fixed until the field is left or the form is sent again.'
+  - 'An `onChange` handler that calls `setError`, `trigger()` or a zod `safeParse` and sets a new error, rather than only clearing an error already shown.'
+  - 'A check only the server can make, such as an address lookup, called from `onChange` or a debounced effect on the value instead of on blur or send.'
 changelog:
   - version: "1.0.3"
     date: 2026-11-24
