@@ -16,23 +16,24 @@ import { hasModifier, isTyping, Kbd, KeyRow, PageFrame } from "./shortcuts";
  * real document or window. Inside the frame it stands for a page-wide listener.
  * Every shortcut is also a visible button (KBD-001).
  *
- *   modifier:  Ctrl or Cmd+K and Alt+Shift+N work from the start; plain n does not.
- *   optin:     single keys work only after a switch, which starts off.
- *   defaultOn: a switch exists, but single keys are on from the start.
- *   shift:     Shift+N page-wide, with a switch that turns it off (KBD-003's way out).
- *   metaOnly:  only Cmd+K is bound, so Ctrl+K does nothing.
- *   blockFind: the page takes Ctrl or Cmd+F, which belongs to the browser.
+ *   Invoices (Dos):
+ *     modifier: Ctrl or Cmd+K and Alt+Shift+N work from the start; plain n does not.
+ *     optin:    single keys work only after a switch, which starts off.
+ *     shift:    Shift+N page-wide, with a switch that turns it off (KBD-003's way out).
+ *   Don'ts, each written out in full:
+ *     SingleKeysOn: a switch exists, but single keys are on from the start.
+ *     CmdOnly:      only Cmd+K is bound, so Ctrl+K does nothing.
+ *     TakesFind:    the page takes Ctrl or Cmd+F, which belongs to the browser.
  */
 
-type Mode = "modifier" | "optin" | "defaultOn" | "shift" | "metaOnly" | "blockFind";
+type Mode = "modifier" | "optin" | "shift";
 
 function Invoices({ mode }: { mode: Mode }) {
-  const [on, setOn] = useState(mode === "defaultOn" || mode === "shift");
-  const [take, setTake] = useState(false);
+  const [on, setOn] = useState(mode === "shift");
   const [count, setCount] = useState(0);
   const [said, say] = useSay();
   const search = useRef<HTMLInputElement>(null);
-  const hasSwitch = mode === "optin" || mode === "defaultOn";
+  const hasSwitch = mode === "optin";
 
   const openSearch = (how: string) => {
     search.current?.focus();
@@ -57,7 +58,7 @@ function Invoices({ mode }: { mode: Mode }) {
       } else if (plain && e.key === "n") {
         say("n ignored: a single key does nothing until the person turns it on.");
       }
-    } else if (mode === "optin" || mode === "defaultOn") {
+    } else if (mode === "optin") {
       if (plain && (e.key === "n" || e.key === "/")) {
         if (!on) {
           say(`"${e.key}" ignored: single-key shortcuts are off.`);
@@ -76,28 +77,12 @@ function Invoices({ mode }: { mode: Mode }) {
         e.preventDefault();
         newInvoice("Shift+N");
       }
-    } else if (mode === "metaOnly") {
-      if (e.metaKey && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        openSearch("Cmd+K");
-      } else if (e.ctrlKey && !e.metaKey && e.key.toLowerCase() === "k") {
-        say("Ctrl+K did nothing: this page listens only for Cmd+K.");
-      }
-    } else if (mode === "blockFind") {
-      if (mod && !e.altKey && e.key.toLowerCase() === "f") {
-        if (take) {
-          e.preventDefault();
-          say("Find in page was blocked: the page took the browser's own keys.");
-        } else {
-          say("Find in page opened as usual. Turn on the broken version to see the page take the keys.");
-        }
-      }
     }
   };
 
   return (
     <div className="flex w-full max-w-sm flex-col items-center gap-3">
-      <PageFrame label="Invoicing, example page" onKeyDown={onKeyDown} onLeave={() => setTake(false)}>
+      <PageFrame label="Invoicing, example page" onKeyDown={onKeyDown}>
         <Field label="Search invoices">
           <Input ref={search} placeholder="Client or number" />
         </Field>
@@ -132,11 +117,6 @@ function Invoices({ mode }: { mode: Mode }) {
             />
           </Field>
         )}
-        {mode === "blockFind" && (
-          <Button variant={take ? "secondary" : "outline"} aria-pressed={take} onClick={() => setTake((v) => !v)}>
-            Let the page take Ctrl+F
-          </Button>
-        )}
         <KeyRow>
           {mode === "modifier" && (
             <>
@@ -144,7 +124,7 @@ function Invoices({ mode }: { mode: Mode }) {
               <span><Kbd>Alt</Kbd>+<Kbd>Shift</Kbd>+<Kbd>N</Kbd> new invoice</span>
             </>
           )}
-          {(mode === "optin" || mode === "defaultOn") && (
+          {mode === "optin" && (
             <>
               <span><Kbd>/</Kbd> search</span>
               <span><Kbd>n</Kbd> new invoice</span>
@@ -153,12 +133,167 @@ function Invoices({ mode }: { mode: Mode }) {
           {mode === "shift" && (
             <span><Kbd>Shift</Kbd>+<Kbd>N</Kbd> new invoice</span>
           )}
-          {mode === "metaOnly" && (
-            <span><Kbd>Cmd</Kbd>+<Kbd>K</Kbd> search</span>
-          )}
-          {mode === "blockFind" && (
-            <span><Kbd>Ctrl</Kbd>/<Kbd>Cmd</Kbd>+<Kbd>F</Kbd> filter invoices</span>
-          )}
+        </KeyRow>
+      </PageFrame>
+      <Outcome>{said}</Outcome>
+    </div>
+  );
+}
+
+function SingleKeysOn() {
+  const [singleKeyShortcuts, setSingleKeyShortcuts] = useState(true);
+  const [count, setCount] = useState(0);
+  const [said, say] = useSay();
+  const search = useRef<HTMLInputElement>(null);
+
+  const openSearch = (how: string) => {
+    search.current?.focus();
+    say(`${how} opened search.`);
+  };
+  const newInvoice = (how: string) => {
+    setCount((n) => n + 1);
+    say(`${how} started a new invoice.`);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (hasModifier(e) || isTyping(e.target)) return;
+    if (e.key !== "n" && e.key !== "/") return;
+    if (!singleKeyShortcuts) {
+      say(`"${e.key}" ignored: single-key shortcuts are off.`);
+      return;
+    }
+    e.preventDefault();
+    if (e.key === "n") newInvoice("n");
+    else openSearch("/");
+  };
+
+  return (
+    <div className="flex w-full max-w-sm flex-col items-center gap-3">
+      <PageFrame label="Invoicing, example page" onKeyDown={onKeyDown}>
+        <Field label="Search invoices">
+          <Input ref={search} placeholder="Client or number" />
+        </Field>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" onClick={() => openSearch("The button")}>
+            Search
+          </Button>
+          <Button variant="outline" onClick={() => newInvoice("The button")}>
+            New invoice
+          </Button>
+        </div>
+        <p className="m-0 text-muted-foreground">Invoices started here: {count}</p>
+        <Field label="Use single-key shortcuts" layout="inline">
+          <Switch
+            checked={singleKeyShortcuts}
+            onCheckedChange={(v) => {
+              setSingleKeyShortcuts(v);
+              say(v ? "Single-key shortcuts are on." : "Single-key shortcuts are off.");
+            }}
+          />
+        </Field>
+        <KeyRow>
+          <span><Kbd>/</Kbd> search</span>
+          <span><Kbd>n</Kbd> new invoice</span>
+        </KeyRow>
+      </PageFrame>
+      <Outcome>{said}</Outcome>
+    </div>
+  );
+}
+
+function CmdOnly() {
+  const [count, setCount] = useState(0);
+  const [said, say] = useSay();
+  const search = useRef<HTMLInputElement>(null);
+
+  const openSearch = (how: string) => {
+    search.current?.focus();
+    say(`${how} opened search.`);
+  };
+  const newInvoice = (how: string) => {
+    setCount((n) => n + 1);
+    say(`${how} started a new invoice.`);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.metaKey && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      openSearch("Cmd+K");
+    } else if (e.ctrlKey && !e.metaKey && e.key.toLowerCase() === "k") {
+      say("Ctrl+K did nothing: this page listens only for Cmd+K.");
+    }
+  };
+
+  return (
+    <div className="flex w-full max-w-sm flex-col items-center gap-3">
+      <PageFrame label="Invoicing, example page" onKeyDown={onKeyDown}>
+        <Field label="Search invoices">
+          <Input ref={search} placeholder="Client or number" />
+        </Field>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" onClick={() => openSearch("The button")}>
+            Search
+          </Button>
+          <Button variant="outline" onClick={() => newInvoice("The button")}>
+            New invoice
+          </Button>
+        </div>
+        <p className="m-0 text-muted-foreground">Invoices started here: {count}</p>
+        <KeyRow>
+          <span><Kbd>Cmd</Kbd>+<Kbd>K</Kbd> search</span>
+        </KeyRow>
+      </PageFrame>
+      <Outcome>{said}</Outcome>
+    </div>
+  );
+}
+
+function TakesFind() {
+  const [take, setTake] = useState(false);
+  const [count, setCount] = useState(0);
+  const [said, say] = useSay();
+  const search = useRef<HTMLInputElement>(null);
+
+  const openSearch = (how: string) => {
+    search.current?.focus();
+    say(`${how} opened search.`);
+  };
+  const newInvoice = (how: string) => {
+    setCount((n) => n + 1);
+    say(`${how} started a new invoice.`);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === "f") {
+      if (take) {
+        e.preventDefault();
+        say("Find in page was blocked: the page took the browser's own keys.");
+      } else {
+        say("Find in page opened as usual. Turn on the broken version to see the page take the keys.");
+      }
+    }
+  };
+
+  return (
+    <div className="flex w-full max-w-sm flex-col items-center gap-3">
+      <PageFrame label="Invoicing, example page" onKeyDown={onKeyDown} onLeave={() => setTake(false)}>
+        <Field label="Search invoices">
+          <Input ref={search} placeholder="Client or number" />
+        </Field>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" onClick={() => openSearch("The button")}>
+            Search
+          </Button>
+          <Button variant="outline" onClick={() => newInvoice("The button")}>
+            New invoice
+          </Button>
+        </div>
+        <p className="m-0 text-muted-foreground">Invoices started here: {count}</p>
+        <Button variant={take ? "secondary" : "outline"} aria-pressed={take} onClick={() => setTake((v) => !v)}>
+          Let the page take Ctrl+F
+        </Button>
+        <KeyRow>
+          <span><Kbd>Ctrl</Kbd>/<Kbd>Cmd</Kbd>+<Kbd>F</Kbd> filter invoices</span>
         </KeyRow>
       </PageFrame>
       <Outcome>{said}</Outcome>
@@ -204,7 +339,7 @@ export const KBD003b: RuleExamples = {
           key, which KBD-003b does not accept.
         </>
       ),
-      Demo: () => <Invoices mode="defaultOn" />,
+      Demo: SingleKeysOn,
     },
     {
       kind: "do",
@@ -229,7 +364,9 @@ export const KBD003b: RuleExamples = {
           key, so those people have no shortcut at all.
         </>
       ),
-      Demo: () => <Invoices mode="metaOnly" />,
+      Demo: CmdOnly,
+      notLinted:
+        "Lint gap: a Cmd-only binding is left to review; the rule reads single-key settings that start on and page-wide single keys.",
     },
     {
       kind: "dont",
@@ -241,7 +378,9 @@ export const KBD003b: RuleExamples = {
           left alone, and a page that needs its own filter gives it another key.
         </>
       ),
-      Demo: () => <Invoices mode="blockFind" />,
+      Demo: TakesFind,
+      notLinted:
+        "Lint gap: taking a browser key such as Ctrl+F is left to review; the rule reads single-key settings that start on and page-wide single keys.",
     },
   ],
 };

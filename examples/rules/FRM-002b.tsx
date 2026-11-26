@@ -8,7 +8,7 @@ import type { RuleExamples } from "./frame";
 
 const valid = (v: string) => /^\d{5}$/.test(v.replace(/\s/g, ""));
 
-function Address({ eager }: { eager: boolean }) {
+function Address() {
   const [postcode, setPostcode] = useState("");
   const [city, setCity] = useState("");
   const [changed, setChanged] = useState(false);
@@ -27,12 +27,38 @@ function Address({ eager }: { eager: boolean }) {
             const v = e.target.value;
             setPostcode(v);
             setChanged(true);
-            if (eager) setError(valid(v) ? undefined : message);
             // A shown error is rechecked on every change and goes as soon as the value is right. A new one never appears here.
-            else if (error && valid(v)) setError(undefined);
+            if (error && valid(v)) setError(undefined);
           }}
           onBlur={() => {
-            if (!eager && changed) setError(valid(postcode) ? undefined : message);
+            if (changed) setError(valid(postcode) ? undefined : message);
+          }}
+        />
+      </Field>
+      <Field label="City">
+        <Input autoComplete="address-level2" value={city} onChange={(e) => setCity(e.target.value)} />
+      </Field>
+    </div>
+  );
+}
+
+function EagerAddress() {
+  const [postcode, setPostcode] = useState("");
+  const [city, setCity] = useState("");
+  const [error, setError] = useState<string | undefined>();
+  const message = "Enter a five-digit postcode, for example 11359.";
+
+  return (
+    <div className="grid w-full max-w-sm gap-4 rounded-lg border border-border bg-background p-4">
+      <Field label="Postcode" error={error}>
+        <Input
+          inputMode="numeric"
+          autoComplete="postal-code"
+          value={postcode}
+          onChange={(e) => {
+            const v = e.target.value;
+            setPostcode(v);
+            setError(valid(v) ? undefined : message);
           }}
         />
       </Field>
@@ -55,7 +81,7 @@ export const FRM002b: RuleExamples = {
           goes on that key press, and a screen reader hears that it is fixed.
         </>
       ),
-      Demo: () => <Address eager={false} />,
+      Demo: Address,
     },
     {
       kind: "dont",
@@ -65,7 +91,8 @@ export const FRM002b: RuleExamples = {
           The error appears on the first digit, before the person could possibly be done, and stays until the fifth.
         </>
       ),
-      Demo: () => <Address eager />,
+      notLinted: "Lint gap: only react-hook-form modes are checked; a check run from an onChange handler is left to review.",
+      Demo: EagerAddress,
     },
   ],
 };

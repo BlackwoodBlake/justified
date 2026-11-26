@@ -4,7 +4,7 @@ import { Switch } from "@blackwoodblake/justified-shadcn/switch";
 import { useId, useState, type ReactNode } from "react";
 
 import type { RuleExamples } from "./frame";
-import { DeadWords, Scene, Tally, useTally } from "./label-target";
+import { Scene, Tally, useTally } from "./label-target";
 
 /*
  * FRM-016b (a guideline, our own choice): a press on the text of a switch
@@ -59,25 +59,22 @@ function SwitchDo() {
   );
 }
 
-function SwitchDont({ plainSpan }: { plainSpan: boolean }) {
+function SwitchSpanDont() {
   const id = useId();
   const [on, setOn] = useState(false);
   const t = useTally();
   return (
     <Scene title="Notification settings">
-      <Row
-        text={
-          plainSpan ? (
-            <DeadWords id={id} onPress={t.pressedWords}>
-              {TEXT}
-            </DeadWords>
-          ) : (
-            <Label id={id} onClick={t.pressedWords}>
-              {TEXT}
-            </Label>
-          )
-        }
+      <div
+        className="flex items-center justify-between gap-4 rounded-md border border-border px-3 py-2"
+        // Only the tally: counts presses on the words, so the count can rise while nothing changes.
+        onClick={(e) => {
+          if ((e.target as HTMLElement).id === id) t.pressedWords();
+        }}
       >
+        <span id={id} className="text-sm font-medium text-foreground select-none">
+          Email me before departure
+        </span>
         <Switch
           aria-labelledby={id}
           checked={on}
@@ -86,16 +83,45 @@ function SwitchDont({ plainSpan }: { plainSpan: boolean }) {
             t.changed();
           }}
         />
-      </Row>
+      </div>
       <Tally
         summary={<>Departure email: <strong>{on ? "on" : "off"}</strong></>}
         changes={t.changes}
         words={t.words}
-        explain={
-          plainSpan
-            ? "Nothing changed. These words are in a span, tied to nothing, so only the switch answers."
-            : "Nothing changed. This Label has no htmlFor, so it is tied to nothing and only the switch answers."
-        }
+        explain="Nothing changed. These words are in a span, tied to nothing, so only the switch answers."
+        onReset={() => {
+          setOn(false);
+          t.reset();
+        }}
+      />
+    </Scene>
+  );
+}
+
+function SwitchLabelDont() {
+  const id = useId();
+  const [on, setOn] = useState(false);
+  const t = useTally();
+  return (
+    <Scene title="Notification settings">
+      <div className="flex items-center justify-between gap-4 rounded-md border border-border px-3 py-2">
+        <Label id={id} onClick={t.pressedWords}>
+          {TEXT}
+        </Label>
+        <Switch
+          aria-labelledby={id}
+          checked={on}
+          onCheckedChange={(v) => {
+            setOn(v);
+            t.changed();
+          }}
+        />
+      </div>
+      <Tally
+        summary={<>Departure email: <strong>{on ? "on" : "off"}</strong></>}
+        changes={t.changes}
+        words={t.words}
+        explain="Nothing changed. This Label has no htmlFor, so it is tied to nothing and only the switch answers."
         onReset={() => {
           setOn(false);
           t.reset();
@@ -130,7 +156,7 @@ export const FRM016b: RuleExamples = {
           stay at zero, and a line says why. The switch still has a name in code. Only a press on the switch flips it.
         </>
       ),
-      Demo: () => <SwitchDont plainSpan />,
+      Demo: SwitchSpanDont,
     },
     {
       kind: "dont",
@@ -141,7 +167,7 @@ export const FRM016b: RuleExamples = {
           so a press on it does nothing and the changes stay at zero. Only the switch flips.
         </>
       ),
-      Demo: () => <SwitchDont plainSpan={false} />,
+      Demo: SwitchLabelDont,
     },
   ],
 };

@@ -58,6 +58,8 @@ export const VIS003b: RuleExamples = {
           every link, so the link is the same shape as the words around it, and the colour gap is far under 3:1.
         </>
       ),
+      notLinted:
+        "A real link with only its colour fails axe's link-in-text-block check on this page, so the link is drawn as a span inside an inert picture.",
       Demo: () => (
         <Scope className="w-full max-w-sm rounded-lg border border-border bg-background p-4">
           <h4 className="m-0 mb-2 text-sm font-semibold">Lesson 3: Reading a balance sheet</h4>
@@ -112,6 +114,8 @@ export const VIS003b: RuleExamples = {
           is taken at rest.
         </>
       ),
+      notLinted:
+        "A real link with only its colour fails axe's link-in-text-block check on this page, so the link is drawn as a span in a picture hidden from assistive technology.",
       Demo: () => (
         <Scope className="w-full max-w-sm rounded-lg border border-border bg-background p-4">
           <p className="m-0 mb-1 text-sm font-medium">Display name</p>

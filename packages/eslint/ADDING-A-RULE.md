@@ -7,7 +7,7 @@ How to add one rule to `@blackwoodblake/justified-eslint`. Written so that sever
 1. Read the rule file `rules/<area>/<ID>.md` in full: the rule sentence, Exceptions, `check` and `how_to_check`.
 2. Base the lint rule on `how_to_check` and the rule sentence with its Exceptions. Never on the Do advice. The lint rule must be no stricter and no looser than the rule.
 3. Report only what the code shows for certain. A wrong report costs more than a missed one. If a case needs judgement, or shows only when the page runs, leave it out and say so in the rule file's header comment. The `justified-review` skill covers what lint cannot.
-4. Look at `examples/rules/<ID>.tsx`. Its Don't examples are what the rule should catch, if the pattern is written out in the code. Its Do examples must never be reported.
+4. Look at `examples/rules/<ID>.tsx`. Its Don't examples write the mistake out in the code, and the rule must catch each of them. A Don't that cannot be written out (the real code would change the page it is shown on) or that the rule leaves alone on purpose carries `notLinted` with the reason. Its Do examples must never be reported.
 
 ## The files you add
 
@@ -79,7 +79,7 @@ run("<name>", rule, {
 
 - `run` parses every case as TSX and adds the shared shadcn code in `test/shadcn.js` to `valid`. If your rule reports that code, your rule is probably too strict. If the shared code really breaks your rule, say so and propose a fix to `test/shadcn.js` on its own.
 - Cover each Exception with a valid case, and the near misses you deliberately leave out.
-- Cover each `how_to_check` item you implement with an invalid case. Add a case that copies the Don't example with its values written out, since the live example often passes them through props.
+- Cover each `how_to_check` item you implement with an invalid case. Add a case that copies the Don't example's code.
 - Check suggestions with their `output`.
 
 ## What the shared tests check
@@ -87,7 +87,7 @@ run("<name>", rule, {
 `npm test --workspace packages/eslint` runs everything. Beyond your own tests:
 
 - `test/plugin.test.js`: the rule's id, level and verdict match the rule file; every message starts with the right prefix and avoids words we never use; `recommended` sets the rule to `"error"` for a rule and `"warn"` for a guideline; the rule has a test file and a README row; `rules/index.js` is up to date.
-- `test/examples.test.js`: lints every file in `examples/rules/` and `adapters/shadcn/src` with `recommended`. It fails on any report in code a Do example renders, in helper files or in the reference components. It prints, per lint rule, how many of its own rule's Don't examples it catches. Report that number when you hand over.
+- `test/examples.test.js`: lints every file in `examples/rules/` and `adapters/shadcn/src` with `recommended`. It fails on any report in code a Do example renders, in helper files or in the reference components. It also fails when a Don't in a file whose rule has a lint rule is not caught by it and gives no `notLinted` reason, or is caught but still gives one. It prints, per lint rule, how many of its own rule's Don't examples it catches. Report that number when you hand over. When a new lint rule leaves a Don't uncaught, write the Don't's code out the way someone would really write it, or give the reason; never bend the example to fit the rule.
 - `test/espree.test.js`: the rules also work with ESLint's own parser.
 
 The repository root uses TypeScript 7, which the TypeScript parser cannot load, so this package installs TypeScript 5 for its tests and `test/setup.js` points the tests at it. You do not need to do anything about it.

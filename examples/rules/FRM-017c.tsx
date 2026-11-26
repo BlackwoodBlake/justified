@@ -1,5 +1,11 @@
+import { FieldError, FieldHint } from "@blackwoodblake/justified-shadcn/field";
+import { Label } from "@blackwoodblake/justified-shadcn/label";
+import { Textarea } from "@blackwoodblake/justified-shadcn/textarea";
+import { useId, useRef, useState } from "react";
+
 import type { RuleExamples } from "./frame";
-import { box, Counted, textOf } from "./masks";
+import { box, Counted, Readout, Samples, q, textOf } from "./masks";
+import { fieldHolds, pasteLastText, usePasteLog } from "./paste-log";
 
 /*
  * FRM-017c (a guideline, our own choice): at a limit, the field says so in
@@ -12,6 +18,103 @@ import { box, Counted, textOf } from "./masks";
 
 const hint = "Up to 500 characters";
 const paragraph = textOf(700, 2);
+
+/** A text area with a cap of 500 characters and nothing else about the limit. */
+function SilentCap() {
+  const id = useId();
+  const [value, setValue] = useState("");
+  const ref = useRef<HTMLTextAreaElement>(null);
+  const log = usePasteLog();
+  return (
+    <form noValidate onSubmit={(e) => e.preventDefault()} className="grid gap-2">
+      <div>
+        <Label htmlFor={id}>Tell us about yourself</Label>
+        <div className="mt-1">
+          <FieldHint id={`${id}-hint`}>{hint}</FieldHint>
+        </div>
+        <div className="mt-2">
+          <Textarea
+            id={id}
+            ref={ref}
+            rows={4}
+            value={value}
+            onChange={(e) => {
+              log.changed(e.target.value);
+              setValue(e.target.value);
+            }}
+            onPaste={log.onPaste}
+            maxLength={500}
+            aria-describedby={`${id}-hint`}
+          />
+        </div>
+        <FieldError id={`${id}-error`} />
+      </div>
+      <Samples items={[paragraph]} target={ref} name="Tell us about yourself" scroll />
+      <Readout
+        rows={[
+          ["The field holds", fieldHolds(value)],
+          ["Read with the field", q(hint)],
+          ["A screen reader is told", "(nothing)"],
+          ["Last paste", pasteLastText(log.last)],
+        ]}
+      />
+    </form>
+  );
+}
+
+const MAX = 500;
+
+/** A text area with a cap and a count that turns red at the cap. */
+function RedCount() {
+  const id = useId();
+  const [value, setValue] = useState(textOf(MAX));
+  const ref = useRef<HTMLTextAreaElement>(null);
+  const log = usePasteLog();
+  const count = `${value.length}/${MAX}`;
+  return (
+    <form noValidate onSubmit={(e) => e.preventDefault()} className="grid gap-2">
+      <div>
+        <Label htmlFor={id}>Tell us about yourself</Label>
+        <div className="mt-1">
+          <FieldHint id={`${id}-hint`}>{hint}</FieldHint>
+        </div>
+        <div className="mt-2">
+          <Textarea
+            id={id}
+            ref={ref}
+            rows={4}
+            value={value}
+            onChange={(e) => {
+              log.changed(e.target.value);
+              setValue(e.target.value);
+            }}
+            onPaste={log.onPaste}
+            maxLength={MAX}
+            aria-describedby={`${id}-hint ${id}-count`}
+          />
+        </div>
+        <div className="mt-1">
+          <p
+            id={`${id}-count`}
+            className={`m-0 flex items-start gap-1.5 text-sm ${value.length >= MAX ? "text-destructive" : "text-muted-foreground"}`}
+          >
+            <span>{count}</span>
+          </p>
+        </div>
+        <FieldError id={`${id}-error`} />
+      </div>
+      <Samples items={[paragraph]} target={ref} name="Tell us about yourself" scroll />
+      <Readout
+        rows={[
+          ["The field holds", fieldHolds(value)],
+          ["Read with the field", q(`${hint} / ${count}`)],
+          ["A screen reader is told", "(nothing)"],
+          ["Last paste", pasteLastText(log.last)],
+        ]}
+      />
+    </form>
+  );
+}
 
 export const FRM017c: RuleExamples = {
   id: "FRM-017c",
@@ -86,16 +189,7 @@ export const FRM017c: RuleExamples = {
       Demo: () => (
         <div className={box}>
           <h4 className="m-0 text-base font-semibold">Volunteer sign-up</h4>
-          <Counted
-            label="Tell us about yourself"
-            hint={hint}
-            limit={500}
-            unit="characters"
-            sample={paragraph}
-            count="none"
-            at="maxlength"
-            say="none"
-          />
+          <SilentCap />
         </div>
       ),
     },
@@ -109,22 +203,11 @@ export const FRM017c: RuleExamples = {
           means, has only a field that seems broken.
         </>
       ),
+      notLinted: "Lint gap: a count that only changes colour reads the length, so the rule takes it as a count that speaks.",
       Demo: () => (
         <div className={box}>
           <h4 className="m-0 text-base font-semibold">Volunteer sign-up</h4>
-          <Counted
-            label="Tell us about yourself"
-            hint={hint}
-            limit={500}
-            unit="characters"
-            initial={textOf(500)}
-            sample={paragraph}
-            count="tied"
-            at="stop"
-            say="none"
-            words="fraction"
-            redOnly
-          />
+          <RedCount />
         </div>
       ),
     },

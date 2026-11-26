@@ -1,5 +1,11 @@
+import { Button } from "@blackwoodblake/justified-shadcn/button";
+import { Field } from "@blackwoodblake/justified-shadcn/field";
+import { Input } from "@blackwoodblake/justified-shadcn/input";
+import { useRef, useState, type FormEvent } from "react";
+
 import type { RuleExamples } from "./frame";
-import { box, PasteField } from "./masks";
+import { box, PasteField, Readout, Samples, q } from "./masks";
+import { pasteLastText, usePasteLog } from "./paste-log";
 
 /*
  * FRM-017a (a guideline, our own choice): a number or code people write in
@@ -22,6 +28,168 @@ const phoneProblem = (c: string) =>
   /^\+?\d{10,13}$/.test(c) ? undefined : "Enter a mobile number with 10 to 13 digits, such as 07700 900123.";
 
 const groups = (v: string) => (v.replace(/[\s\-().]/g, "").match(/.{1,4}/g) ?? []).join(" ");
+
+/** A booking reference field that checks exactly what was typed. */
+function RawCheck() {
+  const [value, setValue] = useState("");
+  const [shown, setShown] = useState(false);
+  const [changed, setChanged] = useState(false);
+  const [round, setRound] = useState(false);
+  const ref = useRef<HTMLInputElement>(null);
+  const log = usePasteLog();
+  const problem = /^[A-Z0-9]{6}$/.test(value) ? undefined : "Invalid booking reference";
+
+  const send = (e: FormEvent) => {
+    e.preventDefault();
+    setShown(true);
+    // With a problem, focus goes to the field, and the move reads the message, so the region stays quiet this round.
+    if (problem) {
+      setRound(true);
+      ref.current?.focus();
+    }
+  };
+
+  return (
+    <form noValidate onSubmit={send} className="grid gap-2">
+      <Field label="Booking reference" error={shown ? problem : undefined} announce={!round}>
+        <Input
+          ref={ref}
+          autoComplete="off"
+          value={value}
+          onChange={(e) => {
+            log.changed(e.target.value);
+            setValue(e.target.value);
+            setChanged(true);
+            setRound(false);
+          }}
+          onPaste={log.onPaste}
+          onBlur={() => {
+            if (changed) setShown(true);
+          }}
+        />
+      </Field>
+      <div>
+        <Button type="submit" size="sm" variant="secondary">
+          Find booking
+        </Button>
+      </div>
+      <Samples items={["KP4 92X", "KP492X"]} target={ref} name="Booking reference" />
+      <Readout
+        rows={[
+          ["The field shows", q(value)],
+          ["The form gets", q(value)],
+          ["Check", !value ? "(nothing yet)" : problem ? "refused" : "accepted"],
+          ["Last paste", pasteLastText(log.last)],
+        ]}
+      />
+    </form>
+  );
+}
+
+/** A booking reference field with a length cap of six. */
+function CappedReference() {
+  const [value, setValue] = useState("");
+  const [shown, setShown] = useState(false);
+  const [changed, setChanged] = useState(false);
+  const [round, setRound] = useState(false);
+  const ref = useRef<HTMLInputElement>(null);
+  const log = usePasteLog();
+  const cleaned = cleanRef(value);
+  const problem = refProblem(cleaned);
+
+  const send = (e: FormEvent) => {
+    e.preventDefault();
+    setShown(true);
+    // With a problem, focus goes to the field, and the move reads the message, so the region stays quiet this round.
+    if (problem) {
+      setRound(true);
+      ref.current?.focus();
+    }
+  };
+
+  return (
+    <form noValidate onSubmit={send} className="grid gap-2">
+      <Field label="Booking reference" error={shown ? problem : undefined} announce={!round}>
+        <Input
+          ref={ref}
+          autoComplete="off"
+          maxLength={6}
+          value={value}
+          onChange={(e) => {
+            log.changed(e.target.value);
+            setValue(e.target.value);
+            setChanged(true);
+            setRound(false);
+          }}
+          onPaste={log.onPaste}
+          onBlur={() => {
+            if (changed) setShown(true);
+          }}
+        />
+      </Field>
+      <div>
+        <Button type="submit" size="sm" variant="secondary">
+          Find booking
+        </Button>
+      </div>
+      <Samples items={["KP4 92X"]} target={ref} name="Booking reference" />
+      <Readout
+        rows={[
+          ["The field shows", q(value)],
+          ["The form gets", q(cleaned)],
+          ["Check", !cleaned ? "(nothing yet)" : problem ? "refused" : "accepted"],
+          ["Last paste", pasteLastText(log.last)],
+        ]}
+      />
+    </form>
+  );
+}
+
+/** A mobile number field that only lets digit keys through. */
+function DigitKeysOnly() {
+  const [value, setValue] = useState("");
+  const [refused, setRefused] = useState<string | null>(null);
+  const log = usePasteLog();
+  return (
+    <form noValidate onSubmit={(e) => e.preventDefault()} className="grid gap-2">
+      <Field label="Mobile number">
+        <Input
+          type="tel"
+          autoComplete="tel"
+          value={value}
+          onChange={(e) => {
+            log.changed(e.target.value);
+            setValue(e.target.value);
+          }}
+          onPaste={log.onPaste}
+          onKeyDown={(e) => {
+            if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey) return;
+            if (!/\d/.test(e.key)) {
+              e.preventDefault();
+              setRefused(e.key === " " ? "space" : e.key);
+            }
+          }}
+        />
+      </Field>
+      <p className="m-0 text-xs text-muted-foreground">
+        Try typing{" "}
+        <code className="whitespace-pre rounded-md bg-muted px-2 py-1">
+          <span aria-hidden="true" className="select-none">“</span>
+          <span className="select-all">+44 7700 900123</span>
+          <span aria-hidden="true" className="select-none">”</span>
+        </code>
+      </p>
+      <Readout
+        rows={[
+          ["The field shows", q(value)],
+          ["The form gets", q(cleanPhone(value))],
+          ["Last paste", pasteLastText(log.last)],
+          ["Last key refused", refused ? q(refused) : "(none yet)"],
+        ]}
+      />
+    </form>
+  );
+}
 
 export const FRM017a: RuleExamples = {
   id: "FRM-017a",
@@ -92,14 +260,10 @@ export const FRM017a: RuleExamples = {
           sample, with the reference run together, is accepted, so the person is left to guess what was wrong.
         </>
       ),
+      notLinted: "Lint gap: only a Zod schema is read for a check on the raw value, not a hand-written one.",
       Demo: () => (
         <div className={box}>
-          <PasteField
-            label="Booking reference"
-            samples={["KP4 92X", "KP492X"]}
-            check={(c) => (/^[A-Z0-9]{6}$/.test(c) ? undefined : "Invalid booking reference")}
-            action="Find booking"
-          />
+          <RawCheck />
         </div>
       ),
     },
@@ -114,14 +278,7 @@ export const FRM017a: RuleExamples = {
       ),
       Demo: () => (
         <div className={box}>
-          <PasteField
-            label="Booking reference"
-            maxLength={6}
-            samples={["KP4 92X"]}
-            clean={cleanRef}
-            check={refProblem}
-            action="Find booking"
-          />
+          <CappedReference />
         </div>
       ),
     },
@@ -136,14 +293,7 @@ export const FRM017a: RuleExamples = {
       ),
       Demo: () => (
         <div className={box}>
-          <PasteField
-            label="Mobile number"
-            type="tel"
-            autoComplete="tel"
-            typeSample="+44 7700 900123"
-            refuseKey={(k) => !/\d/.test(k)}
-            clean={cleanPhone}
-          />
+          <DigitKeysOnly />
         </div>
       ),
     },

@@ -1,7 +1,7 @@
 import { Button } from "@blackwoodblake/justified-shadcn/button";
 import { Field } from "@blackwoodblake/justified-shadcn/field";
 import { Input } from "@blackwoodblake/justified-shadcn/input";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 
 import { Outcome } from "./dialog";
 import type { RuleExamples } from "./frame";
@@ -77,7 +77,7 @@ function problem(k: Key, v: string) {
   return undefined;
 }
 
-function SignUp({ enabled }: { enabled: boolean }) {
+function useSignUp() {
   const [values, setValues] = useState(start);
   // What the note and the button go by: updated when a field is left, not on every key press (ACT-005).
   const [left, setLeft] = useState(start);
@@ -126,6 +126,24 @@ function SignUp({ enabled }: { enabled: boolean }) {
       ? ""
       : `Still needed: ${missing.map((k) => (problem(k, left[k]) === badEmail ? "a valid email address" : fields[k].needed)).join(", ")}.`;
 
+  // What an Input needs to be one of the form's fields.
+  const bind = (k: Key) => ({
+    ref: (el: HTMLInputElement | null) => {
+      inputs.current[k] = el;
+    },
+    type: fields[k].type,
+    inputMode: fields[k].inputMode,
+    autoComplete: fields[k].autoComplete,
+    value: values[k],
+    onChange: (e: ChangeEvent<HTMLInputElement>) => change(k, e.target.value),
+    onBlur: () => leave(k),
+  });
+
+  return { errors, sent, said, missing, note, send, bind };
+}
+
+function Do() {
+  const { errors, sent, said, send, bind } = useSignUp();
   return (
     <form
       noValidate
@@ -134,31 +152,56 @@ function SignUp({ enabled }: { enabled: boolean }) {
     >
       <h4 className="m-0 text-base font-semibold">Create your account</h4>
       <p className="m-0 -mt-2 text-sm text-muted-foreground">Fields with * must be filled in.</p>
-      {order.map((k) => {
-        const f = fields[k];
-        return (
-          <Field key={k} label={f.label} required mark requiredText="*" error={errors[k]} announce={!sent}>
-            <Input
-              ref={(el) => {
-                inputs.current[k] = el;
-              }}
-              type={f.type}
-              inputMode={f.inputMode}
-              autoComplete={f.autoComplete}
-              value={values[k]}
-              onChange={(e) => change(k, e.target.value)}
-              onBlur={() => leave(k)}
-            />
-          </Field>
-        );
-      })}
-      {!enabled && (
-        <p role="status" className="m-0 min-h-5 text-sm text-foreground">
-          {note}
-        </p>
-      )}
+      {order.map((k) => (
+        <Field key={k} label={fields[k].label} required mark requiredText="*" error={errors[k]} announce={!sent}>
+          <Input {...bind(k)} />
+        </Field>
+      ))}
       <div>
-        <Button type="submit" disabled={!enabled && missing.length > 0}>
+        <Button type="submit">Create account</Button>
+      </div>
+      <Outcome>{said}</Outcome>
+    </form>
+  );
+}
+
+function Dont() {
+  const { errors, sent, said, missing, note, send, bind } = useSignUp();
+  const isValid = missing.length === 0;
+  return (
+    <form
+      noValidate
+      onSubmit={send}
+      className="grid w-full max-w-sm gap-4 rounded-lg border border-border bg-background p-4"
+    >
+      <h4 className="m-0 text-base font-semibold">Create your account</h4>
+      <p className="m-0 -mt-2 text-sm text-muted-foreground">Fields with * must be filled in.</p>
+      <Field label="First name" required mark requiredText="*" error={errors.first} announce={!sent}>
+        <Input {...bind("first")} />
+      </Field>
+      <Field label="Last name" required mark requiredText="*" error={errors.last} announce={!sent}>
+        <Input {...bind("last")} />
+      </Field>
+      <Field label="Email" required mark requiredText="*" error={errors.email} announce={!sent}>
+        <Input {...bind("email")} />
+      </Field>
+      <Field label="Phone" required mark requiredText="*" error={errors.phone} announce={!sent}>
+        <Input {...bind("phone")} />
+      </Field>
+      <Field label="Street address" required mark requiredText="*" error={errors.street} announce={!sent}>
+        <Input {...bind("street")} />
+      </Field>
+      <Field label="Postcode" required mark requiredText="*" error={errors.postcode} announce={!sent}>
+        <Input {...bind("postcode")} />
+      </Field>
+      <Field label="City" required mark requiredText="*" error={errors.city} announce={!sent}>
+        <Input {...bind("city")} />
+      </Field>
+      <p role="status" className="m-0 min-h-5 text-sm text-foreground">
+        {note}
+      </p>
+      <div>
+        <Button type="submit" disabled={!isValid}>
           Create account
         </Button>
       </div>
@@ -180,7 +223,7 @@ export const ACT004: RuleExamples = {
           view, as FRM-011 describes. Type a number and the error goes. Press again to create the account.
         </>
       ),
-      Demo: () => <SignUp enabled />,
+      Demo: Do,
     },
     {
       kind: "dont",
@@ -192,7 +235,7 @@ export const ACT004: RuleExamples = {
           message sits at <em>Phone</em>.
         </>
       ),
-      Demo: () => <SignUp enabled={false} />,
+      Demo: Dont,
     },
   ],
 };

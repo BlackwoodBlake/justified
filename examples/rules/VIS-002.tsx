@@ -1,4 +1,5 @@
 import { Button } from "@blackwoodblake/justified-shadcn/button";
+import { useId, useState } from "react";
 
 import { Drawn, PlanPicker, Readouts, Themes } from "./colour-demo";
 import type { RuleExamples } from "./frame";
@@ -46,54 +47,82 @@ function OrderDo() {
   );
 }
 
-const PAIRS = [
-  {
-    key: "a",
-    fill: "bg-muted",
-    ink: "fill-primary-foreground",
-    label: "text-primary-foreground on bg-muted",
-    words: "Ships in 2 days",
-  },
-  {
-    key: "b",
-    fill: "bg-primary",
-    ink: "fill-muted-foreground",
-    label: "text-muted-foreground on bg-primary",
-    words: "3 plants in your basket",
-  },
-  {
-    key: "c",
-    fill: "bg-destructive",
-    ink: "fill-accent-foreground",
-    label: "text-accent-foreground on bg-destructive",
-    words: "Payment failed",
-  },
-] as const;
-
 function WrongFillDont() {
   return (
     <Themes>
       {() => (
         <>
           <Drawn className="grid gap-2">
-            {PAIRS.map((p) => (
-              <svg
-                key={p.key}
-                viewBox="0 0 240 34"
-                role="presentation"
-                focusable="false"
-                className={`block h-auto w-full rounded-md ${p.fill}`}
-              >
-                <text data-measure={p.key} x="12" y="22" fontSize="14" fontWeight="500" className={p.ink}>
-                  {p.words}
+            <div className="rounded-md bg-muted text-primary-foreground">
+              <svg viewBox="0 0 240 34" role="presentation" focusable="false" className="block h-auto w-full">
+                <text data-measure="a" x="12" y="22" fontSize="14" fontWeight="500" className="fill-current">
+                  Ships in 2 days
                 </text>
               </svg>
-            ))}
+            </div>
+            <div className="rounded-md bg-primary text-muted-foreground">
+              <svg viewBox="0 0 240 34" role="presentation" focusable="false" className="block h-auto w-full">
+                <text data-measure="b" x="12" y="22" fontSize="14" fontWeight="500" className="fill-current">
+                  3 plants in your basket
+                </text>
+              </svg>
+            </div>
+            <div className="rounded-md bg-destructive text-accent-foreground">
+              <svg viewBox="0 0 240 34" role="presentation" focusable="false" className="block h-auto w-full">
+                <text data-measure="c" x="12" y="22" fontSize="14" fontWeight="500" className="fill-current">
+                  Payment failed
+                </text>
+              </svg>
+            </div>
           </Drawn>
-          <Readouts rows={PAIRS.map((p) => ({ target: p.key, label: p.label, need: 4.5 }))} />
+          <Readouts
+            rows={[
+              { target: "a", label: "text-primary-foreground on bg-muted", need: 4.5 },
+              { target: "b", label: "text-muted-foreground on bg-primary", need: 4.5 },
+              { target: "c", label: "text-accent-foreground on bg-destructive", need: 4.5 },
+            ]}
+          />
         </>
       )}
     </Themes>
+  );
+}
+
+const PLANS = [
+  { name: "Starter", price: "£9 a month", note: "1 project" },
+  { name: "Team", price: "£29 a month", note: "5 projects" },
+  { name: "Studio", price: "£79 a month", note: "Unlimited projects" },
+];
+
+function PlanRing() {
+  const name = useId();
+  const [chosen, setChosen] = useState("Team");
+  return (
+    <fieldset className="m-0 grid min-w-0 gap-2 border-0 p-0">
+      <legend className="mb-2 p-0 text-sm font-semibold">Choose a plan</legend>
+      {PLANS.map((p) => (
+        <label
+          key={p.name}
+          className="relative flex cursor-pointer items-start justify-between gap-3 rounded-lg border border-border bg-card p-3 text-sm text-card-foreground has-[:checked]:border-ring has-[:checked]:bg-transparent has-[:checked]:ring-2 has-[:checked]:ring-ring has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-background"
+        >
+          <input
+            type="radio"
+            name={name}
+            value={p.name}
+            checked={chosen === p.name}
+            onChange={() => setChosen(p.name)}
+            className="sr-only"
+          />
+          <span className="grid gap-0.5">
+            <span className="font-semibold">{p.name}</span>
+            <span className="text-muted-foreground">{p.note}</span>
+          </span>
+          <span className="grid justify-items-end gap-0.5">
+            <span className="font-medium">{p.price}</span>
+          </span>
+        </label>
+      ))}
+    </fieldset>
   );
 }
 
@@ -151,7 +180,7 @@ export const VIS002: RuleExamples = {
       ),
       Demo: () => (
         <div className="w-full max-w-sm">
-          <PlanPicker style="ring" />
+          <PlanRing />
         </div>
       ),
     },

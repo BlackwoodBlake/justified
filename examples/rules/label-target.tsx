@@ -8,8 +8,6 @@ import { useState, type ReactNode } from "react";
  * useTally counts the changes the control reported and the presses that
  * landed on the words. Tally draws both, so a press on words that do nothing
  * is visible: the first count rises and the second stays still.
- * DeadWords is text that looks like a label and is tied to nothing. It only
- * counts the press, it never changes the control.
  */
 
 export function useTally() {
@@ -63,15 +61,6 @@ export function Tally({
         </Button>
       </div>
     </div>
-  );
-}
-
-/** Text that looks like a label and does nothing when pressed, as a span or a Label with no htmlFor would. */
-export function DeadWords({ id, onPress, children }: { id: string; onPress: () => void; children: ReactNode }) {
-  return (
-    <span id={id} onClick={onPress} className="text-sm font-medium text-foreground select-none">
-      {children}
-    </span>
   );
 }
 

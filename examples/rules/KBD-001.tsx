@@ -34,13 +34,12 @@ const linkClass =
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
-function TripList({ realButton }: { realButton: boolean }) {
+function TripList() {
   const [count, setCount] = useState(STEP);
   const firstNew = useRef<HTMLAnchorElement>(null);
-  const firstTrip = useRef<HTMLAnchorElement>(null);
   const moveFocus = useRef(false);
-  const returnFocus = useRef(false);
   const moreRef = useRef<HTMLButtonElement>(null);
+  const returnFocus = useRef(false);
   const headingId = useId();
   const all = count >= TRIPS.length;
 
@@ -50,10 +49,81 @@ function TripList({ realButton }: { realButton: boolean }) {
       moveFocus.current = false;
       firstNew.current?.focus();
     }
-    // Show fewer trips is gone, so focus goes back to Show more trips (or the list in the Don't).
+    // Show fewer trips is gone, so focus goes back to Show more trips.
     if (returnFocus.current) {
       returnFocus.current = false;
-      (moreRef.current ?? firstTrip.current)?.focus();
+      moreRef.current?.focus();
+    }
+  }, [count]);
+
+  const more = () => {
+    const next = Math.min(count + STEP, TRIPS.length);
+    if (next >= TRIPS.length) moveFocus.current = true;
+    setCount(next);
+  };
+
+  const fewer = () => {
+    moveFocus.current = false;
+    returnFocus.current = true;
+    setCount(STEP);
+  };
+
+  const said = all ? `All ${TRIPS.length} trips shown.` : `Showing ${count} of ${TRIPS.length} trips.`;
+
+  return (
+    <div className="flex w-full max-w-sm flex-col gap-3 rounded-lg border border-border bg-background p-4">
+      <h4 id={headingId} className="m-0 text-base font-semibold">
+        Your trips
+      </h4>
+      <ul aria-labelledby={headingId} className="m-0 grid list-none gap-1 p-0 text-sm">
+        {TRIPS.slice(0, count).map((t, i) => (
+          <li key={t}>
+            <a
+              ref={i === count - STEP && all ? firstNew : undefined}
+              href={`#trip-${slug(t)}`}
+              onClick={(e) => e.preventDefault()}
+              className={linkClass}
+            >
+              {t}
+            </a>
+          </li>
+        ))}
+      </ul>
+      {!all && (
+        <Button ref={moreRef} variant="outline" className="self-start" onClick={more}>
+          Show more trips
+        </Button>
+      )}
+      {all && (
+        // Lets the example be tried again without reloading the page.
+        <Button variant="link" size="sm" className="self-start px-0" onClick={fewer}>
+          Show fewer trips
+        </Button>
+      )}
+      <Outcome>{said}</Outcome>
+    </div>
+  );
+}
+
+function TripListDiv() {
+  const [count, setCount] = useState(STEP);
+  const firstNew = useRef<HTMLAnchorElement>(null);
+  const firstTrip = useRef<HTMLAnchorElement>(null);
+  const moveFocus = useRef(false);
+  const returnFocus = useRef(false);
+  const headingId = useId();
+  const all = count >= TRIPS.length;
+
+  useEffect(() => {
+    // The div is gone, so focus goes to the first trip it brought in.
+    if (moveFocus.current) {
+      moveFocus.current = false;
+      firstNew.current?.focus();
+    }
+    // Show fewer trips is gone, so focus goes back to the list.
+    if (returnFocus.current) {
+      returnFocus.current = false;
+      firstTrip.current?.focus();
     }
   }, [count]);
 
@@ -90,17 +160,11 @@ function TripList({ realButton }: { realButton: boolean }) {
           </li>
         ))}
       </ul>
-      {!all &&
-        (realButton ? (
-          <Button ref={moreRef} variant="outline" className="self-start" onClick={more}>
-            Show more trips
-          </Button>
-        ) : (
-          // The fault: a div with a click handler only. No role, no tabIndex, no keys.
-          <div className={`${buttonVariants({ variant: "outline" })} select-none self-start`} onClick={more}>
-            Show more trips
-          </div>
-        ))}
+      {!all && (
+        <div className={`${buttonVariants({ variant: "outline" })} select-none self-start`} onClick={more}>
+          Show more trips
+        </div>
+      )}
       {all && (
         // Lets the example be tried again without reloading the page.
         <Button variant="link" size="sm" className="self-start px-0" onClick={fewer}>
@@ -126,7 +190,7 @@ export const KBD001: RuleExamples = {
           trip. <em>Show fewer trips</em> starts again.
         </>
       ),
-      Demo: () => <TripList realButton />,
+      Demo: TripList,
     },
     {
       kind: "dont",
@@ -137,7 +201,9 @@ export const KBD001: RuleExamples = {
           no key can press it. Someone using only the keyboard cannot see more than three trips.
         </>
       ),
-      Demo: () => <TripList realButton={false} />,
+      Demo: TripListDiv,
+      notLinted:
+        "Lint gap: KBD-001's lint rules read removed focus outlines and hover-only controls; a div with only a click handler is left to eslint-plugin-jsx-a11y.",
     },
   ],
 };

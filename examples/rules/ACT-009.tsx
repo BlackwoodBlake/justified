@@ -3,6 +3,7 @@ import { focusRing } from "@blackwoodblake/justified-shadcn/styles";
 
 import type { RuleExamples } from "./frame";
 import { Scene, useSceneSay } from "./links-buttons";
+import { useSceneRouter } from "./scene-router";
 
 /*
  * ACT-009: everything people click to go somewhere or to act has a control
@@ -20,9 +21,20 @@ const TITLE = "The Dispossessed";
 
 const linkText = `text-primary underline underline-offset-4 hover:decoration-2 rounded-sm ${focusRing}`;
 
-function StarIcon({ className }: { className?: string }) {
+function StarIcon({ className, onClick }: { className?: string; onClick?: () => void }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false" className={className ?? "size-4"}>
+    <svg
+      onClick={onClick}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      className={className ?? "size-4"}
+    >
       <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.2 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z" />
     </svg>
   );
@@ -46,7 +58,12 @@ function RealCard() {
           </h4>
           <Due />
         </div>
-        <Button variant="outline" size="icon" aria-label="Add to wish list" onClick={() => say(`${TITLE} added to your wish list.`)}>
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label="Add to wish list"
+          onClick={() => say(`${TITLE} added to your wish list.`)}
+        >
           <StarIcon />
         </Button>
       </div>
@@ -111,9 +128,10 @@ function RealLinks() {
 
 function ScriptedLink() {
   const say = useSceneSay();
+  const router = useSceneRouter(say);
   return (
     <Hours>
-      <Button variant="link" onClick={() => say("Would go to /branches")}>
+      <Button variant="link" onClick={() => router.push("/branches")}>
         All branches
       </Button>
     </Hours>
@@ -138,20 +156,7 @@ function NoRole() {
             </span>
           </p>
         </div>
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-          focusable="false"
-          className="size-6 shrink-0 cursor-pointer"
-          onClick={() => say(`${TITLE} added to your wish list.`)}
-        >
-          <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.2 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z" />
-        </svg>
+        <StarIcon className="size-6 shrink-0 cursor-pointer" onClick={() => say(`${TITLE} added to your wish list.`)} />
       </div>
       <div>
         <a
@@ -175,7 +180,8 @@ export const ACT009: RuleExamples = {
           On the loan card, <em>The Dispossessed</em> is an <code>&lt;a href&gt;</code>, and <em>Renew loan</em> and the
           star are buttons. The list under the card is what a screen reader&rsquo;s lists of links and buttons hold. Tab
           reaches all three. A plain click on the link only reports where it would go, so Storybook stays put; the real{" "}
-          <code>href</code> is still there, so Ctrl or Cmd click opens the address in a new tab, as on any link (Storybook has no such page).
+          <code>href</code> is still there, so Ctrl or Cmd click opens the address in a new tab, as on any link
+          (Storybook has no such page).
         </>
       ),
       Demo: () => (
@@ -187,12 +193,14 @@ export const ACT009: RuleExamples = {
     {
       kind: "dont",
       title: "The whole card has the click handler",
+      notLinted:
+        "Lint gap: a click handler on a native article is left to eslint-plugin-jsx-a11y, and the adapter has no Card to put it on.",
       caption: (
         <>
           Click anywhere on the card and it says where it would go, but the card is a plain <code>article</code> with{" "}
-          <code>onClick</code>. The list is empty of links: nothing here is a link, so a screen reader reads the title as
-          text. Tab skips the card, so this opening works with a pointer only. The one button, <em>Renew loan</em>, is
-          real and stops the click from reaching the card.
+          <code>onClick</code>. The list is empty of links: nothing here is a link, so a screen reader reads the title
+          as text. Tab skips the card, so this opening works with a pointer only. The one button, <em>Renew loan</em>,
+          is real and stops the click from reaching the card.
         </>
       ),
       Demo: () => (
@@ -206,10 +214,11 @@ export const ACT009: RuleExamples = {
       title: "A link that looks like a link is one",
       caption: (
         <>
-          <em>All branches</em> is <code>Button variant=&quot;link&quot; asChild</code> around an <code>&lt;a href&gt;</code>.
-          It looks like a text link and is announced as one. <em>Download loan history (CSV)</em> is a link to the file,
-          as it still goes to an address. Plain clicks report where they would go; Ctrl or Cmd click, a middle click and
-          Copy link address work for real (Storybook has no such page).
+          <em>All branches</em> is <code>Button variant=&quot;link&quot; asChild</code> around an{" "}
+          <code>&lt;a href&gt;</code>. It looks like a text link and is announced as one.{" "}
+          <em>Download loan history (CSV)</em> is a link to the file, as it still goes to an address. Plain clicks
+          report where they would go; Ctrl or Cmd click, a middle click and Copy link address work for real (Storybook
+          has no such page).
         </>
       ),
       Demo: () => (

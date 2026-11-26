@@ -22,7 +22,7 @@ function* nodes(node) {
 
 /**
  * The examples in a rule file, each with the line ranges its Demo reaches.
- * @returns {{ kind: "do" | "dont", title: string, ranges: [number, number][] }[]}
+ * @returns {{ kind: "do" | "dont", title: string, notLinted: string | undefined, ranges: [number, number][] }[]}
  */
 export function examplesOf(code) {
   const ast = tsParser.parse(code, { ecmaFeatures: { jsx: true }, loc: true, range: true });
@@ -66,9 +66,11 @@ export function examplesOf(code) {
     const demo = prop("Demo")?.value;
     if (!demo || kind?.type !== "Literal" || (kind.value !== "do" && kind.value !== "dont")) continue;
     const title = prop("title")?.value?.value ?? "";
-    found.push({ kind: kind.value, title, demo });
+    const reason = prop("notLinted")?.value;
+    const notLinted = reason?.type === "Literal" && typeof reason.value === "string" ? reason.value : undefined;
+    found.push({ kind: kind.value, title, notLinted, demo });
   }
   const lists = new Set([...declared.values()].filter((d) => found.some((f) => f.demo.range[0] >= d.range[0] && f.demo.range[1] <= d.range[1])));
-  return found.map(({ kind, title, demo }) => ({ kind, title, ranges: reach(demo) }));
+  return found.map(({ kind, title, notLinted, demo }) => ({ kind, title, notLinted, ranges: reach(demo) }));
 }
 

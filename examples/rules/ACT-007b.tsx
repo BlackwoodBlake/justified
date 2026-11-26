@@ -93,6 +93,8 @@ export const ACT007b: RuleExamples = {
     {
       kind: "dont",
       title: "The library's default, which reads out ids",
+      notLinted:
+        "The example is a hand-built sortable list, not dnd-kit, so a DndContext without announcements cannot be written out here.",
       caption: (
         <>
           Pick up <em>The Hobbit</em> and press the down arrow. The region says "Draggable item b41e was moved over
@@ -104,6 +106,8 @@ export const ACT007b: RuleExamples = {
     {
       kind: "dont",
       title: "Positions counted from zero",
+      notLinted:
+        "Lint gap: whether positions count from zero shows only when the announcements run, so the code cannot show it.",
       caption: (
         <>
           Pick up <em>Middlemarch</em>. It is called "index 0", and the last of six books is "index 5". A reader who

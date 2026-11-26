@@ -21,6 +21,15 @@ export type RuleExample = {
   /** What to try, and what to notice. */
   caption: ReactNode;
   Demo: ComponentType;
+  /**
+   * Only on a Don't whose rule has a lint rule, when that lint rule does not
+   * catch it: one short sentence saying why. Either the real code cannot be
+   * shown here (it would change the page it is shown on), or the code is
+   * written out and the lint rule leaves that case alone on purpose; such a
+   * reason starts with "Lint gap:". Every other such Don't must be caught
+   * (packages/eslint/test/examples.test.js).
+   */
+  notLinted?: string;
 };
 
 export type RuleExamples = {

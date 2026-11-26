@@ -7,6 +7,7 @@ import {
   COLOUR_TRANSITION,
   DownloadGlyph,
   FileGlyph,
+  FOCUS,
   HOVER_STILL,
   IconButton,
   LIVE_PRESS,
@@ -38,9 +39,9 @@ import {
 const ITEM = { title: "Atlas redesign", meta: "12 tasks · due 4 Dec" };
 const HREF = "/projects/atlas";
 
-function ProjectCard({ mode, force, onOpen }: { mode: "do" | "dont"; force?: Look; onOpen?: () => void }) {
-  const still = mode === "do" ? (force === "hover" ? HOVER_STILL : force === "pressed" ? PRESSED_STILL : "") : "";
-  const look = force ? still || "bg-card" : mode === "do" ? `bg-card ${LIVE_PRESS}` : "bg-card cursor-pointer";
+function ProjectCard({ force, onOpen }: { force?: Look; onOpen?: () => void }) {
+  const still = force === "hover" ? HOVER_STILL : force === "pressed" ? PRESSED_STILL : "";
+  const look = force ? still || "bg-card" : `bg-card ${LIVE_PRESS}`;
   return (
     <div
       data-look-name="Project card"
@@ -63,37 +64,76 @@ function ProjectCard({ mode, force, onOpen }: { mode: "do" | "dont"; force?: Loo
   );
 }
 
-function CardScene({ mode }: { mode: "do" | "dont" }) {
+function PointerOnlyCard({ onOpen }: { onOpen?: () => void }) {
+  return (
+    <div
+      data-look-name="Project card"
+      className={`relative flex w-full flex-col gap-1 rounded-lg border border-border p-4 text-card-foreground ${COLOUR_TRANSITION} bg-card cursor-pointer`}
+    >
+      <h4 className="m-0 text-base font-semibold">
+        {/* A real address. A plain click is stopped so the example stays put, and the line below says where it would go. */}
+        <a
+          href={HREF}
+          onClick={(e) => {
+            if (stopPlainClick(e)) onOpen?.();
+          }}
+          className="rounded-sm after:absolute after:inset-0 after:rounded-lg focus-visible:outline-hidden focus-visible:after:ring-(length:--focus-ring-width) focus-visible:after:ring-ring"
+        >
+          {ITEM.title}
+        </a>
+      </h4>
+      <p className="m-0 text-sm text-muted-foreground">{ITEM.meta}</p>
+    </div>
+  );
+}
+
+function CardScene() {
   const [said, setSaid] = useState("");
   const cell = (label: string, force: Look) => ({
     label,
-    node: <ProjectCard mode={mode} force={force} />,
+    node: <ProjectCard force={force} />,
   });
   return (
     <div className="flex w-full max-w-md flex-col gap-4">
       <Strip cols={3} cells={[cell("At rest", "rest"), cell("Hover", "hover"), cell("Pressed", "pressed")]} />
       <TrackLook>
-        <ProjectCard mode={mode} onOpen={() => setSaid(`Would go to ${HREF}`)} />
+        <ProjectCard onOpen={() => setSaid(`Would go to ${HREF}`)} />
       </TrackLook>
       <Outcome>{said}</Outcome>
     </div>
   );
 }
 
-function FileScene({ mode }: { mode: "do" | "dont" }) {
+function CardSceneDont() {
+  const [said, setSaid] = useState("");
+  const cell = (label: string) => ({
+    label,
+    node: <PointerOnlyCard />,
+  });
+  return (
+    <div className="flex w-full max-w-md flex-col gap-4">
+      <Strip cols={3} cells={[cell("At rest"), cell("Hover"), cell("Pressed")]} />
+      <TrackLook>
+        <PointerOnlyCard onOpen={() => setSaid(`Would go to ${HREF}`)} />
+      </TrackLook>
+      <Outcome>{said}</Outcome>
+    </div>
+  );
+}
+
+function FileScene() {
   const [said, setSaid] = useState("");
   const lockedId = useId();
-  const scoped = mode === "do";
   const tools = (force?: Look) => (
     <>
-      <IconButton name="Download" mode={mode} icon={<DownloadGlyph />} force={force} onPress={() => setSaid("Download started: Q3 budget.xlsx")} />
-      <IconButton name="Share" mode={mode} icon={<ShareGlyph />} force={force} onPress={() => setSaid("Share link copied")} />
-      <IconButton name="Rename" mode={mode} icon={<RenameGlyph />} off scoped={scoped} force={force} describedBy={force ? undefined : lockedId} />
+      <IconButton name="Download" mode="do" icon={<DownloadGlyph />} force={force} onPress={() => setSaid("Download started: Q3 budget.xlsx")} />
+      <IconButton name="Share" mode="do" icon={<ShareGlyph />} force={force} onPress={() => setSaid("Share link copied")} />
+      <IconButton name="Rename" mode="do" icon={<RenameGlyph />} off scoped force={force} describedBy={force ? undefined : lockedId} />
     </>
   );
   const download = (label: string, force: Look) => ({
     label,
-    node: <IconButton name="Download" mode={mode} icon={<DownloadGlyph />} force={force} />,
+    node: <IconButton name="Download" mode="do" icon={<DownloadGlyph />} force={force} />,
   });
   return (
     <div className="flex w-full max-w-md flex-col gap-4">
@@ -104,7 +144,7 @@ function FileScene({ mode }: { mode: "do" | "dont" }) {
           download("Download pressed", "pressed"),
           {
             label: "Rename (off) hover",
-            node: <IconButton name="Rename" mode={mode} icon={<RenameGlyph />} off scoped={scoped} force="hover" />,
+            node: <IconButton name="Rename" mode="do" icon={<RenameGlyph />} off scoped force="hover" />,
           },
         ]}
       />
@@ -117,6 +157,77 @@ function FileScene({ mode }: { mode: "do" | "dont" }) {
           </div>
           <div role="group" aria-label="File actions" className="flex gap-1">
             {tools()}
+          </div>
+        </div>
+      </TrackLook>
+      <p id={lockedId} className="m-0 text-sm text-muted-foreground">
+        Rename is off while Ana Ruiz is editing this file.
+      </p>
+      <Outcome>{said}</Outcome>
+    </div>
+  );
+}
+
+const ICON_BUTTON = `inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-md text-foreground ${COLOUR_TRANSITION} ${FOCUS}`;
+
+function FileSceneDont() {
+  const [said, setSaid] = useState("");
+  const lockedId = useId();
+  const stillDownload = (label: string) => ({
+    label,
+    node: (
+      <button type="button" data-look-name="Download" aria-label="Download" className={ICON_BUTTON}>
+        <DownloadGlyph />
+      </button>
+    ),
+  });
+  return (
+    <div className="flex w-full max-w-md flex-col gap-4">
+      <Strip
+        cells={[
+          stillDownload("Download at rest"),
+          stillDownload("Download hover"),
+          stillDownload("Download pressed"),
+          {
+            label: "Rename (off) hover",
+            node: (
+              <button
+                type="button"
+                data-look-name="Rename"
+                aria-label="Rename"
+                aria-disabled="true"
+                className={`${ICON_BUTTON} bg-accent text-accent-foreground cursor-not-allowed text-muted-foreground`}
+              >
+                <RenameGlyph />
+              </button>
+            ),
+          },
+        ]}
+      />
+      <TrackLook>
+        <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 text-card-foreground">
+          <FileGlyph />
+          <div className="min-w-0 flex-1">
+            <h4 className="m-0 truncate text-base font-semibold">Q3 budget.xlsx</h4>
+            <p className="m-0 text-sm text-muted-foreground">Edited yesterday</p>
+          </div>
+          <div role="group" aria-label="File actions" className="flex gap-1">
+            <button type="button" data-look-name="Download" aria-label="Download" onClick={() => setSaid("Download started: Q3 budget.xlsx")} className={ICON_BUTTON}>
+              <DownloadGlyph />
+            </button>
+            <button type="button" data-look-name="Share" aria-label="Share" onClick={() => setSaid("Share link copied")} className={ICON_BUTTON}>
+              <ShareGlyph />
+            </button>
+            <button
+              type="button"
+              data-look-name="Rename"
+              aria-label="Rename"
+              aria-disabled="true"
+              aria-describedby={lockedId}
+              className="hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground active:shadow-[inset_0_2px_4px_color-mix(in_oklab,var(--foreground)_25%,transparent)] inline-flex size-10 shrink-0 cursor-pointer cursor-not-allowed items-center justify-center rounded-md text-foreground text-muted-foreground transition-colors duration-(--motion-duration-fast) ease-standard outline-none focus-visible:outline-hidden focus-visible:ring-(length:--focus-ring-width) focus-visible:ring-ring focus-visible:ring-offset-[length:var(--focus-ring-offset)] focus-visible:ring-offset-background"
+            >
+              <RenameGlyph />
+            </button>
           </div>
         </div>
       </TrackLook>
@@ -141,7 +252,7 @@ export const VIS008: RuleExamples = {
           a mouse, with Tab then Enter (it opens the card; for the keyboard the signal is the focus ring), and with a finger: "Right now" shows a press on touch and no hover.
         </>
       ),
-      Demo: () => <CardScene mode="do" />,
+      Demo: CardScene,
     },
     {
       kind: "dont",
@@ -153,7 +264,9 @@ export const VIS008: RuleExamples = {
           looks the same.
         </>
       ),
-      Demo: () => <CardScene mode="dont" />,
+      Demo: CardSceneDont,
+      notLinted:
+        "Lint gap: a stretched link is read only on the shadcn Card; this card is a div, as the adapter has no Card.",
     },
     {
       kind: "do",
@@ -166,7 +279,7 @@ export const VIS008: RuleExamples = {
           button points to it.
         </>
       ),
-      Demo: () => <FileScene mode="do" />,
+      Demo: FileScene,
     },
     {
       kind: "dont",
@@ -179,7 +292,7 @@ export const VIS008: RuleExamples = {
           works.
         </>
       ),
-      Demo: () => <FileScene mode="dont" />,
+      Demo: FileSceneDont,
     },
   ],
 };

@@ -2,7 +2,7 @@ import { Field } from "@blackwoodblake/justified-shadcn/field";
 import { Input } from "@blackwoodblake/justified-shadcn/input";
 
 import type { RuleExamples } from "./frame";
-import { Probe, probeBox } from "./input-type";
+import { Probe, probeBox, Watch } from "./input-type";
 
 /*
  * FRM-014b: a string of digits that is not a quantity belongs in a text
@@ -34,9 +34,21 @@ export const FRM014b: RuleExamples = {
       Demo: () =>
         form(
           <>
-            <Probe label="Membership number" type="number" defaultValue="0471826390" also="number" />
-            <Probe label="Card number" type="number" autoComplete="cc-number" defaultValue="4111111111111111111" also="number" />
-            <Probe label="Account number" type="number" defaultValue="4111111111111111111111" also="number" />
+            <Watch also="number">
+              <Field label="Membership number">
+                <Input type="number" defaultValue="0471826390" />
+              </Field>
+            </Watch>
+            <Watch also="number">
+              <Field label="Card number">
+                <Input type="number" autoComplete="cc-number" defaultValue="4111111111111111111" />
+              </Field>
+            </Watch>
+            <Watch also="number">
+              <Field label="Account number">
+                <Input type="number" defaultValue="4111111111111111111111" />
+              </Field>
+            </Watch>
           </>,
         ),
     },
@@ -51,14 +63,16 @@ export const FRM014b: RuleExamples = {
       ),
       Demo: () =>
         form(
-          <Probe
-            label="Sign-in code"
-            type="number"
-            autoComplete="one-time-code"
-            defaultValue="048213"
-            also="number"
-            className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-          />,
+          <Watch also="number">
+            <Field label="Sign-in code">
+              <Input
+                type="number"
+                autoComplete="one-time-code"
+                defaultValue="048213"
+                className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              />
+            </Field>
+          </Watch>,
         ),
     },
     {

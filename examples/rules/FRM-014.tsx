@@ -1,5 +1,8 @@
-import { Probe, probeBox } from "./input-type";
+import { Field } from "@blackwoodblake/justified-shadcn/field";
+import { Input } from "@blackwoodblake/justified-shadcn/input";
+
 import type { RuleExamples } from "./frame";
+import { Probe, probeBox, Watch } from "./input-type";
 
 /*
  * FRM-014: email, phone and web address fields get the input type that
@@ -20,9 +23,21 @@ function Matching() {
 function AllText() {
   return (
     <form noValidate onSubmit={(e) => e.preventDefault()} className={probeBox}>
-      <Probe label="Email" autoComplete="email" defaultValue="mira@example.com" />
-      <Probe label="Mobile number" autoComplete="tel" defaultValue="+44 7700 900123" />
-      <Probe label="Shop website" autoComplete="url" defaultValue="fieldandfork.example" />
+      <Watch>
+        <Field label="Email">
+          <Input autoComplete="email" defaultValue="mira@example.com" />
+        </Field>
+      </Watch>
+      <Watch>
+        <Field label="Mobile number">
+          <Input autoComplete="tel" defaultValue="+44 7700 900123" />
+        </Field>
+      </Watch>
+      <Watch>
+        <Field label="Shop website">
+          <Input autoComplete="url" defaultValue="fieldandfork.example" />
+        </Field>
+      </Watch>
     </form>
   );
 }
@@ -30,21 +45,37 @@ function AllText() {
 function TypeWithoutPurpose() {
   return (
     <form noValidate onSubmit={(e) => e.preventDefault()} className={probeBox}>
-      <Probe label="Email" type="email" defaultValue="mira@example.com" />
+      <Watch>
+        <Field label="Email">
+          <Input type="email" defaultValue="mira@example.com" />
+        </Field>
+      </Watch>
     </form>
   );
 }
 
-function SignIn({ type }: { type: "email" | "text" }) {
+function SignIn() {
   return (
     <form noValidate onSubmit={(e) => e.preventDefault()} className={probeBox}>
       <Probe
         label="Email or username"
-        type={type}
+        type="text"
         autoComplete="username"
         defaultValue="mira_84"
         also="check"
       />
+    </form>
+  );
+}
+
+function EmailOrUsername() {
+  return (
+    <form noValidate onSubmit={(e) => e.preventDefault()} className={probeBox}>
+      <Watch also="check">
+        <Field label="Email or username">
+          <Input type="email" autoComplete="username" defaultValue="mira_84" />
+        </Field>
+      </Watch>
     </form>
   );
 }
@@ -86,6 +117,7 @@ export const FRM014: RuleExamples = {
           purpose. The type picks the keyboard; only <code>autocomplete</code> says what the field is for.
         </>
       ),
+      notLinted: "The missing autocomplete value is FRM-007's check, which is left to review.",
       Demo: TypeWithoutPurpose,
     },
     {
@@ -97,7 +129,7 @@ export const FRM014: RuleExamples = {
           through. Compare the next example.
         </>
       ),
-      Demo: () => <SignIn type="text" />,
+      Demo: SignIn,
     },
     {
       kind: "dont",
@@ -108,7 +140,7 @@ export const FRM014: RuleExamples = {
           only half of what the field takes. Replace the text with an address to see the check accept it.
         </>
       ),
-      Demo: () => <SignIn type="email" />,
+      Demo: EmailOrUsername,
     },
   ],
 };

@@ -71,6 +71,7 @@ export const STR005: RuleExamples = {
           </ReadRow>
         </ReadList>
       ),
+      notLinted: "Lint gap: a hidden icon is valid markup, and the rule cannot know that the icon is the only sign of the status.",
     },
     {
       kind: "do",

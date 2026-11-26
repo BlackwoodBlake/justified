@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
 } from "@blackwoodblake/justified-shadcn/alert-dialog";
 import { Button } from "@blackwoodblake/justified-shadcn/button";
-import { useEffect, useId, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 
 import { DialogPicture, drawnRing, Outcome, Still, useSay } from "./dialog";
 import type { RuleExamples } from "./frame";
@@ -32,50 +32,21 @@ import type { RuleExamples } from "./frame";
  * button, or the previous one, or the list's heading when none is left.
  */
 
-type Look = "danger" | "plain" | "steer";
-
 const all = [
   { no: "2026-0412", to: "Lindqvist Bakery", amount: "$1,240" },
   { no: "2026-0413", to: "North Pier Studio", amount: "$380" },
   { no: "2026-0414", to: "Hale & Daughters", amount: "$2,015" },
 ];
 
-// Cancel drawn as the filled main button: only in the Don't that steers people away.
-const filled =
-  "border-transparent bg-primary text-primary-foreground not-disabled:not-aria-disabled:hover:bg-primary/90 not-disabled:not-aria-disabled:hover:text-primary-foreground not-disabled:not-aria-disabled:active:bg-[color-mix(in_oklab,var(--primary),var(--foreground)_20%)] not-disabled:not-aria-disabled:active:text-primary-foreground";
+/** What the list hands to the dialog drawn by each example. */
+type Controls = {
+  asking: string | null;
+  onOpenChange: (next: boolean) => void;
+  onCloseAutoFocus: (e: Event) => void;
+  confirm: () => void;
+};
 
-function looks(look: Look) {
-  return {
-    // The plain Don't changes only the action; the steering Don't changes only Cancel.
-    action: look === "plain" ? ("default" as const) : ("destructive" as const),
-    cancel: look === "steer" ? filled : undefined,
-  };
-}
-
-function Picture({ look }: { look: Look }) {
-  const l = looks(look);
-  return (
-    <Still>
-      <DialogPicture
-        title="Delete invoice 2026-0412?"
-        footer={
-          <>
-            <Button variant="outline" tabIndex={-1} className={`${l.cancel ?? ""} ${drawnRing}`}>
-              Cancel
-            </Button>
-            <Button variant={l.action} tabIndex={-1}>
-              Delete invoice
-            </Button>
-          </>
-        }
-      >
-        It is erased for good, and its number cannot be used again.
-      </DialogPicture>
-    </Still>
-  );
-}
-
-function Invoices({ look }: { look: Look }) {
+function Invoices({ picture, dialog }: { picture: ReactNode; dialog: (controls: Controls) => ReactNode }) {
   const [rows, setRows] = useState(all);
   const [asking, setAsking] = useState<string | null>(null);
   const [said, say] = useSay();
@@ -87,7 +58,6 @@ function Invoices({ look }: { look: Look }) {
   const deleted = useRef(false);
   const resetRef = useRef<HTMLButtonElement>(null);
   const [resetting, setResetting] = useState(false);
-  const l = looks(look);
 
   useEffect(() => {
     if (!resetting) return;
@@ -107,7 +77,7 @@ function Invoices({ look }: { look: Look }) {
 
   return (
     <div className="flex w-full flex-col items-center gap-4">
-      <Picture look={look} />
+      {picture}
 
       <div className="w-full max-w-sm rounded-lg border border-border bg-background p-4 text-sm">
         <h4
@@ -163,45 +133,175 @@ function Invoices({ look }: { look: Look }) {
         )}
       </div>
 
-      <AlertDialog
-        open={asking !== null}
-        onOpenChange={(next) => {
+      {dialog({
+        asking,
+        onOpenChange: (next) => {
           if (!next && asking) {
             setAsking(null);
             say(`Cancelled. Invoice ${asking} is kept.`);
           }
-        }}
-      >
-        <AlertDialogContent
-          onCloseAutoFocus={(e) => {
-            // After Cancel, focus goes back to the row's Delete button as usual.
-            if (!deleted.current) return;
-            deleted.current = false;
-            e.preventDefault();
-            (afterDelete.current ?? resetRef.current ?? headingRef.current)?.focus();
-            afterDelete.current = null;
-          }}
-        >
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete invoice {asking}?</AlertDialogTitle>
-            <AlertDialogDescription>It is erased for good, and its number cannot be used again.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className={l.cancel} />
-            <AlertDialogAction
-              variant={l.action}
-              onClick={(e) => {
-                e.preventDefault();
-                if (asking) remove(asking);
-              }}
-            >
-              Delete invoice
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        },
+        onCloseAutoFocus: (e) => {
+          // After Cancel, focus goes back to the row's Delete button as usual.
+          if (!deleted.current) return;
+          deleted.current = false;
+          e.preventDefault();
+          (afterDelete.current ?? resetRef.current ?? headingRef.current)?.focus();
+          afterDelete.current = null;
+        },
+        confirm: () => {
+          if (asking) remove(asking);
+        },
+      })}
       <Outcome>{said}</Outcome>
     </div>
+  );
+}
+
+const filledCancel =
+  "border-transparent bg-primary text-primary-foreground not-disabled:not-aria-disabled:hover:bg-primary/90 not-disabled:not-aria-disabled:hover:text-primary-foreground not-disabled:not-aria-disabled:active:bg-[color-mix(in_oklab,var(--primary),var(--foreground)_20%)] not-disabled:not-aria-disabled:active:text-primary-foreground";
+
+function Danger() {
+  return (
+    <Invoices
+      picture={
+        <Still>
+          <DialogPicture
+            title="Delete invoice 2026-0412?"
+            footer={
+              <>
+                <Button variant="outline" tabIndex={-1} className={drawnRing}>
+                  Cancel
+                </Button>
+                <Button variant="destructive" tabIndex={-1}>
+                  Delete invoice
+                </Button>
+              </>
+            }
+          >
+            It is erased for good, and its number cannot be used again.
+          </DialogPicture>
+        </Still>
+      }
+      dialog={(c) => (
+        <AlertDialog open={c.asking !== null} onOpenChange={c.onOpenChange}>
+          <AlertDialogContent onCloseAutoFocus={c.onCloseAutoFocus}>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete invoice {c.asking}?</AlertDialogTitle>
+              <AlertDialogDescription>It is erased for good, and its number cannot be used again.</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel />
+              <AlertDialogAction
+                variant="destructive"
+                onClick={(e) => {
+                  e.preventDefault();
+                  c.confirm();
+                }}
+              >
+                Delete invoice
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    />
+  );
+}
+
+function PlainDelete() {
+  return (
+    <Invoices
+      picture={
+        <Still>
+          <DialogPicture
+            title="Delete invoice 2026-0412?"
+            footer={
+              <>
+                <Button variant="outline" tabIndex={-1} className={drawnRing}>
+                  Cancel
+                </Button>
+                <Button variant="default" tabIndex={-1}>
+                  Delete invoice
+                </Button>
+              </>
+            }
+          >
+            It is erased for good, and its number cannot be used again.
+          </DialogPicture>
+        </Still>
+      }
+      dialog={(c) => (
+        <AlertDialog open={c.asking !== null} onOpenChange={c.onOpenChange}>
+          <AlertDialogContent onCloseAutoFocus={c.onCloseAutoFocus}>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete invoice {c.asking}?</AlertDialogTitle>
+              <AlertDialogDescription>It is erased for good, and its number cannot be used again.</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel />
+              <AlertDialogAction
+                variant="default"
+                onClick={(e) => {
+                  e.preventDefault();
+                  c.confirm();
+                }}
+              >
+                Delete invoice
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    />
+  );
+}
+
+function FilledCancel() {
+  return (
+    <Invoices
+      picture={
+        <Still>
+          <DialogPicture
+            title="Delete invoice 2026-0412?"
+            footer={
+              <>
+                <Button variant="outline" tabIndex={-1} className={`${filledCancel} ${drawnRing}`}>
+                  Cancel
+                </Button>
+                <Button variant="destructive" tabIndex={-1}>
+                  Delete invoice
+                </Button>
+              </>
+            }
+          >
+            It is erased for good, and its number cannot be used again.
+          </DialogPicture>
+        </Still>
+      }
+      dialog={(c) => (
+        <AlertDialog open={c.asking !== null} onOpenChange={c.onOpenChange}>
+          <AlertDialogContent onCloseAutoFocus={c.onCloseAutoFocus}>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete invoice {c.asking}?</AlertDialogTitle>
+              <AlertDialogDescription>It is erased for good, and its number cannot be used again.</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className={filledCancel} />
+              <AlertDialogAction
+                variant="destructive"
+                onClick={(e) => {
+                  e.preventDefault();
+                  c.confirm();
+                }}
+              >
+                Delete invoice
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    />
   );
 }
 
@@ -218,7 +318,7 @@ export const DLG005: RuleExamples = {
           the same in words.
         </>
       ),
-      Demo: () => <Invoices look="danger" />,
+      Demo: Danger,
     },
     {
       kind: "dont",
@@ -229,7 +329,7 @@ export const DLG005: RuleExamples = {
           this step erases something for good.
         </>
       ),
-      Demo: () => <Invoices look="plain" />,
+      Demo: PlainDelete,
     },
     {
       kind: "dont",
@@ -240,7 +340,9 @@ export const DLG005: RuleExamples = {
           styles now push towards the answer the product prefers, and the safe choice looks like the main one.
         </>
       ),
-      Demo: () => <Invoices look="steer" />,
+      notLinted:
+        "Lint gap: a filled Cancel beside a red Delete invoice is not reported, since the rule only looks for a filled Cancel beside a quiet destructive button.",
+      Demo: FilledCancel,
     },
   ],
 };

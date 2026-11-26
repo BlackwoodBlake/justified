@@ -18,16 +18,13 @@ import { ENTRIES, LangReadout, type Entry } from "./language";
  * Choosing an entry marks it with aria-current and shows it on the trigger.
  */
 
-type Mode = "lang" | "none" | "hreflang";
-
-function Picker({ mode }: { mode: Mode }) {
+function Picker() {
   const listId = useId();
   const [open, setOpen] = useState(true);
-  const [said, setSaid] = useState("");
   const [current, setCurrent] = useState("en");
   const all: Entry[] = [{ code: "en", label: "English" }, ...ENTRIES];
   const now = all.find((e) => e.code === current)!;
-  const marked = (e: Entry) => (mode === "lang" && e.code !== "en" ? e.code : undefined);
+  const marked = (e: Entry) => (e.code !== "en" ? e.code : undefined);
 
   return (
     <div className="relative flex flex-col gap-2 rounded-lg border border-border bg-background p-3 text-sm">
@@ -38,47 +35,22 @@ function Picker({ mode }: { mode: Mode }) {
         </span>
       </Button>
       <ul id={listId} hidden={!open} className="m-0 grid list-none gap-1 p-0">
-        {all.map((e) => {
-          const item = (
-            <>
+        {all.map((e) => (
+          <li key={e.code}>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full justify-start"
+              aria-current={current === e.code ? "true" : undefined}
+              lang={marked(e)}
+              onClick={() => setCurrent(e.code)}
+            >
               {current === e.code && <CheckIcon aria-hidden="true" />}
               {e.label}
-            </>
-          );
-          const common = { "aria-current": current === e.code ? ("true" as const) : undefined, lang: marked(e) };
-          return (
-            <li key={e.code}>
-              {mode === "hreflang" ? (
-                <Button asChild variant="ghost" className="w-full justify-start">
-                  <a
-                    href={`/${e.code}/`}
-                    hrefLang={e.code}
-                    aria-current={common["aria-current"]}
-                    onClick={(ev) => {
-                      // A plain click only reports where it would go; a new tab opens the real address.
-                      if (ev.button === 0 && !ev.ctrlKey && !ev.metaKey && !ev.shiftKey && !ev.altKey) {
-                        ev.preventDefault();
-                        setSaid(`Would go to /${e.code}/`);
-                      }
-                    }}
-                  >
-                    {item}
-                  </a>
-                </Button>
-              ) : (
-                <Button type="button" variant="ghost" className="w-full justify-start" {...common} onClick={() => setCurrent(e.code)}>
-                  {item}
-                </Button>
-              )}
-            </li>
-          );
-        })}
+            </Button>
+          </li>
+        ))}
       </ul>
-      {mode === "hreflang" && (
-        <p role="status" className="m-0 min-h-5 text-center text-muted-foreground">
-          {said}
-        </p>
-      )}
     </div>
   );
 }
@@ -86,23 +58,91 @@ function Picker({ mode }: { mode: Mode }) {
 function PickerMarkedDemo() {
   return (
     <LangReadout>
-      <Picker mode="lang" />
+      <Picker />
     </LangReadout>
   );
 }
 
+const languages = [
+  { code: "en", label: "English" },
+  { code: "pl", label: "Polski" },
+  { code: "pt", label: "Português" },
+  { code: "ko", label: "한국어" },
+];
+
 function PickerUnmarkedDemo() {
+  const listId = useId();
+  const [open, setOpen] = useState(true);
+  const [current, setCurrent] = useState("en");
+  const now = languages.find((l) => l.code === current)!;
+
   return (
     <LangReadout>
-      <Picker mode="none" />
+      <div className="relative flex flex-col gap-2 rounded-lg border border-border bg-background p-3 text-sm">
+        <Button type="button" variant="outline" aria-expanded={open} aria-controls={listId} onClick={() => setOpen((o) => !o)}>
+          Language: <span className="font-semibold">{now.label}</span>
+        </Button>
+        <ul id={listId} hidden={!open} className="m-0 grid list-none gap-1 p-0">
+          {languages.map((l) => (
+            <li key={l.code}>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full justify-start"
+                aria-current={current === l.code ? "true" : undefined}
+                onClick={() => setCurrent(l.code)}
+              >
+                {current === l.code && <CheckIcon aria-hidden="true" />}
+                {l.label}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </LangReadout>
   );
 }
 
 function PickerHreflangDemo() {
+  const listId = useId();
+  const [open, setOpen] = useState(true);
+  const [said, setSaid] = useState("");
+  const current = "en";
+  const now = languages.find((l) => l.code === current)!;
+
   return (
     <LangReadout showHreflang>
-      <Picker mode="hreflang" />
+      <div className="relative flex flex-col gap-2 rounded-lg border border-border bg-background p-3 text-sm">
+        <Button type="button" variant="outline" aria-expanded={open} aria-controls={listId} onClick={() => setOpen((o) => !o)}>
+          Language: <span className="font-semibold">{now.label}</span>
+        </Button>
+        <ul id={listId} hidden={!open} className="m-0 grid list-none gap-1 p-0">
+          {languages.map((l) => (
+            <li key={l.code}>
+              <Button asChild variant="ghost" className="w-full justify-start">
+                <a
+                  href={`/${l.code}/`}
+                  hrefLang={l.code}
+                  aria-current={current === l.code ? "true" : undefined}
+                  onClick={(ev) => {
+                    // A plain click only reports where it would go; a new tab opens the real address.
+                    if (ev.button === 0 && !ev.ctrlKey && !ev.metaKey && !ev.shiftKey && !ev.altKey) {
+                      ev.preventDefault();
+                      setSaid(`Would go to /${l.code}/`);
+                    }
+                  }}
+                >
+                  {current === l.code && <CheckIcon aria-hidden="true" />}
+                  {l.label}
+                </a>
+              </Button>
+            </li>
+          ))}
+        </ul>
+        <p role="status" className="m-0 min-h-5 text-center text-muted-foreground">
+          {said}
+        </p>
+      </div>
     </LangReadout>
   );
 }
@@ -171,6 +211,7 @@ export const STR006a: RuleExamples = {
       title: "A French description shown unmarked",
       caption: <>The description is French because no English one exists yet, but nothing says so. The readout finds no marked part.</>,
       Demo: FrenchDemo,
+      notLinted: "Lint gap: the rule cannot tell that a paragraph is written in another language than the page.",
     },
   ],
 };

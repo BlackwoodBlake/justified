@@ -1,9 +1,11 @@
+import { Field } from "@blackwoodblake/justified-shadcn/field";
 import { Input } from "@blackwoodblake/justified-shadcn/input";
 import { Label } from "@blackwoodblake/justified-shadcn/label";
-import { useRef, useState, type ClipboardEvent } from "react";
+import { useId, useRef, useState, type ClipboardEvent } from "react";
 
 import type { RuleExamples } from "./frame";
 import { box, PasteField, Readout, Samples, q } from "./masks";
+import { pasteLastText, usePasteLog } from "./paste-log";
 
 /*
  * FRM-017 (a guideline, our own choice): outside sign-in, every text field
@@ -19,8 +21,10 @@ const happened =
 
 const fold = (t: string) => t.replace(/[\s-]/g, "").toUpperCase();
 
-/** A reference written in two boxes. With `spread`, a paste into either box fills both. */
-function TwoBoxes({ spread }: { spread: boolean }) {
+/** A reference written in two boxes. A paste into either box fills both. */
+function TwoBoxes() {
+  const firstId = useId();
+  const lastId = useId();
   const [a, setA] = useState("");
   const [b, setB] = useState("");
   const first = useRef<HTMLInputElement>(null);
@@ -29,7 +33,6 @@ function TwoBoxes({ spread }: { spread: boolean }) {
 
   // A paste longer than the first box fills the first three characters there and puts everything else in the second box.
   const onPaste = (e: ClipboardEvent<HTMLInputElement>) => {
-    if (!spread) return;
     const all = fold(e.clipboardData.getData("text"));
     if (all.length <= 3) return;
     e.preventDefault();
@@ -40,7 +43,7 @@ function TwoBoxes({ spread }: { spread: boolean }) {
   // Typing past the third character moves the extra into the second box instead of refusing it.
   const onFirst = (v: string) => {
     const up = v.toUpperCase();
-    if (spread && up.length > 3) {
+    if (up.length > 3) {
       setA(up.slice(0, 3));
       setB(up.slice(3) + b);
       second.current?.focus();
@@ -53,12 +56,11 @@ function TwoBoxes({ spread }: { spread: boolean }) {
         <legend className="mb-2 p-0 text-sm font-medium">Booking reference</legend>
         <div className="flex flex-wrap items-end gap-3">
           <div className="grid gap-1">
-            <Label htmlFor="ref-first">First three</Label>
+            <Label htmlFor={firstId}>First three</Label>
             <Input
-              id="ref-first"
+              id={firstId}
               ref={first}
               className="w-24 font-mono"
-              maxLength={spread ? undefined : 3}
               autoComplete="off"
               value={a}
               onChange={(e) => onFirst(e.target.value)}
@@ -66,16 +68,114 @@ function TwoBoxes({ spread }: { spread: boolean }) {
             />
           </div>
           <div className="grid gap-1">
-            <Label htmlFor="ref-last">Last three</Label>
+            <Label htmlFor={lastId}>Last three</Label>
             <Input
-              id="ref-last"
+              id={lastId}
               ref={second}
               className="w-24 font-mono"
-              maxLength={spread ? undefined : 3}
               autoComplete="off"
               value={b}
               onChange={(e) => setB(e.target.value.toUpperCase())}
               onPaste={onPaste}
+            />
+          </div>
+        </div>
+      </fieldset>
+      <Samples items={["KP4-92X"]} target={first} name="Booking reference" />
+      <Readout rows={[["The boxes show", `${q(a)} ${q(b)}`], ["The form gets", q(a + b)]]} />
+    </div>
+  );
+}
+
+/** A confirmation field that cancels paste. */
+function CancelledPaste() {
+  const [value, setValue] = useState("");
+  const ref = useRef<HTMLInputElement>(null);
+  const log = usePasteLog();
+  return (
+    <form noValidate onSubmit={(e) => e.preventDefault()} onPasteCapture={log.cancelled} className="grid gap-2">
+      <Field label="Confirm account number">
+        <Input
+          ref={ref}
+          inputMode="numeric"
+          autoComplete="off"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onPaste={(e) => e.preventDefault()}
+        />
+      </Field>
+      <Samples items={["55820419"]} target={ref} name="Confirm account number" />
+      <Readout rows={[["The field shows", q(value)], ["The form gets", q(value)], ["Last paste", pasteLastText(log.last)]]} />
+    </form>
+  );
+}
+
+/** A policy number field whose mask cancels any paste with a character it does not know. */
+function MaskedPaste() {
+  const [value, setValue] = useState("");
+  const ref = useRef<HTMLInputElement>(null);
+  const log = usePasteLog();
+  return (
+    <form noValidate onSubmit={(e) => e.preventDefault()} className="grid gap-2">
+      <Field label="Policy number">
+        <Input
+          ref={ref}
+          autoComplete="off"
+          value={value}
+          onChange={(e) => {
+            log.changed(e.target.value);
+            setValue(e.target.value);
+          }}
+          onPaste={(e) => {
+            const text = e.clipboardData.getData("text");
+            if (!/^[A-Za-z0-9]*$/.test(text)) {
+              e.preventDefault();
+              log.blocked(text);
+              return;
+            }
+            log.onPaste(e);
+          }}
+        />
+      </Field>
+      <Samples items={["HX-4471-0923", "HX44710923"]} target={ref} name="Policy number" />
+      <Readout rows={[["The field shows", q(value)], ["The form gets", q(value)], ["Last paste", pasteLastText(log.last)]]} />
+    </form>
+  );
+}
+
+/** A reference in two boxes of three characters, with nothing that spreads a paste. */
+function SplitBoxes() {
+  const firstId = useId();
+  const lastId = useId();
+  const [a, setA] = useState("");
+  const [b, setB] = useState("");
+  const first = useRef<HTMLInputElement>(null);
+  return (
+    <div className="grid gap-2">
+      <fieldset className="m-0 min-w-0 border-0 p-0">
+        <legend className="mb-2 p-0 text-sm font-medium">Booking reference</legend>
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="grid gap-1">
+            <Label htmlFor={firstId}>First three</Label>
+            <Input
+              id={firstId}
+              ref={first}
+              className="w-24 font-mono"
+              maxLength={3}
+              autoComplete="off"
+              value={a}
+              onChange={(e) => setA(e.target.value.toUpperCase())}
+            />
+          </div>
+          <div className="grid gap-1">
+            <Label htmlFor={lastId}>Last three</Label>
+            <Input
+              id={lastId}
+              className="w-24 font-mono"
+              maxLength={3}
+              autoComplete="off"
+              value={b}
+              onChange={(e) => setB(e.target.value.toUpperCase())}
             />
           </div>
         </div>
@@ -118,7 +218,7 @@ export const FRM017: RuleExamples = {
       ),
       Demo: () => (
         <div className={box}>
-          <TwoBoxes spread />
+          <TwoBoxes />
         </div>
       ),
     },
@@ -134,7 +234,7 @@ export const FRM017: RuleExamples = {
       ),
       Demo: () => (
         <div className={box}>
-          <PasteField label="Confirm account number" inputMode="numeric" samples={["55820419"]} allowPaste={() => false} />
+          <CancelledPaste />
         </div>
       ),
     },
@@ -147,13 +247,10 @@ export const FRM017: RuleExamples = {
           Paste the second sample, which has no hyphens, and it goes in, so the person cannot tell what the field wants.
         </>
       ),
+      notLinted: "Lint gap: a paste cancelled after the handler reads the clipboard, as a mask does, is left alone.",
       Demo: () => (
         <div className={box}>
-          <PasteField
-            label="Policy number"
-            samples={["HX-4471-0923", "HX44710923"]}
-            allowPaste={(t) => /^[A-Za-z0-9]*$/.test(t)}
-          />
+          <MaskedPaste />
         </div>
       ),
     },
@@ -166,9 +263,10 @@ export const FRM017: RuleExamples = {
           its first three characters, and the second box stays empty. The form gets half a reference.
         </>
       ),
+      notLinted: "Lint gap: a code split over several boxes is not read, since it needs judgement.",
       Demo: () => (
         <div className={box}>
-          <TwoBoxes spread={false} />
+          <SplitBoxes />
         </div>
       ),
     },

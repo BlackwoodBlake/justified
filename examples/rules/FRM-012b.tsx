@@ -19,6 +19,7 @@ import { useRef, useState, type ReactNode } from "react";
 import { Outcome } from "./dialog";
 import type { RuleExamples } from "./frame";
 import { FocusTrace, Screen, useFocusTrace } from "./oninput-demo";
+import { useSceneRouter } from "./scene-router";
 
 /*
  * FRM-012b (a rule, decided by the judges): a control that holds a choice
@@ -52,7 +53,7 @@ function Frame({ children, said, onReset }: { children: ReactNode; said: string;
 
 const PLANS: Record<string, string> = { starter: "Starter", team: "Team", business: "Business" };
 
-function Plan({ sends }: { sends: boolean }) {
+function Plan() {
   const [plan, setPlan] = useState("starter");
   const [page, setPage] = useState<"pick" | "checkout">("pick");
   const [said, setSaid] = useState("");
@@ -61,28 +62,22 @@ function Plan({ sends }: { sends: boolean }) {
     setPage("pick");
     setSaid("");
   };
-  const choose = (v: string) => {
-    setPlan(v);
-    if (sends) {
-      setPage("checkout");
-      setSaid(`Checkout opened as soon as ${PLANS[v]} was reached.`);
-    } else {
-      setSaid(`${PLANS[v]} chosen. Nothing is sent yet.`);
-    }
-  };
   return (
     <Frame said={said} onReset={reset}>
       {page === "checkout" ? (
-        <Screen label="Checkout" arrive={!sends}>
+        <Screen label="Checkout" arrive>
           <p className="m-0">Pay for the {PLANS[plan]} plan.</p>
         </Screen>
       ) : (
         <Screen label="Choose a plan">
-          <FieldSet
-            legend="Plan"
-            hint={sends ? "Choosing a plan opens checkout." : "Pick the plan, then continue to payment."}
-          >
-            <RadioGroup value={plan} onValueChange={choose}>
+          <FieldSet legend="Plan" hint="Pick the plan, then continue to payment.">
+            <RadioGroup
+              value={plan}
+              onValueChange={(v) => {
+                setPlan(v);
+                setSaid(`${PLANS[v]} chosen. Nothing is sent yet.`);
+              }}
+            >
               {Object.entries(PLANS).map(([v, n]) => (
                 <Field key={v} label={n} layout="inline">
                   <RadioGroupItem value={v} />
@@ -90,18 +85,54 @@ function Plan({ sends }: { sends: boolean }) {
               ))}
             </RadioGroup>
           </FieldSet>
-          {!sends && (
-            <div>
-              <Button
-                onClick={() => {
-                  setPage("checkout");
-                  setSaid(`Checkout opened for the ${PLANS[plan]} plan.`);
-                }}
-              >
-                Continue to payment
-              </Button>
-            </div>
-          )}
+          <div>
+            <Button
+              onClick={() => {
+                setPage("checkout");
+                setSaid(`Checkout opened for the ${PLANS[plan]} plan.`);
+              }}
+            >
+              Continue to payment
+            </Button>
+          </div>
+        </Screen>
+      )}
+    </Frame>
+  );
+}
+
+function PlanThatOpensCheckout() {
+  const [plan, setPlan] = useState("starter");
+  const [page, setPage] = useState<"pick" | "checkout">("pick");
+  const router = useSceneRouter(() => setPage("checkout"));
+  const said = page === "checkout" ? `Checkout opened as soon as ${PLANS[plan]} was reached.` : "";
+  const reset = () => {
+    setPlan("starter");
+    setPage("pick");
+  };
+  return (
+    <Frame said={said} onReset={reset}>
+      {page === "checkout" ? (
+        <Screen label="Checkout">
+          <p className="m-0">Pay for the {PLANS[plan]} plan.</p>
+        </Screen>
+      ) : (
+        <Screen label="Choose a plan">
+          <FieldSet legend="Plan" hint="Choosing a plan opens checkout.">
+            <RadioGroup
+              value={plan}
+              onValueChange={(v) => {
+                setPlan(v);
+                router.push("/checkout");
+              }}
+            >
+              {Object.entries(PLANS).map(([v, n]) => (
+                <Field key={v} label={n} layout="inline">
+                  <RadioGroupItem value={v} />
+                </Field>
+              ))}
+            </RadioGroup>
+          </FieldSet>
         </Screen>
       )}
     </Frame>
@@ -110,7 +141,7 @@ function Plan({ sends }: { sends: boolean }) {
 
 /* ----------------------------------------------------------------- Terms */
 
-function Terms({ sends }: { sends: boolean }) {
+function Terms() {
   const [accepted, setAccepted] = useState(false);
   const [sent, setSent] = useState(false);
   const [said, setSaid] = useState("");
@@ -129,7 +160,7 @@ function Terms({ sends }: { sends: boolean }) {
   return (
     <Frame said={said} onReset={reset}>
       {sent ? (
-        <Screen label="Welcome" arrive={!sends}>
+        <Screen label="Welcome" arrive>
           <p className="m-0">Your account is ready.</p>
         </Screen>
       ) : (
@@ -141,11 +172,7 @@ function Terms({ sends }: { sends: boolean }) {
               onCheckedChange={(v) => {
                 setAccepted(v === true);
                 setError("");
-                if (sends && v === true) {
-                  send();
-                } else {
-                  setSaid(v === true ? "Terms accepted. Nothing is sent yet." : "Terms not accepted.");
-                }
+                setSaid(v === true ? "Terms accepted. Nothing is sent yet." : "Terms not accepted.");
               }}
             />
           </Field>
@@ -164,6 +191,77 @@ function Terms({ sends }: { sends: boolean }) {
               Create account
             </Button>
           </div>
+        </Screen>
+      )}
+    </Frame>
+  );
+}
+
+function TermsThatSend() {
+  const [accepted, setAccepted] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [said, setSaid] = useState("");
+  const [error, setError] = useState("");
+  const box = useRef<HTMLButtonElement>(null);
+  const form = useRef<HTMLFormElement>(null);
+  const reset = () => {
+    setAccepted(false);
+    setSent(false);
+    setSaid("");
+    setError("");
+  };
+  const send = () => {
+    setSent(true);
+    setSaid("Form sent. The account was created.");
+  };
+  return (
+    <Frame said={said} onReset={reset}>
+      {sent ? (
+        <Screen label="Welcome">
+          <p className="m-0">Your account is ready.</p>
+        </Screen>
+      ) : (
+        <Screen label="Create an account">
+          <form
+            ref={form}
+            noValidate
+            className="grid gap-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              send();
+            }}
+          >
+            <Field label="I accept the terms" layout="inline" error={error || undefined} announce={false}>
+              <Checkbox
+                ref={box}
+                checked={accepted}
+                onCheckedChange={(v) => {
+                  setAccepted(v === true);
+                  setError("");
+                  if (v === true) {
+                    form.current?.requestSubmit();
+                  } else {
+                    setSaid("Terms not accepted.");
+                  }
+                }}
+              />
+            </Field>
+            <div>
+              <Button
+                onClick={() => {
+                  if (!accepted) {
+                    setError("Accept the terms to create an account.");
+                    setSaid("");
+                    box.current?.focus();
+                    return;
+                  }
+                  send();
+                }}
+              >
+                Create account
+              </Button>
+            </div>
+          </form>
         </Screen>
       )}
     </Frame>
@@ -205,7 +303,7 @@ function CardDialog({ onOpenChange, onConfirm }: { onOpenChange: (o: boolean) =>
   );
 }
 
-function AutoPay({ viaSwitch }: { viaSwitch: boolean }) {
+function AutoPay() {
   const [open, setOpen] = useState(false);
   const [on, setOn] = useState(false);
   const [said, setSaid] = useState("");
@@ -217,30 +315,54 @@ function AutoPay({ viaSwitch }: { viaSwitch: boolean }) {
   return (
     <Frame said={said} onReset={reset}>
       <Screen label="Billing">
-        {viaSwitch ? (
-          <>
-            <p id="autopay-notice" className="m-0 text-muted-foreground">
-              Turning this on opens a dialog.
-            </p>
-            <Field label="Automatic payments" layout="inline">
-              <Switch
-                aria-describedby="autopay-notice"
-                checked={on}
-                onCheckedChange={(v) => {
-                  if (v) {
-                    setOpen(true);
-                    setSaid("The switch opened a dialog, which took focus.");
-                  } else {
-                    setOn(false);
-                    setSaid("Automatic payments are off.");
-                  }
-                }}
-              />
-            </Field>
-          </>
-        ) : (
-          <Button onClick={() => setOpen(true)}>Set up automatic payments</Button>
-        )}
+        <Button onClick={() => setOpen(true)}>Set up automatic payments</Button>
+        <p className="m-0">
+          Automatic payments: <strong>{on ? "On" : "Off"}</strong>
+        </p>
+      </Screen>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <CardDialog
+          onOpenChange={setOpen}
+          onConfirm={() => {
+            setOn(true);
+            setSaid("Automatic payments are on.");
+          }}
+        />
+      </Dialog>
+    </Frame>
+  );
+}
+
+function AutoPayWithSwitch() {
+  const [open, setOpen] = useState(false);
+  const [on, setOn] = useState(false);
+  const [said, setSaid] = useState("");
+  const reset = () => {
+    setOpen(false);
+    setOn(false);
+    setSaid("");
+  };
+  return (
+    <Frame said={said} onReset={reset}>
+      <Screen label="Billing">
+        <p id="autopay-notice" className="m-0 text-muted-foreground">
+          Turning this on opens a dialog.
+        </p>
+        <Field label="Automatic payments" layout="inline">
+          <Switch
+            aria-describedby="autopay-notice"
+            checked={on}
+            onCheckedChange={(v) => {
+              if (v) {
+                setOpen(true);
+                setSaid("The switch opened a dialog, which took focus.");
+              } else {
+                setOn(false);
+                setSaid("Automatic payments are off.");
+              }
+            }}
+          />
+        </Field>
         <p className="m-0">
           Automatic payments: <strong>{on ? "On" : "Off"}</strong>
         </p>
@@ -260,7 +382,7 @@ function AutoPay({ viaSwitch }: { viaSwitch: boolean }) {
 
 /* --------------------------------------------------------- Save settings */
 
-function Settings({ useSwitch }: { useSwitch: boolean }) {
+function Settings() {
   const [draft, setDraft] = useState(false);
   const [saved, setSaved] = useState(false);
   const [said, setSaid] = useState("");
@@ -269,16 +391,44 @@ function Settings({ useSwitch }: { useSwitch: boolean }) {
     setSaved(false);
     setSaid("");
   };
-  const label = "Email me a weekly summary";
   return (
     <Frame said={said} onReset={reset}>
       <Screen label="Settings">
-        <Field label={label} layout="inline">
-          {useSwitch ? (
-            <Switch checked={draft} onCheckedChange={setDraft} />
-          ) : (
-            <Checkbox checked={draft} onCheckedChange={(v) => setDraft(v === true)} />
-          )}
+        <Field label="Email me a weekly summary" layout="inline">
+          <Checkbox checked={draft} onCheckedChange={(v) => setDraft(v === true)} />
+        </Field>
+        <div>
+          <Button
+            onClick={() => {
+              setSaved(draft);
+              setSaid("Settings saved.");
+            }}
+          >
+            Save settings
+          </Button>
+        </div>
+        <p className="m-0">
+          Saved setting: <strong>{saved ? "On" : "Off"}</strong>
+        </p>
+      </Screen>
+    </Frame>
+  );
+}
+
+function SettingsWithSwitch() {
+  const [draft, setDraft] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [said, setSaid] = useState("");
+  const reset = () => {
+    setDraft(false);
+    setSaved(false);
+    setSaid("");
+  };
+  return (
+    <Frame said={said} onReset={reset}>
+      <Screen label="Settings">
+        <Field label="Email me a weekly summary" layout="inline">
+          <Switch checked={draft} onCheckedChange={setDraft} />
         </Field>
         <div>
           <Button
@@ -310,7 +460,7 @@ export const FRM012b: RuleExamples = {
           checkout.
         </>
       ),
-      Demo: () => <Plan sends={false} />,
+      Demo: Plan,
     },
     {
       kind: "dont",
@@ -321,7 +471,7 @@ export const FRM012b: RuleExamples = {
           opens checkout. Reset brings the picker back.
         </>
       ),
-      Demo: () => <Plan sends />,
+      Demo: PlanThatOpensCheckout,
     },
     {
       kind: "do",
@@ -331,13 +481,13 @@ export const FRM012b: RuleExamples = {
           Tick <em>I accept the terms</em>. Nothing is sent until <em>Create account</em> is pressed.
         </>
       ),
-      Demo: () => <Terms sends={false} />,
+      Demo: Terms,
     },
     {
       kind: "dont",
       title: "A checkbox sends the form",
       caption: <>Tick the box. The form is sent and the page is replaced, though the button was never pressed.</>,
-      Demo: () => <Terms sends />,
+      Demo: TermsThatSend,
     },
     {
       kind: "do",
@@ -347,7 +497,7 @@ export const FRM012b: RuleExamples = {
           Press <em>Set up automatic payments</em>. The dialog opens because a button was pressed.
         </>
       ),
-      Demo: () => <AutoPay viaSwitch={false} />,
+      Demo: AutoPay,
     },
     {
       kind: "dont",
@@ -358,7 +508,8 @@ export const FRM012b: RuleExamples = {
           wrong control for starting a task.
         </>
       ),
-      Demo: () => <AutoPay viaSwitch />,
+      notLinted: "Lint gap: a switch that opens a dialog is not read; only a value change that navigates or sends a form is.",
+      Demo: AutoPayWithSwitch,
     },
     {
       kind: "do",
@@ -369,7 +520,7 @@ export const FRM012b: RuleExamples = {
           does not promise otherwise.
         </>
       ),
-      Demo: () => <Settings useSwitch={false} />,
+      Demo: Settings,
     },
     {
       kind: "dont",
@@ -380,7 +531,8 @@ export const FRM012b: RuleExamples = {
           pressed.
         </>
       ),
-      Demo: () => <Settings useSwitch />,
+      notLinted: "Lint gap: a switch whose state is only read by a separate Save button's handler is not traced.",
+      Demo: SettingsWithSwitch,
     },
   ],
 };
