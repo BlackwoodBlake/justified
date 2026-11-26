@@ -15,8 +15,15 @@
  * people's text, so they stay out of the repository (.sources-cache/ is in
  * .gitignore).
  *
+ * The frontmatter's text values (title, how_to_check, changelog notes and
+ * any other) are compared like the body, since they are published too.
+ *
+ * The check needs the excerpts, which are never committed, so it runs on
+ * the machine that holds them and not in CI.
+ *
  * What is ignored:
- *   - frontmatter, code blocks, inline code, HTML comments and URLs in rules
+ *   - frontmatter keys and syntax, code blocks, inline code, HTML comments
+ *     and URLs in rules
  *   - word runs that are mostly function words ("it is not the same as the")
  *   - phrases listed in the allow file (WCAG criterion names, common terms)
  *
@@ -24,6 +31,7 @@
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join, relative } from "node:path";
+import { parseDocument, visit } from "yaml";
 
 // ---------------------------------------------------------------- options
 
@@ -65,9 +73,32 @@ type Word = { w: string; line: number };
 /** Blank out a match but keep its newlines, so line numbers stay right. */
 const blank = (m: string) => m.replace(/[^\n]/g, " ");
 
+/**
+ * The frontmatter, with only its text values kept, each on the line where
+ * it is written. Keys, YAML syntax and comments are blanked. A number goes
+ * between values, and numbers are masked before comparing, so a run of
+ * words never joins two fields. Titles, how_to_check and changelog notes
+ * are published (rules.json, the agent files, the rule pages), so they
+ * must be in our own words like the body.
+ */
+function frontmatterText(block: string): string {
+  const yaml = block.slice(4, block.lastIndexOf("\n---")); // between the --- lines
+  const doc = parseDocument(yaml);
+  if (doc.errors.length) return block; // compare all of it rather than skip it
+  const lines = blank(block).split("\n");
+  visit(doc, {
+    Scalar(key, node) {
+      if (key === "key" || typeof node.value !== "string" || !node.range) return;
+      const line = 1 + (yaml.slice(0, node.range[0]).match(/\n/g)?.length ?? 0);
+      lines[line] += ` 0 ${node.value.replace(/\s+/g, " ")} 0`;
+    },
+  });
+  return lines.join("\n");
+}
+
 function stripMarkdown(text: string): string {
   return text
-    .replace(/^---\n[\s\S]*?\n---\n/, blank)      // frontmatter
+    .replace(/^---\n[\s\S]*?\n---\n/, frontmatterText) // frontmatter: keep only its text values
     .replace(/```[\s\S]*?```/g, blank)            // fenced code
     .replace(/<!--[\s\S]*?-->/g, blank)           // HTML comments
     .replace(/`[^`\n]*`/g, blank)                 // inline code
