@@ -1,6 +1,7 @@
 /**
- * shadcn-corpus.js: lints shadcn's own registry code with `recommended` and
- * compares the reports with the reviewed list in `test/shadcn-corpus.txt`.
+ * shadcn-corpus.js: lints shadcn's own v4 app and registry code (`apps/v4`)
+ * with `recommended` and compares the reports with the reviewed list in
+ * `test/shadcn-corpus.txt`.
  *
  * shadcn's code is the code these rules meet most, so a new report there is
  * most often a wrong one. Every line in the list has been read by hand and
@@ -28,8 +29,12 @@ import plugin from "../index.js";
 /** The shadcn-ui/ui commit the list was reviewed against. Change it only together with the list. */
 export const SHADCN_COMMIT = "0e5b2e621a9ee4cf6a604bbe6c5c0d5b70561eb4";
 const REPOSITORY = "https://github.com/shadcn-ui/ui.git";
-/** shadcn's own components, examples, blocks and hooks, as the CLI copies them into an app. */
-const REGISTRY = "apps/v4/registry/new-york-v4";
+/**
+ * shadcn's v4 app: its own site (app, components, hooks), the examples for
+ * both bases, and every registry, including the components, examples,
+ * blocks and hooks the CLI copies into an app.
+ */
+const REGISTRY = "apps/v4";
 
 const here = fileURLToPath(new URL(".", import.meta.url));
 const listFile = join(here, "..", "test", "shadcn-corpus.txt");
@@ -74,7 +79,7 @@ const list = (path) =>
     .sort()
     .flatMap((entry) => {
       const p = join(path, entry);
-      if (statSync(p).isDirectory()) return entry === "node_modules" ? [] : list(p);
+      if (statSync(p).isDirectory()) return /^(node_modules|\.next|dist)$/.test(entry) ? [] : list(p);
       return /\.(js|jsx|ts|tsx)$/.test(entry) ? [p] : [];
     });
 
