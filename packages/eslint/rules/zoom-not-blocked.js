@@ -33,7 +33,14 @@
  * picture, video, avatar, carousel or scroll area, or fade the cut with a
  * gradient or mask, where the crop is a choice or the exception for
  * truncation with a way to the whole may apply; `h-0` and other heights in
- * a branch, such as a collapsed panel; and values that are computed.
+ * a branch, such as a collapsed panel; a box that a variant lets grow or
+ * scroll (`data-[state=open]:max-h-none`, `aria-expanded:h-auto`, any other
+ * height or `overflow-visible`/`-auto` under a variant), such as a panel
+ * that expands; a box that holds a component the rule cannot read, whose
+ * own height or scrolling is not known; a `flex-col` or `grid` box with a
+ * child beside the paragraph other than a heading, a frame round a layout
+ * where that child takes the rest of the height; and values that are
+ * computed.
  */
 import { defineRule } from "../lib/define-rule.js";
 import { parseToken, readClassList } from "../lib/class-token-helpers.js";
@@ -47,6 +54,11 @@ const NO_WRAP = /^(truncate|line-clamp-.+|whitespace-nowrap|whitespace-pre|text-
 const SCROLLS = /^overflow(-[xy])?-(auto|scroll)$/;
 /** A fade over the cut, which takes judgement. */
 const FADE = /^(bg-gradient-to-|bg-linear-|from-|mask-)/;
+/** A class under a variant that lets the box grow or scroll, such as `data-[state=open]:max-h-none`. */
+const GROWS = /^((min-|max-)?h-|overflow(-y)?-(visible|auto|scroll)$)/;
+/** Components the rule reads as boxes of text. Any other component may scroll or size itself. */
+const READ_COMPONENTS = /^Card(Content|Description|Header|Title|Footer)?$/;
+const HEADING = /^h[1-6]$/;
 /** Pictures, video and scroll areas, whose crop is a choice. */
 const MEDIA = /^(img|Image|picture|video|canvas|iframe|svg|ScrollArea|Carousel.*|Avatar.*|AspectRatio)$/;
 
@@ -149,6 +161,8 @@ export default defineRule({
         if (n.type !== "JSXOpeningElement") return undefined;
         const name = elementName(n) ?? "";
         if (MEDIA.test(name)) excluded = true;
+        if (/^[A-Z]/.test(name) && n.parent !== box && !READ_COMPONENTS.test(name)) excluded = true;
+        if (!name) excluded = true;
         const all = readClassList(context, n);
         const tokens = all ? all.parts.flatMap((p) => p.tokens).map((t) => parseToken(t).utility) : [];
         if (tokens.some((t) => FADE.test(t) || SCROLLS.test(t))) excluded = true;
@@ -170,6 +184,21 @@ export default defineRule({
         const height = tokens.find((t) => FIXED_HEIGHT.test(t) && !/^(max-)?h-(0|px|\[0[a-z]*\])$/.test(t));
         if (!height || !tokens.some((t) => CLIPS.test(t))) return;
         if (tokens.some((t) => NO_WRAP.test(t) || SCROLLS.test(t))) return;
+        // A variant that lets the box grow or scroll: a panel that expands.
+        const variantTokens = (readClassList(context, opening)?.parts ?? [])
+          .flatMap((part) => part.tokens)
+          .map((t) => parseToken(t))
+          .filter((t) => t.variants.length > 0);
+        if (variantTokens.some((t) => GROWS.test(t.utility))) return;
+        // A frame round a layout: another child beside the paragraph shares the height.
+        if (tokens.includes("grid") || (tokens.includes("flex") && tokens.includes("flex-col"))) {
+          const other = element.children.some((/** @type {any} */ c) => {
+            if (c.type !== "JSXElement") return false;
+            const child = elementName(c.openingElement) ?? "";
+            return child !== "p" && !HEADING.test(child);
+          });
+          if (other) return;
+        }
         if (wrappingParagraph(element)) context.report({ node: opening, messageId: "clipsText", data: { height } });
       },
       JSXOpeningElement(opening) {
