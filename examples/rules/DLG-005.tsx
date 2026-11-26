@@ -340,6 +340,8 @@ export const DLG005: RuleExamples = {
           styles now push towards the answer the product prefers, and the safe choice looks like the main one.
         </>
       ),
+      notLinted:
+        "Lint gap: the rule sentence asks only that the destructive button has the danger style; a filled Cancel beside it is our own advice in Don't.",
       Demo: FilledCancel,
     },
   ],
