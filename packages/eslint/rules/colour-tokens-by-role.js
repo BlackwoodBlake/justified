@@ -36,8 +36,12 @@
  *     colours or two fills under the same variants, and the pair check on
  *     class lists the code does not state in full.
  *   - `text-white` or `text-black` on text that sits on a photo or picture
- *     (an `img`, `svg`, `video` or background image up to three levels out):
- *     no token pairs with a photo, and VIS-001 measures such text.
+ *     (an `img`, `svg`, `video` or background image up to three levels out)
+ *     behind a scrim: a `bg-black/60`, dark or gradient fill (also one only
+ *     a branch adds), or such a `style`, on the text itself, on an element between it and the
+ *     picture, or on a sibling laid over the picture. No token pairs with a
+ *     photo, and VIS-001 measures such text. The rule's exception asks for
+ *     the scrim, so white text straight on a photo is still reported.
  *   - `muted-foreground` or `foreground` on `accent`, `secondary`, `card` or
  *     `popover`: they are light fills in both shadcn themes, and shadcn's own
  *     components put them there.
@@ -137,6 +141,11 @@ const NOT_TEXT_INPUTS = new Set([
   "image",
 ]);
 const LAYOUT_VARIANTS = /^(dark|sm|md|lg|xl|2xl)$/;
+/** A scrim over a photo: black or white, a dark palette fill, or a gradient. */
+const SCRIM = new RegExp(
+  `^(bg-(black|white)(/\\S+)?|bg-(slate|gray|zinc|neutral|stone)-(800|900|950)(/\\S+)?|bg-(linear|gradient|radial|conic)(-\\S+)?)$`,
+);
+const SCRIM_STYLE = /gradient\(|^\s*(#000\b|#000000|black\b|rgba?\(\s*0[\s,]+0[\s,]+0\b)/;
 
 /** @param {string} s */
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
@@ -265,22 +274,70 @@ export default defineRule({
     };
 
     /**
-     * Whether the element sits on a photo or picture: an element up to three
-     * levels out holds an img, picture, video, svg or next/image, or a
-     * background image. White or black text there has no token to pair with.
+     * Whether an element draws a scrim: a dark or white fill such as
+     * `bg-black/60`, or a gradient, there whatever the branches do, or a
+     * gradient or dark colour in `style`.
+     * @param {any} opening
+     */
+    const isScrim = (opening) => {
+      // A scrim that a branch adds counts: a page may let people turn it off, and the rule stays quiet when in doubt.
+      const list = readClassList(context, opening);
+      const tokens = list ? list.parts.flatMap((p) => p.tokens) : [];
+      const scrimClass = tokens.some((t) => {
+        const { variants, utility } = parseToken(t);
+        return variants.every((v) => LAYOUT_VARIANTS.test(v)) && SCRIM.test(utility);
+      });
+      if (scrimClass) return true;
+      const style = getAttribute(opening, "style");
+      const object = style?.value?.type === "JSXExpressionContainer" ? unwrap(style.value.expression) : undefined;
+      if (object?.type !== "ObjectExpression") return false;
+      return object.properties.some((p) => {
+        if (p.type !== "Property" || p.computed) return false;
+        const key = p.key.type === "Identifier" ? p.key.name : String(p.key.value);
+        const value = unwrap(p.value);
+        return (
+          /^background(Image|Color)?$/.test(key) &&
+          value?.type === "Literal" &&
+          typeof value.value === "string" &&
+          SCRIM_STYLE.test(value.value)
+        );
+      });
+    };
+
+    /** A sibling laid over the picture as a scrim. @param {any} el @param {any} except */
+    const scrimSibling = (el, except) =>
+      el.children.some(
+        (/** @type {any} */ c) =>
+          c !== except &&
+          c.type === "JSXElement" &&
+          !MEDIA.has(elementName(c.openingElement) ?? "") &&
+          isScrim(c.openingElement),
+      );
+
+    /**
+     * Whether the element sits on a photo or picture behind a scrim: an
+     * element up to three levels out holds an img, picture, video, svg or
+     * next/image, or a background image, and a scrim lies on the text, on an
+     * element between it and the picture, or on a sibling laid over the
+     * picture. White or black text there has no token to pair with. Without
+     * a scrim the text sits on the picture itself, and the exception does
+     * not apply.
      * @param {any} node
      */
     const overMedia = (node) => {
-      let el = node.parent;
-      for (let level = 0; level < 3 && el; level++) {
-        el = parentElement(el);
+      let child = node.parent;
+      let scrim = isScrim(node);
+      for (let level = 0; level < 3 && child; level++) {
+        const el = parentElement(child);
         if (!el) break;
         const tokens = readClassList(context, el.openingElement)?.certain ?? [];
-        if (tokens.some((t) => /^bg-(\[url|cover$)/.test(parseToken(t).utility))) return true;
+        const background = tokens.some((t) => /^bg-(\[url|cover$)/.test(parseToken(t).utility));
         const media = el.children.some(
-          (c) => c.type === "JSXElement" && MEDIA.has(elementName(c.openingElement) ?? ""),
+          (/** @type {any} */ c) => c.type === "JSXElement" && MEDIA.has(elementName(c.openingElement) ?? ""),
         );
-        if (media) return true;
+        if (background || media) return scrim || scrimSibling(el, child);
+        scrim ||= isScrim(el.openingElement) || scrimSibling(el, child);
+        child = el;
       }
       return false;
     };

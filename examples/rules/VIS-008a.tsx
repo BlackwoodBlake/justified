@@ -51,25 +51,34 @@ function ClassToggle({ name }: { name: string }) {
   );
 }
 
-function ToolbarScene({ withState }: { withState: boolean }) {
+/** A toolbar with its "State in code" readout. Each example passes in its own toggles. */
+function ToolbarScene({ label, children }: { label: string; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   return (
     <div className="flex w-full max-w-md flex-col gap-3">
-      <div ref={ref} role="group" aria-label={withState ? "Call controls" : "Text style"} className="flex flex-wrap gap-2">
-        {withState ? (
-          <>
-            <StateToggle name="Mute" icon={(on) => <MicGlyph off={on} />} />
-            <StateToggle name="Favourite" icon={(on) => <StarGlyph filled={on} />} />
-          </>
-        ) : (
-          <>
-            <ClassToggle name="Bold" />
-            <ClassToggle name="Italic" />
-          </>
-        )}
+      <div ref={ref} role="group" aria-label={label} className="flex flex-wrap gap-2">
+        {children}
       </div>
       <CodeReadout scope={ref} />
     </div>
+  );
+}
+
+function CallToolbar() {
+  return (
+    <ToolbarScene label="Call controls">
+      <StateToggle name="Mute" icon={(on) => <MicGlyph off={on} />} />
+      <StateToggle name="Favourite" icon={(on) => <StarGlyph filled={on} />} />
+    </ToolbarScene>
+  );
+}
+
+function TextToolbar() {
+  return (
+    <ToolbarScene label="Text style">
+      <ClassToggle name="Bold" />
+      <ClassToggle name="Italic" />
+    </ToolbarScene>
   );
 }
 
@@ -109,7 +118,7 @@ export const VIS008a: RuleExamples = {
           <code>aria-pressed:</code>. Press them and read "State in code" change with the look.
         </>
       ),
-      Demo: () => <ToolbarScene withState />,
+      Demo: () => <CallToolbar />,
     },
     {
       kind: "dont",
@@ -120,7 +129,7 @@ export const VIS008a: RuleExamples = {
           one: it looks on, but a screen reader announces an ordinary button, and "State in code" stays empty.
         </>
       ),
-      Demo: () => <ToolbarScene withState={false} />,
+      Demo: () => <TextToolbar />,
     },
     {
       kind: "do",

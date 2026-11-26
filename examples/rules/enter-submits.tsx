@@ -1,7 +1,7 @@
 import { Button } from "@blackwoodblake/justified-shadcn/button";
 import { Field } from "@blackwoodblake/justified-shadcn/field";
 import { Input } from "@blackwoodblake/justified-shadcn/input";
-import { useState, type FormEvent } from "react";
+import { useState, type ComponentType, type FormEvent } from "react";
 
 import { Outcome } from "./dialog";
 
@@ -13,7 +13,8 @@ import { Outcome } from "./dialog";
  * Invite: a field and a send button, as a real form or as a div with a click
  * handler.
  * SignIn: a password field with a show-password helper beside it. The helper
- * is either typed as a plain button or left without a type, first in the code.
+ * is typed as a plain button here; FRM-015.tsx passes in the Don't's helper,
+ * left without a type, first in the code.
  *
  * For the examples only. They are not components of the system.
  */
@@ -86,8 +87,20 @@ export function Invite({ real }: { real: boolean }) {
   );
 }
 
+/** What a show-password helper gets from the sign-in form. */
+export type HelperProps = { label: string; onToggle: () => void };
+
+/** The helper typed as a plain button: Enter in a field never presses it. */
+function TypedHelper({ label, onToggle }: HelperProps) {
+  return (
+    <Button variant="outline" size="sm" onClick={onToggle}>
+      {label}
+    </Button>
+  );
+}
+
 /** A sign-in form with a show-password helper. */
-export function SignIn({ helperTyped }: { helperTyped: boolean }) {
+export function SignIn({ Helper = TypedHelper }: { Helper?: ComponentType<HelperProps> }) {
   const [shown, setShown] = useState(false);
   const [signedIn, setSignedIn] = useState(0);
   const [said, setSaid] = useState("");
@@ -125,27 +138,7 @@ export function SignIn({ helperTyped }: { helperTyped: boolean }) {
         </Field>
         <div className="flex flex-wrap items-center gap-2">
           {/* Before the main button in the code. Without a type it is a submit button. */}
-          {helperTyped ? (
-            <Button variant="outline" size="sm" onClick={toggle}>
-              {helperLabel}
-            </Button>
-          ) : (
-            <Button
-              asChild
-              variant="outline"
-              size="sm"
-            >
-              <button
-                onClick={(e) => {
-                  // A click on the eye would send the form, so the handler stops it, and that swallows Enter too.
-                  e.preventDefault();
-                  toggle();
-                }}
-              >
-                {helperLabel}
-              </button>
-            </Button>
-          )}
+          <Helper label={helperLabel} onToggle={toggle} />
           <Button type="submit">Sign in</Button>
         </div>
       </form>

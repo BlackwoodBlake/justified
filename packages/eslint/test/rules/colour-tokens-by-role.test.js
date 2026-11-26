@@ -60,7 +60,15 @@ run("colour-tokens-by-role", rule, {
     `<img src="/fern.jpg" alt="A fern" className="border-white" />`,
     `import { Leaf } from "lucide-react";\n<Leaf className="size-24 text-emerald-200" />`,
     `<div className="relative"><img src="/cover.jpg" alt="" /><div className="absolute inset-0 bg-black/60 p-4"><h4 className="text-white">Marrowfield Hours</h4></div></div>`,
-    `<div className="relative bg-[url(/night.jpg)] bg-cover"><h2 className="text-white">Night shift</h2></div>`,
+    // Text on a photo or video behind a scrim: on the text, between, or laid over as a sibling.
+    `<div className="relative bg-[url(/night.jpg)] bg-cover"><h2 className="bg-black/50 px-2 text-white">Night shift</h2></div>`,
+    `<div className="relative"><img src="/cover.jpg" alt="" /><div className="absolute inset-0 bg-black/40" /><h2 className="absolute bottom-4 text-white">Night shift</h2></div>`,
+    `<div className="relative"><video src="/tour.mp4" muted /><div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 to-transparent p-4"><p className="text-white">Tour of the nursery</p></div></div>`,
+    `<div className="relative"><Image src="/fern.jpg" alt="" fill /><div className="absolute inset-0 bg-gradient-to-t from-black/70" /><div className="relative p-6"><h3 className="text-white">Ferns</h3></div></div>`,
+    `<div className="relative"><img src="/snow.jpg" alt="" /><p className="absolute inset-0 text-black" style={{ background: "linear-gradient(to top, rgb(255 255 255 / 0.8), transparent)" }}>Snow</p></div>`,
+    `<div className="relative"><img src="/snow.jpg" alt="" /><div className="absolute inset-0 bg-white/70" /><p className="relative text-black">Snow</p></div>`,
+    // A scrim a branch adds, as on a page that lets people turn it off: left alone when in doubt.
+    `<div className="relative"><video src="/tour.mp4" /><p className={cn("absolute text-white", dim && "bg-black/50")}>Tour</p></div>`,
     // Only in a branch: the branch may never be taken.
     `<Input className={faint ? "border-border" : undefined} />`,
     `<p className={cn("text-sm", legacy && "text-gray-500")}>Old</p>`,
@@ -108,6 +116,20 @@ run("colour-tokens-by-role", rule, {
     { code: `<p className={big ? "text-lg text-gray-600" : "text-sm text-gray-600"}>Note</p>`, errors: rawPalette },
     // Text over a plain fill is not over a photo.
     { code: `<div className="bg-primary"><p className="text-white">Sale</p></div>`, errors: rawPalette },
+    // Text straight on a photo or video, with no scrim.
+    {
+      code: `<div className="relative bg-[url(/night.jpg)] bg-cover"><h2 className="text-white">Night shift</h2></div>`,
+      errors: rawPalette,
+    },
+    {
+      code: `<div className="relative"><img src="/cover.jpg" alt="" /><h2 className="absolute bottom-4 text-white">Night shift</h2></div>`,
+      errors: rawPalette,
+    },
+    // A token fill with opacity is not a scrim made for the picture.
+    {
+      code: `<div className="relative"><img src="/cover.jpg" alt="" /><div className="absolute inset-0 bg-background/60" /><h2 className="absolute text-white">Night shift</h2></div>`,
+      errors: rawPalette,
+    },
     // Mixing a token fill with a palette one for dark.
     { code: `<div className="bg-card dark:bg-zinc-900" />`, errors: [{ messageId: "darkMix" }] },
     // Style.

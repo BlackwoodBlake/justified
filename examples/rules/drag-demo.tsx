@@ -64,7 +64,7 @@ export const grip =
 
 const small =
   "flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md border border-input bg-background " +
-  "text-foreground hover:bg-accent hover:text-accent-foreground aria-disabled:cursor-not-allowed aria-disabled:opacity-50 " +
+  "text-foreground not-aria-disabled:hover:bg-accent not-aria-disabled:hover:text-accent-foreground aria-disabled:cursor-not-allowed aria-disabled:opacity-50 " +
   "outline-none focus-visible:outline-hidden focus-visible:ring-(length:--focus-ring-width) focus-visible:ring-ring " +
   "focus-visible:ring-offset-[length:var(--focus-ring-offset)] focus-visible:ring-offset-background";
 
