@@ -16,12 +16,18 @@
  *      look. A `div` or `li` with `relative` and `cursor-pointer` and a link
  *      stretched over it is read like such a `Card`, when every element
  *      between them is a plain HTML element that positions nothing.
- *   1b. A native `button` with `onClick` whose stated classes give it its
- *      own fill or border (so the browser no longer draws it), with no
- *      `hover:` or `active:` look on it or inside it, and no element around
- *      it that styles its children (`[&_button]:…`, `*:…`) or whose classes
- *      are not stated in full. A `disabled` or `aria-disabled` button is
- *      left to sub-check 3.
+ *   1b. A native `button` with `onClick` whose classes give it its own fill
+ *      or border in every branch (so the browser no longer draws it), with
+ *      no `hover:` or `active:` look on it or inside it, and no element
+ *      around it that styles its children (`[&_button]:…`, `*:…`), draws a
+ *      look when it is hovered or pressed (`has-[button:hover]:…`), or
+ *      whose classes are not stated in full. A `disabled` or
+ *      `aria-disabled` button is left to sub-check 3. A fill that only a
+ *      branch adds, such as a pressed look, does not make it styled, and
+ *      neither does a gradient. A button with a class from the project's
+ *      own stylesheet, such as `btn`, is left alone, since that class may
+ *      draw the look, and so is a button laid over the page or a box
+ *      (`fixed`, or `absolute inset-0`), such as a backdrop.
  *   2. `hover:bg-transparent` on a `Button`, a menu, command or select item
  *      with no other `hover:` look, and `focus:bg-transparent` or
  *      `data-[highlighted]:bg-transparent` on a menu item with no other
@@ -44,7 +50,7 @@
  *     look (our own advice, not the rule).
  */
 import { defineRule } from "../lib/define-rule.js";
-import { parseToken, readClassList } from "../lib/class-token-helpers.js";
+import { fromOwnStylesheet, parseToken, readClassList } from "../lib/class-token-helpers.js";
 import { attributeValue, elementName, getAttribute, hasSpread, unwrap, walk } from "../lib/jsx.js";
 
 const CLICKABLE = new Set(["Card", "div", "li", "tr"]);
@@ -171,8 +177,9 @@ export default defineRule({
         const list = readClassList(context, n.openingElement);
         if (list && (!list.complete || list.passThrough)) return true;
         const tokens = list ? list.parts.flatMap((p) => p.tokens) : [];
-        if (tokens.some((t) => parseToken(t).variants.some((v) => v.startsWith("[&") || v.startsWith("*"))))
-          return true;
+        const looks = (/** @type {string} */ v) =>
+          v.startsWith("[&") || v.startsWith("*") || (v.startsWith("has-") && /:(hover|active)\b/.test(v));
+        if (tokens.some((t) => parseToken(t).variants.some(looks))) return true;
       }
       return false;
     };
@@ -189,10 +196,19 @@ export default defineRule({
             return;
           const list = knownList(opening);
           if (!list?.present) return;
-          // Styled by the code, not left to the browser: its own fill or border.
-          const styled = list.tokens.some((t) => {
+          // A class from the project's own stylesheet may draw the look.
+          if (list.tokens.some(fromOwnStylesheet)) return;
+          // A backdrop or a layer over a box is a whole container, not a control.
+          if (list.tokens.includes("fixed") || (list.tokens.includes("absolute") && list.tokens.includes("inset-0")))
+            return;
+          // Styled by the code in every branch, not left to the browser: its own fill or border.
+          const certain = readClassList(context, opening)?.certain ?? [];
+          const styled = certain.some((t) => {
             const { variants, utility } = parseToken(t);
-            return variants.length === 0 && /^(bg-(?!transparent$|none$)|border$|border-\d)/.test(utility);
+            return (
+              variants.length === 0 &&
+              /^(bg-(?!transparent$|none$|gradient|linear|radial|conic)|border$|border-\d)/.test(utility)
+            );
           });
           if (styled && !hasLook(list.tokens) && !lookInside(element) && !stylesChildren(element))
             context.report({ node: opening, messageId: "noLook", data: { name } });

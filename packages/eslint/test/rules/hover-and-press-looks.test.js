@@ -70,8 +70,51 @@ run("hover-and-press-looks", rule, {
     // A button that is off, or a picture of one with no handler.
     `<button type="button" onClick={go} disabled className="rounded-md border px-3">Share</button>`,
     `<button type="button" tabIndex={-1} className="rounded-md bg-accent px-3">Share</button>`,
+    // Since the review of 0.1.1: native buttons that a stylesheet, a parent or a branch may style, gradients and overlays.
+    // A backdrop button laid over the page
+    `
+    export const A = () => (<button aria-label="Close menu" className="fixed inset-0 bg-black/50" onClick={close} />)`,
+    // A parent draws the look when the button is hovered: has-[button:hover]:
+    `
+    export const A = () => (<div className="has-[button:hover]:bg-muted"><button className="border px-2" onClick={go}>Go</button></div>)`,
+    // A class from the project's own stylesheet, btn, may draw the look
+    `
+    export const A = () => (<button className="btn bg-primary" onClick={go}>Go</button>)`,
+    // A fill only under a condition, a pressed look, does not make the button styled
+    `
+    export function A() { const [pinned, setPinned] = useState(false); return <table><thead><tr><th><button onClick={() => setPinned(!pinned)} className={pinned ? "bg-accent" : ""}>Pin column</button></th></tr></thead></table> }`,
+    // The same with a check icon
+    `
+    export function A() { const [on, setOn] = useState(false); return <button onClick={() => setOn(!on)} className={on ? "bg-accent" : ""}>Bold {on && <Check aria-hidden />}</button> }`,
+    // A gradient that fades out the code under it, as in shadcn's own collapsible code block.
+    `export const A = () => (<button type="button" className="absolute inset-x-0 bottom-0 flex h-20 items-center justify-center bg-gradient-to-b from-code/70 to-code text-sm" onClick={() => setOpen(true)}>Expand</button>)`,
+    `export const A = () => (<button className="bg-linear-to-r from-primary to-secondary px-4" onClick={go}>Go</button>)`,
+    `export const A = () => (<button className="absolute inset-0 bg-background/80" onClick={close} aria-label="Close" />)`,
+    `export const A = () => (<div className="has-[>button:active]:bg-muted"><button className="border px-2" onClick={go}>Go</button></div>)`,
   ],
   invalid: [
+    {
+      // A native button with a fill and no look
+      code: `
+      export const A = () => (<button type="button" className="rounded bg-blue-600 px-3 py-2 text-white" onClick={go}>Book</button>)`,
+      errors: [{ messageId: "noLook" }],
+    },
+    {
+      // A native button with a border and a fill, and no look inside
+      code: `
+      export const A = () => (<button className="flex h-9 w-full items-center rounded-md border bg-background px-3" onClick={open}><span>Choose a date</span></button>)`,
+      errors: [{ messageId: "noLook" }],
+    },
+    {
+      // A state or hook name such as active or js-open is not a class that may draw a look.
+      code: `export const A = ({ on }) => (<button className={cn("rounded border px-2", on && "active")} onClick={go}>Tab</button>)`,
+      errors: [{ messageId: "noLook" }],
+    },
+    {
+      // A has-[…] variant that is not about hover or press does not count.
+      code: `export const A = () => (<div className="has-[button:focus-visible]:ring-2"><button className="border px-2" onClick={go}>Go</button></div>)`,
+      errors: [{ messageId: "noLook" }],
+    },
     // The VIS-008 Don'ts, written out.
     { code: `<Card onClick={() => openProject("atlas")} className="cursor-pointer">Atlas redesign</Card>`, errors: noLook },
     { code: `<Card onClick={() => openProject("atlas")}>Atlas redesign</Card>`, errors: noLook },
