@@ -40,6 +40,34 @@ export const PAIRS: Pair[] = [
   { fg: "ring", bg: "accent", min: NON_TEXT, use: "focus ring on an accent surface" },
 ];
 
+/**
+ * Colour tokens that are in no pair, and why. Every other colour token
+ * must be in a pair, so a new colour cannot ship unmeasured.
+ */
+export const UNMEASURED: Record<string, string> = {
+  border: "dividers and the edges of cards and tables, which are decoration; the edge of a control is --input",
+  overlay: "the scrim behind a dialog, which carries no text and no control of its own",
+};
+
+/** A CSS value that is a colour. */
+const COLOUR = /^(?:#[0-9a-f]{3,8}|(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix)\(.*\)|transparent)$/i;
+
+/**
+ * Colour tokens that no pair measures and that UNMEASURED does not explain,
+ * and UNMEASURED entries that are no longer colour tokens or are measured
+ * after all. Both lists must be empty.
+ */
+export function coverage(themes: Themes): { unmeasured: string[]; stale: string[] } {
+  const inPairs = new Set(PAIRS.flatMap((p) => [p.fg, p.bg]));
+  const colours = new Set(
+    (["light", "dark"] as const).flatMap((t) => Object.entries(themes[t]).filter(([, v]) => COLOUR.test(v)).map(([k]) => k)),
+  );
+  return {
+    unmeasured: [...colours].filter((t) => !inPairs.has(t) && !(t in UNMEASURED)).sort(),
+    stale: Object.keys(UNMEASURED).filter((t) => !colours.has(t) || inPairs.has(t)).sort(),
+  };
+}
+
 export type Themes = { light: Record<string, string>; dark: Record<string, string> };
 
 function block(css: string, selector: RegExp): Record<string, string> {
