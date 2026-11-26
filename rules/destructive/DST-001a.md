@@ -4,7 +4,7 @@ title: Make destructive actions reversible, and offer Undo instead of asking fir
 short: Undo over asking
 area: destructive
 status: decided
-version: "1.0.3"
+version: "1.0.4"
 verdict: unanimous
 judges: { spoken: 2, agreeing: 2 }
 law:
@@ -18,7 +18,7 @@ stances:
   carbon:   { stance: silent }
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-confirmation-dialog, nngroup-user-control-and-freedom] }
-conflicts_checked: 2026-11-24
+conflicts_checked: 2026-11-26
 check: review
 how_to_check:
   - 'For each delete, archive, remove or bulk change, ask whether the product can bring back the whole previous state. If it can, the step should run at once and offer *Undo*, with no confirmation question first.'
@@ -27,6 +27,9 @@ how_to_check:
   - 'An *Undo* that restores only part, such as the item without its files, comments or place in the list, or an *Undo* shown for something that has left the product, such as a sent email.'
   - 'An *Undo* reachable only by Ctrl+Z with nothing on screen, or a message with *Undo* that takes focus when it appears.'
 changelog:
+  - version: "1.0.4"
+    date: 2026-11-26
+    note: The exception for unsaved input now also covers pages and names FRM-004c and FRM-004d. A delete the server refuses brings the item back and withdraws Undo (STA-005a).
   - version: "1.0.3"
     date: 2026-11-24
     note: The exception for unsaved input now also names FRM-004b.
@@ -59,6 +62,7 @@ People slip. They pick the wrong row, tap a moment too early or change their min
 - Keep *Undo* on screen for as long as FBK-005 says: until the person uses it, closes it or leaves the view, or a newer message makes it moot. Nobody has to catch it in time. After that, a lasting way back such as *Deleted items*, *Archive* or *History* remains.
 - Show the new state in the view itself, as FBK-003 says. The message is an addition, never the only sign. Announce the message without moving focus, as FBK-004 says.
 - Make *Undo* reachable with the keyboard in the normal tab order. A shortcut such as Ctrl+Z may also work, but never as the only route.
+- If the server refuses a delete that has already left the list, the item comes back in its place, the message with *Undo* is withdrawn, and the failure shows where FBK-002 says (STA-005a).
 - After *Undo*, show the project back in its place. If focus was on *Undo* and the message closes, move focus to the restored project.
 - The person presses *Delete* in the dialog *Edit contact*. The action closes the dialog, the contact leaves the list, and *Undo* is offered on the page. No confirmation question is added. If one were, DLG-002 would have it replace the dialog's content.
 
@@ -75,5 +79,5 @@ People slip. They pick the wrong row, tap a moment too early or change their min
 ## Exceptions
 
 - **Actions that cannot be fully reversed.** A payment that has gone through, a message delivered to other people or a legal step has no full Undo, so this rule's second half does not apply. DST-001b decides whether to ask first, also for a step that can be reversed but would cost a lot if it went wrong. How that question looks and behaves is covered by DLG-003, DLG-004 and DLG-005.
-- **Unsaved input in a dialog or sheet.** FRM-004a decides what closing a full-screen dialog does, and the guideline FRM-004b what closing a smaller dialog or a sheet does. If closing keeps a draft the person can get back, nothing is thrown away and no question is asked.
+- **Unsaved input in a dialog, a sheet or on a page.** FRM-004a decides what closing a full-screen dialog does, and the guideline FRM-004b what closing a smaller dialog or a sheet does. The guideline FRM-004c decides what leaving a page does, and the guideline FRM-004d prefers keeping the work there. If closing or leaving keeps a draft the person can get back, nothing is thrown away and no question is asked.
 - **Typing in a field.** Changing text the person is still typing is not an action in this rule. The browser's own undo covers it.

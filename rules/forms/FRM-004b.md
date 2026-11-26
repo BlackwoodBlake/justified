@@ -4,7 +4,7 @@ title: Ask before a dialog or sheet that does not fill the screen throws away un
 short: Unsaved changes, small dialog
 area: forms
 status: proposed
-version: "1.0.0"
+version: "1.0.1"
 verdict: insufficient-evidence
 judges: { spoken: 1, agreeing: 1 }
 law:
@@ -22,7 +22,7 @@ stances:
   carbon:   { stance: silent }
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-cancel-vs-close, nngroup-confirmation-dialog, nngroup-modal-nonmodal] }
-conflicts_checked: 2026-11-24
+conflicts_checked: 2026-11-26
 check: runtime
 how_to_check:
   - 'In a dialog or sheet that does not fill the screen, fill in two fields or a multi-line field, then try Cancel, the close icon, Escape, a backdrop press and a swipe, and see whether every way that discards asks first.'
@@ -31,6 +31,9 @@ how_to_check:
   - 'An `onOpenChange`, `onEscapeKeyDown`, `onPointerDownOutside` or `onInteractOutside` handler that closes the dialog without the unsaved-changes check that Cancel uses.'
   - 'A change check that counts key presses or touched fields instead of comparing values with what the view started with, such as `touchedFields` in place of `isDirty`.'
 changelog:
+  - version: "1.0.1"
+    date: 2026-11-26
+    note: Refers to FRM-004c and FRM-004d for pages.
   - version: "1.0.0"
     date: 2026-11-24
     note: First version.
@@ -83,6 +86,6 @@ Fewer than two judges have spoken about ordinary dialogs and sheets, so the verd
 ## Exceptions
 
 - **One small change.** Our own choice: do not ask when the only change is to one control that is not a multi-line text field, such as one short text field, one pick in a list or one switch. A change to a multi-line text field asks, and so do changes to two or more controls. A full-screen dialog asks after one small change too, because FRM-004a has no such exception.
-- **Full-screen dialogs.** They are covered by FRM-004a, which is a rule. Neither text says anything about leaving an ordinary page or a form on a page.
+- **Full-screen dialogs.** They are covered by FRM-004a, which is a rule. Leaving a page with unsaved changes is the guideline FRM-004c, and keeping the work on a page form the guideline FRM-004d.
 - **Non-modal panels.** A side panel that leaves the page usable is not a modal view and is outside this guideline.
 - **While sending.** Once the person has pressed the main action, such as *Add shift*, and the view shows progress, the input is on its way. STA-005a decides what closing does then.

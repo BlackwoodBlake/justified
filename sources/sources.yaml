@@ -3415,3 +3415,696 @@
   read: 2026-11-25
   author: Alita Kendrick
   platform: null
+
+- id: carbon-checkbox
+  system: carbon
+  role: judge
+  title: "Checkbox: usage"
+  url: https://carbondesignsystem.com/components/checkbox/usage/
+  version: v11
+  page_updated: 2026-09-30
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: wcag-technique-h44
+  system: wcag
+  role: law
+  title: "H44: Using label elements to associate text labels with form controls"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/html/H44
+  version: null
+  page_updated: 2026-01-12
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: apple-text-views
+  system: apple
+  role: judge
+  title: Text views
+  url: https://developer.apple.com/design/human-interface-guidelines/text-views
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: "all platforms; written for native apps, not the web"
+
+- id: govuk-textarea
+  system: govuk
+  role: witness
+  title: Textarea
+  url: https://design-system.service.gov.uk/components/textarea/
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: carbon-number-input
+  system: carbon
+  role: judge
+  title: "Number input: usage"
+  url: https://carbondesignsystem.com/components/number-input/usage/
+  version: v11
+  page_updated: 2026-09-30
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: apple-steppers
+  system: apple
+  role: judge
+  title: "Steppers"
+  url: https://developer.apple.com/design/human-interface-guidelines/steppers
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: "ios, ipados, visionos, macos; not watchos or tvos; no web guidance"
+
+- id: govuk-telephone-numbers
+  system: govuk
+  role: witness
+  title: "Phone numbers"
+  url: https://design-system.service.gov.uk/patterns/telephone-numbers/
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: nngroup-input-steppers
+  system: nngroup
+  role: witness
+  title: "Design Guidelines for Input Steppers"
+  url: https://www.nngroup.com/articles/input-steppers/
+  version: null
+  page_updated: 2018-11-11
+  read: 2026-11-26
+  author: "Yuxuan (Tammy) Zhou"
+  platform: null
+
+- id: wcag-understanding-character-key-shortcuts
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 2.1.4: Character Key Shortcuts"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/character-key-shortcuts.html
+  version: "2.2"
+  page_updated: 2026-10-04
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: wcag-technique-f99
+  system: wcag
+  role: law
+  title: "F99: Failure of Success Criterion 2.1.4 due to implementing character key shortcuts that cannot be turned off or remapped"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F99
+  version: "2.2"
+  page_updated: 2025-09-24
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: wcag-technique-g217
+  system: wcag
+  role: law
+  title: "G217: Providing a mechanism to allow users to remap or turn off character key shortcuts"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/general/G217
+  version: "2.2"
+  page_updated: 2026-02-23
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: apple-menus
+  system: apple
+  role: judge
+  title: "Menus"
+  url: https://developer.apple.com/design/human-interface-guidelines/menus
+  version: null
+  page_updated: 2026-06-08
+  read: 2026-11-26
+  author: null
+  platform: all
+
+- id: apple-the-menu-bar
+  system: apple
+  role: judge
+  title: "The menu bar"
+  url: https://developer.apple.com/design/human-interface-guidelines/the-menu-bar
+  version: null
+  page_updated: 2025-06-09
+  read: 2026-11-26
+  author: null
+  platform: macos, ipados
+
+- id: carbon-menu
+  system: carbon
+  role: judge
+  title: "Menu"
+  url: https://carbondesignsystem.com/components/menu/usage/
+  version: "v11"
+  page_updated: 2026-09-30
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: wcag-technique-f59
+  system: wcag
+  role: law
+  title: "F59: Failure of Success Criterion 4.1.2 due to using script to make div or span a user interface control in HTML without providing a role for the control"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F59
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: material-typography-applying-type
+  system: material
+  role: judge
+  title: "Typography: applying type"
+  url: https://m3.material.io/styles/typography/applying-type
+  version: "M3"
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: nngroup-command-links
+  system: nngroup
+  role: witness
+  title: "Command Links"
+  url: https://www.nngroup.com/articles/command-links/
+  version: null
+  page_updated: 2007-05-13
+  read: 2026-11-26
+  author: Jakob Nielsen
+  platform: null
+
+- id: nngroup-buttons-vs-links
+  system: nngroup
+  role: witness
+  title: "Buttons vs. Links: What's the Difference and Why Does it Matter? (Video)"
+  url: https://www.nngroup.com/videos/buttons-vs-links/
+  version: null
+  page_updated: 2025-04-21
+  read: 2026-11-26
+  author: Huei-Hsin Wang
+  platform: null
+
+- id: wcag-understanding-language-of-page
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 3.1.1: Language of Page"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/language-of-page.html
+  version: "2.2"
+  page_updated: 2026-03-09
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: wcag-understanding-language-of-parts
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 3.1.2: Language of Parts"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/language-of-parts.html
+  version: "2.2"
+  page_updated: 2026-10-04
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: wcag-technique-h57
+  system: wcag
+  role: law
+  title: "H57: Using the language attribute on the HTML element"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/html/H57
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: wcag-technique-h58
+  system: wcag
+  role: law
+  title: "H58: Using language attributes to identify changes in the human language"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/html/H58
+  version: "2.2"
+  page_updated: 2025-09-25
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: govuk-language-navigation
+  system: govuk
+  role: witness
+  title: "Language navigation"
+  url: https://design-system.service.gov.uk/components/language-navigation/
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: apple-right-to-left
+  system: apple
+  role: judge
+  title: "Right to left"
+  url: https://developer.apple.com/design/human-interface-guidelines/right-to-left
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: all
+
+- id: nngroup-language-switching-ecommerce
+  system: nngroup
+  role: witness
+  title: "6 Tips for Improving Language Switchers on Ecommerce Sites"
+  url: https://www.nngroup.com/articles/language-switching-ecommerce/
+  version: null
+  page_updated: 2022-03-27
+  read: 2026-11-26
+  author: Feifei Liu
+  platform: null
+
+- id: material-bidirectionality-rtl
+  system: material
+  role: judge
+  title: "Bidirectionality & RTL"
+  url: https://m3.material.io/foundations/layout/understanding-layout/bidirectionality-rtl
+  version: "M3"
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: material-global-writing
+  system: material
+  role: judge
+  title: "Global writing"
+  url: https://m3.material.io/foundations/content-design/global-writing/overview
+  version: "M3"
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: apple-file-management
+  system: apple
+  role: judge
+  title: File management
+  url: https://developer.apple.com/design/human-interface-guidelines/file-management
+  version: null
+  page_updated: 2024-06-10
+  read: 2026-11-26
+  author: null
+  platform: all             # saving guidance is general; the save prompt on close is macOS, for when automatic saving is turned off; none of it is written for the web
+
+- id: carbon-tabs
+  system: carbon
+  role: judge
+  title: Tabs
+  url: https://carbondesignsystem.com/components/tabs/usage/
+  version: null
+  page_updated: 2026-09-30
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: material-list-detail
+  system: material
+  role: judge
+  title: "Canonical layout examples: List-detail"
+  url: https://m3.material.io/foundations/layout/canonical-layouts/list-detail
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: govuk-task-list
+  system: govuk
+  role: witness
+  title: Task list
+  url: https://design-system.service.gov.uk/components/task-list/
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: govuk-complete-multiple-tasks
+  system: govuk
+  role: witness
+  title: Complete multiple tasks
+  url: https://design-system.service.gov.uk/patterns/complete-multiple-tasks/
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: nngroup-serial-task-switching
+  system: nngroup
+  role: witness
+  title: Designing for Serial Task Switching
+  url: https://www.nngroup.com/articles/serial-task-switching/
+  version: null
+  page_updated: 2025-05-23
+  read: 2026-11-26
+  author: Megan Chan
+  platform: null
+
+- id: nngroup-efficiency-vs-expectations
+  system: nngroup
+  role: witness
+  title: "Don't Prioritize Efficiency Over Expectations: The Case of Autosave"
+  url: https://www.nngroup.com/articles/efficiency-vs-expectations/
+  version: null
+  page_updated: 2015-05-10
+  read: 2026-11-26
+  author: Aurora Harley
+  platform: null
+
+- id: nngroup-button-states-communicate-interaction
+  system: nngroup
+  role: witness
+  title: "Button States: Communicate Interaction"
+  url: https://www.nngroup.com/articles/button-states-communicate-interaction/
+  version: null
+  page_updated: 2025-04-25
+  read: 2026-11-26
+  author: Kelley Gordon
+  platform: null
+
+- id: apple-pointing-devices
+  system: apple
+  role: judge
+  title: Pointing devices
+  url: https://developer.apple.com/design/human-interface-guidelines/pointing-devices
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: "iPadOS and macOS pointer guidance; hover effects described for iPadOS apps, not the web"
+
+- id: nngroup-clickable-elements
+  system: nngroup
+  role: witness
+  title: "Beyond Blue Links: Making Clickable Elements Recognizable"
+  url: https://www.nngroup.com/articles/clickable-elements/
+  version: null
+  page_updated: 2015-03-08
+  read: 2026-11-26
+  author: Hoa Loranger
+  platform: null
+
+- id: carbon-tile
+  system: carbon
+  role: judge
+  title: Tile
+  url: https://carbondesignsystem.com/components/tile/usage/
+  version: v11
+  page_updated: 2026-09-30
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: carbon-tile-accessibility
+  system: carbon
+  role: judge
+  title: "Tile: accessibility"
+  url: https://carbondesignsystem.com/components/tile/accessibility/
+  version: v11
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: wcag-understanding-resize-text
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 1.4.4: Resize Text"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html
+  version: "2.2"
+  page_updated: 2026-09-06
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: wcag-understanding-text-spacing
+  system: wcag
+  role: law
+  title: "Understanding Success Criterion 1.4.12: Text Spacing"
+  url: https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html
+  version: "2.2"
+  page_updated: 2025-10-01
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: wcag-technique-f69
+  system: wcag
+  role: law
+  title: "F69: Failure of Success Criterion 1.4.4 when resizing visually rendered text up to 200 percent causes the text, image or controls to be clipped, truncated or obscured"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F69
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: wcag-technique-f80
+  system: wcag
+  role: law
+  title: "F80: Failure of Success Criterion 1.4.4 when text-based form controls do not resize when visually rendered text is resized up to 200%"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F80
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: wcag-technique-f94
+  system: wcag
+  role: law
+  title: "F94: Failure of Success Criterion 1.4.4 due to incorrect use of viewport units to resize text"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F94
+  version: "2.2"
+  page_updated: 2026-03-09
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: wcag-technique-f104
+  system: wcag
+  role: law
+  title: "F104: Failure of Success Criterion 1.4.12 due to clipped or overlapped content when text spacing is adjusted"
+  url: https://www.w3.org/WAI/WCAG22/Techniques/failures/F104
+  version: "2.2"
+  page_updated: 2026-01-12
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: wcag-act-meta-viewport-allows-zoom
+  system: wcag
+  role: law
+  title: "Meta viewport allows for zoom"
+  url: https://www.w3.org/WAI/standards-guidelines/act/rules/b4f0c3/
+  version: null
+  page_updated: 2022-10-25
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: material-text-resizing
+  system: material
+  role: judge
+  title: "Writing and text: Text resizing"
+  url: https://m3.material.io/foundations/writing/text-resizing
+  version: "M3"
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: material-text-truncation
+  system: material
+  role: judge
+  title: "Writing and text: Text truncation"
+  url: https://m3.material.io/foundations/writing/text-truncation
+  version: "M3"
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: material-typography-overview
+  system: material
+  role: judge
+  title: "Typography overview"
+  url: https://m3.material.io/styles/typography/overview
+  version: "M3"
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: apple-typography
+  system: apple
+  role: judge
+  title: "Typography"
+  url: https://developer.apple.com/design/human-interface-guidelines/typography
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: "ios, ipados, tvos, visionos, watchos, macos; Dynamic Type is a system setting with no web counterpart, and macOS has no Dynamic Type"
+
+- id: carbon-typography-overview
+  system: carbon
+  role: judge
+  title: "Typography"
+  url: https://carbondesignsystem.com/elements/typography/overview/
+  version: "v11"
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: govuk-type-scale
+  system: govuk
+  role: witness
+  title: "Type scale"
+  url: https://design-system.service.gov.uk/styles/type-scale/
+  version: null
+  page_updated: 2026-09-29
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: govuk-testing-for-accessibility
+  system: govuk
+  role: witness
+  title: "Testing for accessibility"
+  url: https://www.gov.uk/service-manual/helping-people-to-use-your-service/testing-for-accessibility
+  version: null
+  page_updated: 2024-10-29
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: nngroup-let-users-control-font-size
+  system: nngroup
+  role: witness
+  title: "Let Users Control Font Size"
+  url: https://www.nngroup.com/articles/let-users-control-font-size/
+  version: null
+  page_updated: 2002-08-18
+  read: 2026-11-26
+  author: Jakob Nielsen
+  platform: null
+
+- id: govuk-bank-details
+  system: govuk
+  role: witness
+  title: "Bank details"
+  url: https://design-system.service.gov.uk/patterns/bank-details/
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: govuk-national-insurance-numbers
+  system: govuk
+  role: witness
+  title: "National Insurance numbers"
+  url: https://design-system.service.gov.uk/patterns/national-insurance-numbers/
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: govuk-payment-card-details
+  system: govuk
+  role: witness
+  title: "Payment card details"
+  url: https://design-system.service.gov.uk/patterns/payment-card-details/
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: govuk-character-count
+  system: govuk
+  role: witness
+  title: "Character count"
+  url: https://design-system.service.gov.uk/components/character-count/
+  version: null
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: nngroup-web-form-design
+  system: nngroup
+  role: witness
+  title: "Website Forms Usability: Top 10 Recommendations"
+  url: https://www.nngroup.com/articles/web-form-design/
+  version: null
+  page_updated: 2016-05-01
+  read: 2026-11-26
+  author: Kathryn Whitenton
+  platform: null
+
+- id: nngroup-eas-framework-simplify-forms
+  system: nngroup
+  role: witness
+  title: "Less Effort, More Completion: The EAS Framework for Simplifying Forms"
+  url: https://www.nngroup.com/articles/eas-framework-simplify-forms/
+  version: null
+  page_updated: 2025-03-07
+  read: 2026-11-26
+  author: Huei-Hsin Wang
+  platform: null
+
+- id: nngroup-mobile-input-checklist
+  system: nngroup
+  role: witness
+  title: "A Checklist for Designing Mobile Input Fields"
+  url: https://www.nngroup.com/articles/mobile-input-checklist/
+  version: null
+  page_updated: 2015-06-14
+  read: 2026-11-26
+  author: Raluca Budiu
+  platform: null
+
+- id: carbon-date-picker
+  system: carbon
+  role: judge
+  title: "Date picker: usage"
+  url: https://carbondesignsystem.com/components/date-picker/usage/
+  version: v11
+  page_updated: 2026-09-30
+  read: 2026-11-26
+  author: null
+  platform: null
+
+- id: material-date-pickers
+  system: material
+  role: judge
+  title: "Date pickers: guidelines"
+  url: https://m3.material.io/components/date-pickers/guidelines
+  version: M3
+  page_updated: null
+  read: 2026-11-26
+  author: null
+  platform: null

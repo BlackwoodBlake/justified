@@ -42,7 +42,7 @@ const all = [
 
 // Cancel drawn as the filled main button: only in the Don't that steers people away.
 const filled =
-  "border-transparent bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground";
+  "border-transparent bg-primary text-primary-foreground not-disabled:not-aria-disabled:hover:bg-primary/90 not-disabled:not-aria-disabled:hover:text-primary-foreground not-disabled:not-aria-disabled:active:bg-[color-mix(in_oklab,var(--primary),var(--foreground)_20%)] not-disabled:not-aria-disabled:active:text-primary-foreground";
 
 function looks(look: Look) {
   return {

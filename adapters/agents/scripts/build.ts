@@ -162,7 +162,7 @@ ${licence}
 
 const skill = `---
 name: justified
-description: Behaviour rules from Justified by Blackwood & Blake for shadcn apps. Use when building, changing or reviewing interface code with forms, fields, labels, validation, buttons, dialogs, toasts, error messages, loading states, tooltips, links, keyboard focus or layout.
+description: Behaviour rules from Justified by Blackwood & Blake for shadcn apps. Use when building, changing or reviewing interface code with forms, fields, labels, validation, input types, paste, buttons, links, dialogs, toasts, error messages, loading states, tooltips, hover and pressed states, keyboard focus, shortcuts, page language, zoom or layout.
 ---
 
 # Justified behaviour rules

@@ -4,7 +4,7 @@ title: Give at most one button in a group the most emphasised style
 short: One emphasised per group
 area: actions
 status: decided
-version: "1.0.2"
+version: "1.0.3"
 verdict: unanimous
 judges: { spoken: 3, agreeing: 3 }
 law: []
@@ -14,13 +14,16 @@ stances:
   carbon:   { stance: supports, sources: [carbon-button, carbon-dialog-pattern, carbon-modal, carbon-forms, carbon-common-actions] }
   govuk:    { stance: supports, sources: [govuk-button] }
   nngroup:  { stance: supports, sources: [nngroup-ok-cancel] }
-conflicts_checked: 2026-11-24
+conflicts_checked: 2026-11-26
 check: lint
 how_to_check:
   - 'Two or more `Button`s or `AlertDialogAction`s in one action row, such as a `DialogFooter`, `AlertDialogFooter`, `CardFooter` or a form''s button `div`, with `variant="default"` or `variant="destructive"`. No `variant` counts as `default`. Skip buttons in branches of a condition that never show together.'
   - '`variant="destructive"` on a remove action beside a `variant="default"` save action in the same row, such as "Delete contact" next to "Save contact".'
   - 'A "Cancel" button that is the one filled button in a confirmation, such as a `Button` with no `variant` inside `DialogClose`, while the main action is quieter. Ask whether backing out is really what most people want there. A row with no emphasised button is fine.'
 changelog:
+  - version: "1.0.3"
+    date: 2026-11-26
+    note: Points to FRM-015 for what Enter does in a form.
   - version: "1.0.2"
     date: 2026-11-24
     note: Says how this rule relates to ACT-002b.
@@ -59,5 +62,5 @@ A filled button tells the eye where to go first. When two buttons in the same ro
 ## Exceptions
 
 - **No clear main action.** A group may have no emphasised button. This rule sets a limit, never a minimum.
-- **Focus and Enter.** Which button takes focus first and what Enter does are outside this rule. DLG-004 covers destructive confirmations.
+- **Focus and Enter.** Which button takes focus first and what Enter does are outside this rule. DLG-004 covers destructive confirmations, and FRM-015 what Enter does in a form.
 - **The whole page.** How many primary buttons a page may hold is covered by ACT-002b. That rule is the stricter one: a page that follows it also follows this rule, except in the product's top bar. They are two rules because their verdicts differ.

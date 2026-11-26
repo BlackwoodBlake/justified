@@ -61,3 +61,27 @@ export const Example4: Story = {
     );
   },
 };
+
+export const Example5: Story = {
+  name: "Do: An edge that stays while hovered and pressed",
+  render: () => {
+    const e = VIS004.examples[4];
+    return (
+      <ExampleFrame kind={e.kind} title={e.title} caption={e.caption}>
+        <e.Demo />
+      </ExampleFrame>
+    );
+  },
+};
+
+export const Example6: Story = {
+  name: "Don't: A hover that takes the edge away",
+  render: () => {
+    const e = VIS004.examples[5];
+    return (
+      <ExampleFrame kind={e.kind} title={e.title} caption={e.caption}>
+        <e.Demo />
+      </ExampleFrame>
+    );
+  },
+};

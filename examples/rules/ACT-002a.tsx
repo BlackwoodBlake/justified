@@ -57,12 +57,16 @@ function Booking({ payStyle }: { payStyle: "outline" | "default" }) {
       <form
         noValidate
         onSubmit={submit}
-        aria-labelledby={id}
+        aria-labelledby={`${id} ${id}-note`}
         className="grid w-full max-w-sm gap-4 rounded-lg border border-border bg-background p-4"
       >
         <h4 id={id} className="m-0 text-base font-semibold">
           Book an appointment
         </h4>
+        {/* Both versions can share a page, so each form's name adds a hidden note. It is never read in the page's flow. */}
+        <span id={`${id}-note`} hidden>
+          {payStyle === "outline" ? "with one filled button" : "with two filled buttons"}
+        </span>
         <Field label="Name" error={error} announce={!sent}>
           <Input
             ref={nameRef}

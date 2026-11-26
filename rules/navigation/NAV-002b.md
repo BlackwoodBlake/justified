@@ -4,7 +4,7 @@ title: Mark the current page in a repeated menu with a cue that is not colour al
 short: Current page visible
 area: navigation
 status: proposed
-version: "1.0.0"
+version: "1.0.1"
 verdict: unanimous
 judges: { spoken: 2, agreeing: 2 }
 law:
@@ -18,7 +18,7 @@ stances:
   carbon:   { stance: supports, sources: [carbon-ui-shell-left-panel-accessibility] }
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-navigation-you-are-here] }
-conflicts_checked: 2026-11-25
+conflicts_checked: 2026-11-26
 check: review
 how_to_check:
   - 'The classes for the current item, such as `data-[active=true]:` styles or an `active &&` branch. Do they change only colour, such as `text-foreground` against `text-muted-foreground`, or a faint tint? Look for heavier text, a filled icon, a shape behind the item that meets VIS-004, or a bar beside it.'
@@ -27,6 +27,9 @@ how_to_check:
   - 'How the current item is chosen: from the route, such as `usePathname()` or `useLocation()`, not from state set on click; and so that only one item matches, with `/` matched exactly rather than by `pathname.startsWith`.'
   - 'Collapse the sidebar to icons with `collapsible="icon"` and see whether the current item still has a cue that is not colour alone, such as a filled icon or a border.'
 changelog:
+  - version: "1.0.1"
+    date: 2026-11-26
+    note: Points to VIS-008b for keeping the current mark apart from hover.
   - version: "1.0.0"
     date: 2026-11-25
     note: First version.
@@ -44,7 +47,7 @@ A mark on one menu item tells the person where they are at a glance; a mark on t
 
 - In the invoicing app *Tallowbrook*, the sidebar lists *Dashboard*, *Invoices*, *Clients* and *Reports*. On the invoice list, *Invoices* has semibold text, a filled icon and a bar on its leading edge. The other items have regular text and outlined icons.
 - Know what shadcn gives you. In the current source (read on 25 November 2026), an active `SidebarMenuButton` gets `bg-sidebar-accent`, `text-sidebar-accent-foreground` and `font-medium`, and hover uses the same background and text colour. Only the weight tells the current item from the hovered one. An active `SidebarMenuSubButton` changes colour only. Add a cue of your own, such as `data-[active=true]:font-semibold` with a left border.
-- Keep the current mark and the hover style different, so the person can tell the page they are on from the item under the pointer.
+- Keep the current mark and the hover style different, so the person can tell the page they are on from the item under the pointer. VIS-008b asks this of every state that lasts.
 - Take the mark from the route, not from a click handler, so it is right after a reload, a back press or a link from elsewhere.
 - Match routes so that one item wins. `pathname.startsWith("/")` is true everywhere, so *Dashboard* at `/` matches only exactly.
 - Our own reading: on a single invoice, `/invoices/INV-0042`, which is not in the menu, mark *Invoices*, the section the person is in.

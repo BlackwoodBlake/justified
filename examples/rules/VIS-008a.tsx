@@ -1,0 +1,150 @@
+import { useRef, useState, type ReactNode } from "react";
+
+import type { RuleExamples } from "./frame";
+import { ACTIVE_SHADOW, ChoiceCards, CodeReadout, COLOUR_TRANSITION, FOCUS, MicGlyph, StarGlyph } from "./states";
+
+/*
+ * VIS-008a: when a control shows a state, the state is also set in code on
+ * the control itself, and it changes whenever the look changes.
+ *
+ * Two scenes from the rule's own text. A video call's toolbar with Mute and
+ * Favourite against a text toolbar with Bold and Italic, drawn with a class
+ * only. And two delivery options as cards, built as a RadioGroup against
+ * cards that are plain buttons with a border on the chosen one.
+ *
+ * "State in code" lists what each control carries (aria-pressed, aria-checked,
+ * data-state), read from the element and kept up to date, so the difference
+ * a screen reader would meet can be seen. The toolbars look the same in the Do
+ * and the Don't. The delivery cards differ in the marks of a radio as well.
+ */
+
+const TOGGLE_BASE = `inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-md border border-input px-3 text-sm font-medium ${COLOUR_TRANSITION} ${FOCUS}`;
+
+/** A toggle button that sets aria-pressed, and styles its on look from it. */
+function StateToggle({ name, icon }: { name: string; icon: (on: boolean) => ReactNode }) {
+  const [on, setOn] = useState(false);
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      onClick={() => setOn(!on)}
+      className={`${TOGGLE_BASE} bg-background aria-pressed:bg-primary aria-pressed:text-primary-foreground not-aria-pressed:hover:bg-accent not-aria-pressed:hover:text-accent-foreground aria-pressed:hover:bg-primary/90`}
+    >
+      {icon(on)}
+      {name}
+    </button>
+  );
+}
+
+/** The same look, set only by a class. The code says nothing. */
+function ClassToggle({ name }: { name: string }) {
+  const [on, setOn] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => setOn(!on)}
+      className={`${TOGGLE_BASE} ${on ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-background hover:bg-accent hover:text-accent-foreground"}`}
+    >
+      {name === "Bold" ? <strong aria-hidden="true">B</strong> : <em aria-hidden="true">I</em>}
+      {name}
+    </button>
+  );
+}
+
+function ToolbarScene({ withState }: { withState: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  return (
+    <div className="flex w-full max-w-md flex-col gap-3">
+      <div ref={ref} role="group" aria-label={withState ? "Call controls" : "Text style"} className="flex flex-wrap gap-2">
+        {withState ? (
+          <>
+            <StateToggle name="Mute" icon={(on) => <MicGlyph off={on} />} />
+            <StateToggle name="Favourite" icon={(on) => <StarGlyph filled={on} />} />
+          </>
+        ) : (
+          <>
+            <ClassToggle name="Bold" />
+            <ClassToggle name="Italic" />
+          </>
+        )}
+      </div>
+      <CodeReadout scope={ref} />
+    </div>
+  );
+}
+
+const DELIVERY = [
+  { id: "standard", title: "Standard", detail: "3 to 5 days", price: "£3.50" },
+  { id: "next-day", title: "Next day", detail: "Order by 4 pm", price: "£7.90" },
+];
+
+function DeliveryScene({ radio }: { radio: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  return (
+    <div className="flex w-full max-w-md flex-col gap-3">
+      <div ref={ref}>
+        <ChoiceCards
+          legend="Delivery"
+          items={DELIVERY}
+          control={radio ? "radio" : "button"}
+          mark={radio ? "radio-and-text" : "border-and-check"}
+          defaultValue="standard"
+        />
+      </div>
+      <CodeReadout scope={ref} />
+    </div>
+  );
+}
+
+export const VIS008a: RuleExamples = {
+  id: "VIS-008a",
+  examples: [
+    {
+      kind: "do",
+      title: "Toggles that carry their state",
+      caption: (
+        <>
+          <em>Mute</em> and <em>Favourite</em> keep their names and set <code>aria-pressed</code>, which flips with every
+          press; the look (a fill, a slashed microphone, a filled star) is styled from it with{" "}
+          <code>aria-pressed:</code>. Press them and read "State in code" change with the look.
+        </>
+      ),
+      Demo: () => <ToolbarScene withState />,
+    },
+    {
+      kind: "dont",
+      title: "Drawn as on, silent in code",
+      caption: (
+        <>
+          <em>Bold</em> and <em>Italic</em> change their fill with a class and set no <code>aria-pressed</code>. Press
+          one: it looks on, but a screen reader announces an ordinary button, and "State in code" stays empty.
+        </>
+      ),
+      Demo: () => <ToolbarScene withState={false} />,
+    },
+    {
+      kind: "do",
+      title: "Delivery cards that are checked in code",
+      caption: (
+        <>
+          Each card is a <code>RadioGroupItem</code> with its text as the label, so the chosen card is{" "}
+          <code>aria-checked="true"</code> and the others are not. Choose with a click or the arrow keys and watch the
+          code follow.
+        </>
+      ),
+      Demo: () => <DeliveryScene radio />,
+    },
+    {
+      kind: "dont",
+      title: "Delivery cards that only look chosen",
+      caption: (
+        <>
+          The cards as plain buttons, with <code>border-primary</code> and a check on the chosen one. They work
+          with a click and Tab, but the code carries no checked state, so a screen reader cannot tell which delivery is
+          chosen.
+        </>
+      ),
+      Demo: () => <DeliveryScene radio={false} />,
+    },
+  ],
+};
