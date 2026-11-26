@@ -33,6 +33,10 @@ export function RadioGroupItem({ className, ...props }: ComponentProps<typeof Ra
         "peer size-5 shrink-0 cursor-pointer rounded-full border border-input bg-background",
         "data-[state=checked]:border-primary aria-invalid:border-destructive",
         "disabled:cursor-not-allowed disabled:opacity-50",
+        // Hover and press (VIS-008). The ring keeps its edge and the chosen option its
+        // dot, so the choice still shows (VIS-004, VIS-008b).
+        "not-disabled:not-aria-disabled:hover:bg-accent",
+        "not-disabled:not-aria-disabled:active:bg-[color-mix(in_oklab,var(--accent),var(--foreground)_10%)]",
         colourTransition,
         focusRing,
         targetArea,

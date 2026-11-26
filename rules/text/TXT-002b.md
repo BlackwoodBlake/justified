@@ -4,7 +4,7 @@ title: Open tooltips on focus too, and keep what people need on the page
 short: Tooltips
 area: text
 status: decided
-version: "1.0.1"
+version: "1.0.2"
 verdict: unanimous
 judges: { spoken: 2, agreeing: 2 }
 law:
@@ -18,7 +18,7 @@ stances:
   carbon:   { stance: supports, sources: [carbon-tooltip, carbon-tooltip-accessibility] }
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-tooltip-guidelines] }
-conflicts_checked: 2026-11-25
+conflicts_checked: 2026-11-26
 check: review
 how_to_check:
   - '`TooltipTrigger asChild` around an element that cannot take focus, such as a plain `span`, `div` or icon with no `tabIndex`.'
@@ -26,6 +26,9 @@ how_to_check:
   - 'A tooltip, often on an info icon, that holds something needed to finish the task, such as a format, a deadline or a price rule. Ask: could the person finish without opening it? A tooltip repeating an icon-only button''s name is fine.'
   - 'A chart whose exact values appear only in tooltips, when the person needs those values and no table or list on the page holds them.'
 changelog:
+  - version: "1.0.2"
+    date: 2026-11-26
+    note: Points to LAY-003a and LAY-003b for a tooltip that shows truncated text.
   - version: "1.0.1"
     date: 2026-11-25
     note: Points to TBL-003 for actions that appear on hover in a table row.
@@ -62,4 +65,5 @@ A tooltip that only opens on hover does not exist for someone who uses a keyboar
 - **The name of an icon-only button.** A tooltip on an icon-only button may show its name, in the same words as its accessible name, such as the tooltip "Share" on a button named "Share". The accessible name itself is set on the button, as ACT-001b says.
 - **Other rules cover these cases.** Field errors follow FRM-002a, the reason a button is unavailable follows ACT-005, the meaning of a required marker follows FRM-005, and labels follow FRM-001.
 - **Actions, not information.** This rule covers information. Actions that appear on hover, such as row buttons, are covered by KBD-001, and in a table row by TBL-003.
+- **The full text of a truncated label.** A tooltip may show text cut off by an ellipsis only on the terms LAY-003a and LAY-003b set.
 - **Not decided here.** Whether a tooltip may hold links or buttons is not covered by this rule.

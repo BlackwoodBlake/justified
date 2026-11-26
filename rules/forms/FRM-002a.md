@@ -4,7 +4,7 @@ title: Show a field's error as text at the field
 short: Error at the field
 area: forms
 status: decided
-version: "1.0.2"
+version: "1.0.3"
 verdict: unanimous
 judges: { spoken: 2, agreeing: 2 }
 law:
@@ -34,7 +34,7 @@ stances:
   carbon:   { stance: supports, sources: [carbon-forms, carbon-text-input] }
   govuk:    { stance: supports, sources: [govuk-error-message, govuk-validation, govuk-error-summary] }
   nngroup:  { stance: supports, sources: [nngroup-errors-forms] }
-conflicts_checked: 2026-11-21
+conflicts_checked: 2026-11-26
 check: review
 how_to_check:
   - 'Field errors sent only to `toast.error()`, an `<Alert>` at the top or a `Dialog`, with no message at the field, such as no `<FormMessage />` or `Field` `error`. Problems that belong to no field, such as a service that is down, are fine there (see Exceptions).'
@@ -43,6 +43,9 @@ how_to_check:
   - 'A control with `aria-invalid="true"` whose `aria-describedby` is missing or does not include the `id` of its visible error message.'
   - 'When the server rejects a value, such as an email address already in use, does the message show at that field and not only at the top?'
 changelog:
+  - version: "1.0.3"
+    date: 2026-11-26
+    note: Refers to FRM-017c for what a free-text field says at its length limit.
   - version: "1.0.2"
     date: 2026-11-21
     note: Examples in English.
@@ -84,3 +87,4 @@ People correct a value where the value is. If the message lives in another place
 - Problems that are not about a value the person entered, such as a service that is down, missing permission or not being eligible, do not belong at a field. Show them as a message for the page or the form instead.
 - This rule does not set whether the message goes above or below the input, or whether it replaces the hint text. Both are left to the component. If the message does take the place of the hint, it must repeat whatever the hint said that the person needs to fix the value.
 - When the error appears is covered by FRM-002b.
+- What a free-text field says when its length limit is reached or passed is the guideline FRM-017c. An error for text that is too long still shows at the field, as this rule asks.

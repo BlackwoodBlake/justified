@@ -61,3 +61,27 @@ export const Example4: Story = {
     );
   },
 };
+
+export const Example5: Story = {
+  name: "Do: A card moved at once, put back with a word",
+  render: () => {
+    const e = STA005a.examples[4];
+    return (
+      <ExampleFrame kind={e.kind} title={e.title} caption={e.caption}>
+        <e.Demo />
+      </ExampleFrame>
+    );
+  },
+};
+
+export const Example6: Story = {
+  name: "Don't: The card snaps back with no word",
+  render: () => {
+    const e = STA005a.examples[5];
+    return (
+      <ExampleFrame kind={e.kind} title={e.title} caption={e.caption}>
+        <e.Demo />
+      </ExampleFrame>
+    );
+  },
+};

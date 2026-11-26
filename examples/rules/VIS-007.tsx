@@ -48,10 +48,10 @@ function SignIn({ withText }: { withText: boolean }) {
         <form onSubmit={submit} noValidate className="grid gap-3">
           <h4 className="m-0 text-base font-semibold">Sign in</h4>
           <Field label="Email">
-            <Input type="email" defaultValue="sam@example.com" autoComplete="off" />
+            <Input type="email" defaultValue="sam@example.com" autoComplete="username" />
           </Field>
           <Field label="Password" error={error ? ERROR : undefined} announce={false}>
-            <Input ref={password} type="password" defaultValue="not-my-password" autoComplete="off" />
+            <Input ref={password} type="password" defaultValue="not-my-password" autoComplete="current-password" />
           </Field>
           <div>
             <Button type="submit">Sign in</Button>

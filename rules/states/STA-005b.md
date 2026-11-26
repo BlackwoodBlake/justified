@@ -4,7 +4,7 @@ title: While an action is being sent, a second press does not send it again
 short: No double send
 area: states
 status: proposed
-version: "1.0.1"
+version: "1.0.2"
 verdict: insufficient-evidence
 judges: { spoken: 1, agreeing: 1 }
 law:
@@ -18,13 +18,16 @@ stances:
   carbon:   { stance: supports, sources: [carbon-inline-loading, carbon-forms] }
   govuk:    { stance: supports, sources: [govuk-button] }
   nngroup:  { stance: silent }
-conflicts_checked: 2026-11-24
+conflicts_checked: 2026-11-26
 check: runtime
 how_to_check:
   - 'Slow the network, double-click the button, then press Enter twice in a field of the same form, and count the requests sent. More than one is a break. Leave alone searches, refreshes and filters (see Exceptions).'
   - 'A send handler with no guard for a request in flight: no check of `isSubmitting`, `isPending` or a ref set on the first press, and no `disabled` or `aria-disabled` while it runs.'
   - 'A guard only on the button''s `onClick`, while the form''s `onSubmit` can still send again when Enter is pressed in a field.'
 changelog:
+  - version: "1.0.2"
+    date: 2026-11-26
+    note: Points to FRM-015 for Enter in a field and to VIS-008a for the state in code.
   - version: "1.0.1"
     date: 2026-11-24
     note: The judge count says how many of the three judges spoke.
@@ -54,9 +57,9 @@ Fewer than two judges have spoken about a second press, so the verdict is Insuff
 
 - At a theatre's box office site the person presses *Pay £38.00* for two seats and, out of habit, presses again half a second later. One payment is sent, and the second press does nothing. While the payment is on its way the button reads "Paying …", the sign STA-005a asks for. The guard starts at the first press, also before that sign shows.
 - The guard covers every way of pressing: a click, a tap, Enter and Space on the button.
-- Our own point: put the guard on the send, not only on the button's click. Enter in a field sends a form too. In *Ask about a booking*, the person presses Enter twice in *Your question*, and one question is sent.
+- Our own advice: put the guard on the send, not only on the button's click. Enter in a field sends a form too (FRM-015). In *Ask about a booking*, the person presses Enter twice in *Your question*, and one question is sent.
 - Our own choice of mechanism: keep the button able to take focus, mark it `aria-disabled="true"` and ignore the press. We prefer that to the `disabled` attribute. A button that gets `disabled` while it has focus drops out of the tab order, and focus can fall to the top of the page; in a dialog it can fall out of the dialog. A team that uses `disabled` anyway moves focus to a sensible place first and puts it back when the reply comes, which is why we prefer the first way.
-- Whichever mechanism you use, expose the state in code, not only as a faded look. This helps meet 4.1.2.
+- Whichever mechanism you use, expose the state in code, not only as a faded look, as VIS-008a says. This helps meet 4.1.2.
 - The working label or sign from STA-005a is the explanation for the pause. Nothing is missing from the form, so the note that ACT-005 asks for at an unavailable button is not shown.
 - The guard lasts from the press until the reply, and no longer. When the payment is refused or the request is given up, *Pay £38.00* works again at once, so the person can try again.
 - After a success, a new press is a new action. In a club's members' pages, *Send message* stays on screen once a message has gone out, and the next press sends the next message.

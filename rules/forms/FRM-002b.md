@@ -4,7 +4,7 @@ title: Show a field's error when the person leaves the field or sends the form, 
 short: When errors show
 area: forms
 status: decided
-version: "1.0.3"
+version: "1.0.4"
 verdict: unanimous
 judges: { spoken: 2, agreeing: 2 }
 law:
@@ -22,7 +22,7 @@ stances:
   carbon:   { stance: supports, sources: [carbon-forms, carbon-text-input] }
   govuk:    { stance: opposes, sources: [govuk-validation] }
   nngroup:  { stance: supports, sources: [nngroup-errors-forms] }
-conflicts_checked: 2026-11-24
+conflicts_checked: 2026-11-26
 check: lint
 how_to_check:
   - '`useForm({ mode: "onChange" })` or `mode: "all"` in react-hook-form, which shows new errors while people type, unless the field creates a new value with its rules listed beside it, such as a new password (see Exceptions).'
@@ -31,6 +31,9 @@ how_to_check:
   - 'An `onChange` handler that calls `setError`, `trigger()` or a zod `safeParse` and sets a new error, rather than only clearing an error already shown.'
   - 'A check only the server can make, such as an address lookup, called from `onChange` or a debounced effect on the value instead of on blur or send.'
 changelog:
+  - version: "1.0.4"
+    date: 2026-11-26
+    note: Refers to FRM-017b and FRM-017c for a free-text field's count and the words at its length limit, which are not errors.
   - version: "1.0.3"
     date: 2026-11-24
     note: Focus on a failed send now refers to FRM-011, for every form.
@@ -77,3 +80,5 @@ When a person creates a new value that must meet rules shown next to the field, 
 When a short form keeps its send button unavailable until required input is in, as ACT-004 allows, sending can no longer reveal skipped fields. ACT-005 then applies: the text next to the button says what is still needed, and those untouched fields are not shown as errors.
 
 Moving from a field to Cancel or the close control in a modal form holds back that field's check until focus moves on to something else, as FRM-003 describes.
+
+A free-text field's count, and the words it shows at its length limit while people type, are not errors under this rule; they are the guidelines FRM-017b and FRM-017c. An error for text that is too long still waits until the person leaves the field or sends the form.

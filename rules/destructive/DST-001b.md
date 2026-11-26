@@ -4,7 +4,7 @@ title: Ask before an action only when it cannot be reversed or a mistake would c
 short: When to ask first
 area: destructive
 status: decided
-version: "1.0.3"
+version: "1.0.4"
 verdict: unanimous
 judges: { spoken: 3, agreeing: 3 }
 law:
@@ -18,7 +18,7 @@ stances:
   carbon:   { stance: supports, sources: [carbon-modal, carbon-dialog-pattern, carbon-notification-pattern] }
   govuk:    { stance: supports, sources: [govuk-button] }
   nngroup:  { stance: supports, sources: [nngroup-confirmation-dialog] }
-conflicts_checked: 2026-11-24
+conflicts_checked: 2026-11-26
 check: review
 how_to_check:
   - 'For each confirmation question, ask whether the whole previous state can come back right after, for the person who acted. If it can, the question should go and *Undo* take its place.'
@@ -26,6 +26,9 @@ how_to_check:
   - 'A question before a routine step that can be switched back, such as hiding a column, changing a setting or archiving, or before a chat message, comment or reaction.'
   - 'A payment or legal step treated as reversible because a short-lived *Undo* shows, or a bulk step whose *Undo* brings back only part of what has value. Leave alone closing a dialog with unsaved input.'
 changelog:
+  - version: "1.0.4"
+    date: 2026-11-26
+    note: The exception for unsaved input now also covers pages and names FRM-004c and FRM-004d.
   - version: "1.0.3"
     date: 2026-11-24
     note: The exception for unsaved input now also names FRM-004b for dialogs and sheets that do not fill the screen.
@@ -80,4 +83,4 @@ A way back that is slow, costly or uncertain counts as no way back in the first 
 
 - **Routine sends.** A chat message, a comment or a reaction cannot be called back once others have seen it, but it is a routine step that spends or commits nothing of value. Send it without a question.
 - **Undo that covers only part.** When a step on many items has an Undo that brings back only some of what changed, and what is lost has value, treat the rest as something that cannot be reversed and ask. When Undo brings back everything, as with the tag on twelve files, do not ask.
-- **Unsaved input in a dialog or sheet.** Closing a view that would throw away unsaved input is not decided by this rule. FRM-004a covers full-screen dialogs, and the guideline FRM-004b covers dialogs and sheets that do not fill the screen.
+- **Unsaved input in a dialog, a sheet or on a page.** Closing a view or leaving a page that would throw away unsaved input is not decided by this rule. FRM-004a covers full-screen dialogs, the guideline FRM-004b covers dialogs and sheets that do not fill the screen, and the guideline FRM-004c covers pages, with FRM-004d for keeping the work instead.

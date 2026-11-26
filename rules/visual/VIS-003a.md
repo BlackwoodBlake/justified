@@ -4,7 +4,7 @@ title: Never let colour be the only sign of what something means or which state 
 short: Not by colour alone
 area: visual
 status: proposed
-version: "1.0.0"
+version: "1.0.1"
 verdict: requirement
 judges: { spoken: 2, agreeing: 2 }
 law:
@@ -26,7 +26,7 @@ stances:
   carbon:   { stance: supports, sources: [carbon-color-accessibility, carbon-status-indicator, carbon-tag] }
   govuk:    { stance: supports, sources: [govuk-tag] }
   nngroup:  { stance: supports, sources: [nngroup-visual-treatments-accessibility] }
-conflicts_checked: 2026-11-25
+conflicts_checked: 2026-11-26
 check: review
 how_to_check:
   - 'A `Badge`, dot or table cell whose only content is a colour, such as `<Badge className="bg-green-500" />` or a `size-2 rounded-full` span with no text or distinct icon beside it.'
@@ -35,6 +35,9 @@ how_to_check:
   - 'Active tab, selected card or chart series told apart only by colour, such as `text-foreground` against `text-muted-foreground` or legend squares with no names. Look at the screen in grayscale and ask whether each state still reads.'
   - 'Instructions that name a colour, such as ''shown in red''. Leave alone decoration, tags that show their name, and visited links (see Exceptions).'
 changelog:
+  - version: "1.0.1"
+    date: 2026-11-26
+    note: Points to VIS-008b for a selected look kept under hover, focus and press.
   - version: "1.0.0"
     date: 2026-11-25
     note: First version.
@@ -74,4 +77,4 @@ Many people see some colours differently, red and green most often. Others meet 
 - **Colour that carries nothing.** Decoration, brand colour and category colours on tags that also show their name are outside the rule.
 - **Visited links.** A visited link may differ from an unvisited one by colour alone. Links in running text are VIS-003b, which comes first where both apply.
 - **Colour as the data.** In a heat map or a map coloured by value, a pattern on every cell is rarely practical. Give the values another way instead: on the cells, in a table, or in a legend that names each step together with values the keyboard can reach.
-- **Neighbouring rules.** The error text at a field is FRM-002a, the required marker FRM-005, the current page in a menu NAV-002b, the danger button DLG-005, and focus shown by more than colour KBD-001. The contrast of icons and strokes is VIS-004.
+- **Neighbouring rules.** The error text at a field is FRM-002a, the required marker FRM-005, the current page in a menu NAV-002b, the danger button DLG-005, and focus shown by more than colour KBD-001. The contrast of icons and strokes is VIS-004. A selected or on look kept visible under hover, focus and press is VIS-008b.

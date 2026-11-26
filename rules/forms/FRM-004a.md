@@ -4,7 +4,7 @@ title: Ask before a full-screen dialog throws away unsaved changes, and only whe
 short: Unsaved changes, full screen
 area: forms
 status: decided
-version: "1.0.3"
+version: "1.0.4"
 verdict: unanimous
 judges: { spoken: 2, agreeing: 2 }
 law:
@@ -22,7 +22,7 @@ stances:
   carbon:   { stance: silent }
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-cancel-vs-close, nngroup-confirmation-dialog, nngroup-modal-nonmodal] }
-conflicts_checked: 2026-11-24
+conflicts_checked: 2026-11-26
 check: runtime
 how_to_check:
   - 'In a full-screen dialog, type in a field, then try Cancel, the close icon, Escape, a swipe and the browser back button, and see whether every way that discards asks first.'
@@ -31,6 +31,9 @@ how_to_check:
   - 'An `onOpenChange`, `onEscapeKeyDown` or `popstate` handler that closes the full-screen dialog without the same unsaved-changes check that Cancel uses.'
   - 'A question with a third button such as "Save as draft", choices named "Yes" and "No", or a question shown when the way out keeps a draft.'
 changelog:
+  - version: "1.0.4"
+    date: 2026-11-26
+    note: Refers to FRM-004c and FRM-004d for pages.
   - version: "1.0.3"
     date: 2026-11-24
     note: Refers to FRM-004b for dialogs and sheets that do not fill the screen and to STA-005a for the time while sending.
@@ -83,5 +86,5 @@ A full-screen dialog, one that covers the whole screen and is used on small scre
 
 ## Exceptions
 
-- **Full-screen dialogs only.** Dialogs and sheets that do not fill the screen are covered by the guideline FRM-004b. This rule says nothing about leaving a page or a form on a page.
+- **Full-screen dialogs only.** Dialogs and sheets that do not fill the screen are covered by the guideline FRM-004b. Leaving a page with unsaved changes is the guideline FRM-004c, and keeping the work on a page form the guideline FRM-004d.
 - **While sending.** Once the person has pressed the main action and the view shows progress, such as "Publishing …", the input is on its way. STA-005a covers what closing does then. Its own choice is that no discard question is asked during the wait.
