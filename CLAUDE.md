@@ -31,7 +31,7 @@ The analysing, writing and review agents each leave fixed files, described in `W
 - Never copy or lightly rework a sentence from a source, and never follow a source's structure, headings, order, images or examples.
 - A rule page shows our own rule, the verdict and each source's stance as a mark and a link. It never reproduces or summarises what a source says.
 - Source excerpts go only in `.sources-cache/`, which is never committed.
-- `npm run similarity` must pass for every text that draws on sources, `npm run similarity -- --rules .analysis` for every analysis, and `npm run similarity -- --rules examples/rules` for the live examples. It compares the frontmatter's text (title, how_to_check, changelog notes) as well as the body. It needs `.sources-cache/`, so CI cannot run it: run it locally before handing over. Exit code 0 = clean, 1 = overlap found, 2 = setup error.
+- `npm run similarity` must pass for every text that draws on sources, `npm run similarity -- --rules .analysis` for every analysis, and `npm run similarity -- --rules examples/rules` for the live examples. For `rules/` and `examples/rules/`, which are published, it compares the frontmatter's text (title, how_to_check, changelog notes) as well as the body; for `.analysis/` it compares the body only. It needs `.sources-cache/`, so CI cannot run it: run it locally before handing over. Exit code 0 = clean, 1 = overlap found, 2 = setup error.
 
 ## Repository
 

@@ -15,8 +15,11 @@
  * people's text, so they stay out of the repository (.sources-cache/ is in
  * .gitignore).
  *
- * The frontmatter's text values (title, how_to_check, changelog notes and
- * any other) are compared like the body, since they are published too.
+ * In published texts (rules/ and examples/rules/) the frontmatter's text
+ * values (title, how_to_check, changelog notes and any other) are compared
+ * like the body, since they are published too. Elsewhere, such as
+ * .analysis/, only the body is compared. `--frontmatter yes|no` overrides
+ * that choice.
  *
  * The check needs the excerpts, which are never committed, so it runs on
  * the machine that holds them and not in CI.
@@ -29,13 +32,16 @@
  *
  * Exit code: 0 = no overlap, 1 = overlap found, 2 = setup error.
  */
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { extname, join, relative } from "node:path";
 import { parseDocument, visit } from "yaml";
 
 // ---------------------------------------------------------------- options
 
-type Options = { rules: string; sources: string; n: number; allow: string };
+type Options = { rules: string; sources: string; n: number; allow: string; frontmatter: boolean | null };
+
+/** The folders whose texts are published, frontmatter and all. */
+const PUBLISHED = ["rules", "examples/rules"];
 
 function parseArgs(argv: string[]): Options {
   const opts: Options = {
@@ -43,6 +49,7 @@ function parseArgs(argv: string[]): Options {
     sources: ".sources-cache",
     n: 7,
     allow: "scripts/similarity-allow.txt",
+    frontmatter: null,
   };
   for (let i = 0; i < argv.length; i++) {
     const flag = argv[i];
@@ -53,6 +60,10 @@ function parseArgs(argv: string[]): Options {
       case "--sources": opts.sources = value; break;
       case "--allow": opts.allow = value; break;
       case "--n": opts.n = Number(value); break;
+      case "--frontmatter":
+        if (value !== "yes" && value !== "no") fail("--frontmatter must be yes or no");
+        opts.frontmatter = value === "yes";
+        break;
       default: fail(`Unknown option ${flag}`);
     }
     i++;
@@ -96,9 +107,9 @@ function frontmatterText(block: string): string {
   return lines.join("\n");
 }
 
-function stripMarkdown(text: string): string {
+function stripMarkdown(text: string, withFrontmatter: boolean): string {
   return text
-    .replace(/^---\n[\s\S]*?\n---\n/, frontmatterText) // frontmatter: keep only its text values
+    .replace(/^---\n[\s\S]*?\n---\n/, withFrontmatter ? frontmatterText : blank) // frontmatter: its text values, or nothing
     .replace(/```[\s\S]*?```/g, blank)            // fenced code
     .replace(/<!--[\s\S]*?-->/g, blank)           // HTML comments
     .replace(/`[^`\n]*`/g, blank)                 // inline code
@@ -196,6 +207,8 @@ function main() {
   const opts = parseArgs(process.argv.slice(2));
   if (!existsSync(opts.rules)) fail(`Rules folder not found: ${opts.rules}`);
   if (!existsSync(opts.sources)) fail(`Source folder not found: ${opts.sources}`);
+  const real = (p: string) => (existsSync(p) ? realpathSync(p) : null);
+  const withFrontmatter = opts.frontmatter ?? PUBLISHED.some((dir) => real(dir) === real(opts.rules));
 
   const allowed = loadAllowed(opts.allow, opts.n);
   const phrases = loadPhrases(opts.allow);
@@ -213,7 +226,7 @@ function main() {
   const hits: Hit[] = [];
   const ruleFiles = listFiles(opts.rules);
   for (const file of ruleFiles) {
-    const words = tokenize(stripMarkdown(readFileSync(file, "utf8")));
+    const words = tokenize(stripMarkdown(readFileSync(file, "utf8"), withFrontmatter));
     const keys = maskAllowed(words, phrases);
     // Matches as word spans [start, end); overlapping ones from the same
     // source are merged, so one copied passage is reported once.
