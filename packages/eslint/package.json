@@ -1,0 +1,58 @@
+{
+  "name": "@blackwoodblake/justified-eslint",
+  "version": "0.1.0",
+  "description": "ESLint rules for shadcn and React apps that flag code that may break the behaviour rules of Justified by Blackwood & Blake.",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "shadcn",
+    "react",
+    "accessibility",
+    "wcag",
+    "design-system"
+  ],
+  "homepage": "https://blackwoodblake.com/design-system/",
+  "bugs": {
+    "url": "https://github.com/BlackwoodBlake/justified/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BlackwoodBlake/justified.git",
+    "directory": "packages/eslint"
+  },
+  "license": "MIT",
+  "author": "Carl Magnus Swahn",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "types": "./index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "lib",
+    "rules",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "index": "node scripts/build-index.js",
+    "test": "node --import ./test/setup.js --test --test-reporter=spec \"test/**/*.test.js\""
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "8.74.0",
+    "eslint": "9.39.5",
+    "typescript": "5.9.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

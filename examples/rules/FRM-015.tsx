@@ -1,5 +1,7 @@
+import { Button } from "@blackwoodblake/justified-shadcn/button";
+
 import type { RuleExamples } from "./frame";
-import { Invite, SignIn } from "./enter-submits";
+import { Invite, SignIn, type HelperProps } from "./enter-submits";
 
 /*
  * FRM-015: Enter in a single-line field sends the form, as its main button does.
@@ -9,6 +11,23 @@ import { Invite, SignIn } from "./enter-submits";
  * as a plain button, or left without a type and first in the code). Each shows
  * what Enter did in a polite line and a tally.
  */
+
+/** The Don't's helper: no type, so in the form it is a submit button. */
+function UntypedHelper({ label, onToggle }: HelperProps) {
+  return (
+    <Button asChild variant="outline" size="sm">
+      <button
+        onClick={(e) => {
+          // A click on the eye would send the form, so the handler stops it, and that swallows Enter too.
+          e.preventDefault();
+          onToggle();
+        }}
+      >
+        {label}
+      </button>
+    </Button>
+  );
+}
 
 export const FRM015: RuleExamples = {
   id: "FRM-015",
@@ -46,7 +65,7 @@ export const FRM015: RuleExamples = {
           presses it.
         </>
       ),
-      Demo: () => <SignIn helperTyped />,
+      Demo: () => <SignIn />,
     },
     {
       kind: "dont",
@@ -60,7 +79,7 @@ export const FRM015: RuleExamples = {
           <em>Sign in</em> to see it work.
         </>
       ),
-      Demo: () => <SignIn helperTyped={false} />,
+      Demo: () => <SignIn Helper={UntypedHelper} />,
     },
   ],
 };

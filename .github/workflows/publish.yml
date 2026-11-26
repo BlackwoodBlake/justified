@@ -51,7 +51,7 @@ jobs:
       - name: Stage versions that are not on npm yet
         run: |
           set -euo pipefail
-          for dir in packages/tokens packages/patterns adapters/agents; do
+          for dir in packages/tokens packages/patterns packages/eslint adapters/agents; do
             name=$(node -p "require('./$dir/package.json').name")
             version=$(node -p "require('./$dir/package.json').version")
             if npm view "$name@$version" version >/dev/null 2>&1; then

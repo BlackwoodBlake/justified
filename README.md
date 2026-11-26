@@ -31,6 +31,7 @@ The verdict is Requirement, Unanimous, Majority, Split or Insufficient evidence,
 - **With shadcn:** add the theme and components from the registry, for example `npx shadcn@latest add https://blackwoodblake.com/design-system/r/justified-theme.json`. See [Use with shadcn](https://blackwoodblake.com/design-system/get-started/shadcn/).
 - **With an AI coding agent:** add the Claude Code skill or `AGENTS.md`. See [Use with an AI agent](https://blackwoodblake.com/design-system/get-started/ai-agents/).
 - **From npm:** `npm install @blackwoodblake/justified-tokens` for the theme as CSS variables, `@blackwoodblake/justified-patterns` for the rules as data and `@blackwoodblake/justified-agents` for the agent files.
+- **In ESLint:** `npm install --save-dev @blackwoodblake/justified-eslint` flags code that may break a rule, as you write it. See its [README](packages/eslint/README.md).
 - **As data:** every rule is in [rules.json](https://blackwoodblake.com/design-system/patterns/rules.json) and in [llms.txt](https://blackwoodblake.com/design-system/llms.txt).
 
 ## Accessibility
@@ -63,13 +64,14 @@ Justified is open source, but it does not accept pull requests. Issues are welco
 | `sources/sources.yaml` | Every source page a stance links to, with the date it was read |
 | `packages/patterns` | `@blackwoodblake/justified-patterns`: the rules as data |
 | `packages/tokens` | `@blackwoodblake/justified-tokens`: colour and radius tokens, checked for contrast |
+| `packages/eslint` | `@blackwoodblake/justified-eslint`: ESLint rules that flag code that may break a rule |
 | `adapters/shadcn` | `@blackwoodblake/justified-shadcn`: reference components for shadcn apps |
 | `adapters/agents` | `@blackwoodblake/justified-agents`: the rules as a Claude Code skill and an AGENTS.md |
 | `examples` | Storybook with Do and Don't stories, and the live examples on the rule pages |
 | `scripts/` | The checks: verdicts from stances (`check-rules.ts`), copied wording (`similarity.ts`) and private text that must not be published (`check-public.ts`) |
 | `WRITING.md`, `CONTENT.md` | How rule texts are written from sources, and what we may claim |
 
-`justified-tokens`, `justified-patterns` and `justified-agents` are published on npm under the `@blackwoodblake` scope, each with its own README. `justified-shadcn` is not published: add its components with the shadcn CLI instead.
+`justified-tokens`, `justified-patterns`, `justified-eslint` and `justified-agents` are published on npm under the `@blackwoodblake` scope, each with its own README. `justified-shadcn` is not published: add its components with the shadcn CLI instead.
 
 ## Building locally
 
@@ -78,7 +80,7 @@ You need Node.js 22.22 or later.
 ```sh
 npm ci
 npm run check            # source register, rule frontmatter and nothing private in tracked files
-npm test                 # token contrast in light and dark themes
+npm test                 # token contrast in light and dark themes, and the ESLint rules
 npm run build            # rules to packages/patterns/dist/rules.json
 npm run storybook        # the workshop on http://localhost:6006
 ```
