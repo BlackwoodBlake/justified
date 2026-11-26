@@ -37,10 +37,9 @@ run("colour-tokens-by-role", rule, {
     // An arbitrary colour that only reads a token is a token.
     `<p className="text-[hsl(var(--muted-foreground))] text-sm">Last updated today</p>`,
     `<div className="border-[hsl(var(--border))] text-[oklch(var(--foreground)/0.8)]" />`,
-    // shadcn v4's own destructive Button and Badge: text-white on bg-destructive.
+    // shadcn v4's own destructive Button and Badge: text-white on bg-destructive, with dark:bg-destructive/60.
     `<Button className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive/60">Delete</Button>`,
-    `<span className="bg-destructive/90 text-white rounded-md px-2">3 errors</span>`,
-    `<button className="hover:bg-destructive hover:text-white">Remove</button>`,
+    `<Badge className="bg-destructive text-white [a&]:hover:bg-destructive/90 dark:bg-destructive/60">3 errors</Badge>`,
         // shadcn's Spinner is an icon: its colour is left to judgement, like other icons.
     `<Spinner className="size-6 text-red-500" />`,
     // The VIS-002 Do pairs.
@@ -113,6 +112,11 @@ run("colour-tokens-by-role", rule, {
     { code: `<p className="text-[hsl(220_10%_40%)]">Updated</p>`, errors: rawPalette },
     { code: `<Button className="bg-primary text-white">Save</Button>`, errors: rawPalette },
     { code: `<button className="bg-destructive hover:text-white">Remove</button>`, errors: rawPalette },
+    // White on the plain red is reported: on the dark theme's red it is about 2.3:1.
+    { code: `<Button className="bg-destructive text-white hover:bg-destructive/90">Delete</Button>`, errors: rawPalette },
+    { code: `<span className="bg-destructive/90 text-white rounded-md px-2">3 errors</span>`, errors: rawPalette },
+    { code: `<button className="hover:bg-destructive hover:text-white">Remove</button>`, errors: rawPalette },
+    { code: `<p className="bg-destructive text-white dark:bg-destructive">Payment failed</p>`, errors: rawPalette },
     { code: `<div className="hover:bg-gray-50">Row</div>`, errors: rawPalette },
     {
       code: `<Checkbox className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600" />`,

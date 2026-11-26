@@ -48,8 +48,10 @@
  *   - `ring-ring` with no variant, which may draw focus in a picture or a
  *     focus state set by script, and `data-[selected=true]:` in a command
  *     menu, which marks the item the keyboard is on.
- *   - `text-white` on `bg-destructive` under the same variants, as shadcn's
- *     own destructive `Button` and `Badge` variants write it, and an
+ *   - `text-white` on `bg-destructive` under the same variants, when the
+ *     element also has `dark:bg-destructive/60`, as shadcn's own
+ *     destructive `Button` and `Badge` variants write it. Without that
+ *     pairing, white on the dark theme's red is too faint. And an
  *     arbitrary colour that only reads a token, such as
  *     `text-[hsl(var(--muted-foreground))]`.
  *   - Meaning-based parts: `text-destructive` for a sale price, `bg-success`
@@ -222,8 +224,15 @@ export default defineRule({
         if (RAW_INK.test(p.utility)) {
           if (/-(white|black)(\/\S+)?$/.test(p.utility) && p.utility.startsWith("text-") && (media ??= overMedia(node)))
             continue;
-          // shadcn's own destructive button and badge: text-white on bg-destructive under the same variants.
-          if (p.utility === "text-white" && parsed.some((q) => /^bg-destructive(\/\S+)?$/.test(q.utility) && q.variants.join(":") === p.variants.join(":")))
+          // shadcn's own destructive button and badge: text-white on bg-destructive under the same variants,
+          // with the darker fill shadcn pairs it with in dark mode. White on the plain dark red is too faint.
+          if (
+            p.utility === "text-white" &&
+            tokens.includes("dark:bg-destructive/60") &&
+            parsed.some(
+              (q) => /^bg-destructive(\/\S+)?$/.test(q.utility) && q.variants.join(":") === p.variants.join(":"),
+            )
+          )
             continue;
           raw.push(p.token);
         } else if (RAW_FILL.test(p.utility)) {
