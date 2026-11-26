@@ -34,7 +34,14 @@ const upstream = [
 run("colour-tokens-by-role", rule, {
   valid: [
     ...upstream,
-    // shadcn's Spinner is an icon: its colour is left to judgement, like other icons.
+    // An arbitrary colour that only reads a token is a token.
+    `<p className="text-[hsl(var(--muted-foreground))] text-sm">Last updated today</p>`,
+    `<div className="border-[hsl(var(--border))] text-[oklch(var(--foreground)/0.8)]" />`,
+    // shadcn v4's own destructive Button and Badge: text-white on bg-destructive.
+    `<Button className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive/60">Delete</Button>`,
+    `<span className="bg-destructive/90 text-white rounded-md px-2">3 errors</span>`,
+    `<button className="hover:bg-destructive hover:text-white">Remove</button>`,
+        // shadcn's Spinner is an icon: its colour is left to judgement, like other icons.
     `<Spinner className="size-6 text-red-500" />`,
     // The VIS-002 Do pairs.
     `<div className="rounded-lg border border-border bg-card p-3 text-sm text-card-foreground"><p className="text-destructive">Payment failed</p></div>`,
@@ -102,6 +109,10 @@ run("colour-tokens-by-role", rule, {
       errors: rawPalette,
     },
     { code: `<button className="bg-slate-100">Filter</button>`, errors: rawPalette },
+    // A raw colour in an arbitrary value is still raw, and text-white on another fill is still reported.
+    { code: `<p className="text-[hsl(220_10%_40%)]">Updated</p>`, errors: rawPalette },
+    { code: `<Button className="bg-primary text-white">Save</Button>`, errors: rawPalette },
+    { code: `<button className="bg-destructive hover:text-white">Remove</button>`, errors: rawPalette },
     { code: `<div className="hover:bg-gray-50">Row</div>`, errors: rawPalette },
     {
       code: `<Checkbox className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600" />`,

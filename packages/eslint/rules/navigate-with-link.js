@@ -23,7 +23,7 @@
  *     searching; an address built from React state, an input's value or
  *     react-hook-form's values; a `type="submit"` button, and any button
  *     inside a form.
- *   - `router.back()`, `router.refresh()`, and `Tabs` that only change a
+ *   - `router.back()`, `navigate(-1)`, `router.refresh()`, and `Tabs` that only change a
  *     search param or hash of the same page.
  *   - Handlers from props or other files, and routers the rule cannot
  *     trace. `CommandItem`, whose items cannot hold a link.

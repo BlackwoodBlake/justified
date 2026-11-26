@@ -32,6 +32,16 @@ run("button-has-name", rule, {
     `export const A = () => <Button aria-label="Go to payment"><Trans>Continue</Trans></Button>;`,
     `export const A = (props) => <Button size="icon" {...props}><Trash2Icon /></Button>;`,
     `export const A = () => <Button size="icon"><Avatar /></Button>;`,
+    // base-ui's render prop, as in shadcn's own examples: the rendered button gives the name.
+    `${lucide}export const A = () => (
+      <Tooltip>
+        <TooltipTrigger render={<InputGroupButton size="icon-xs" aria-label="Add" />}>
+          <Plus />
+        </TooltipTrigger>
+        <TooltipContent>Add</TooltipContent>
+      </Tooltip>
+    );`,
+    `${lucide}export const A = () => <Button render={<a href="/settings" aria-label="Settings" />} size="icon"><Settings /></Button>;`,
     // asChild: the child gives the name.
     `${lucide}export const A = () => <Button asChild size="icon"><a href="/settings" aria-label="Settings"><Settings /></a></Button>;`,
     // A decorative icon beside text, hidden.
@@ -55,6 +65,15 @@ run("button-has-name", rule, {
     `export const A = () => <Button>Save draft</Button>;`,
   ],
   invalid: [
+    // base-ui's render prop: an icon-only trigger whose rendered button has no name either.
+    {
+      code: `${lucide}export const A = () => <Tooltip><TooltipTrigger render={<Button size="icon" />}><X /></TooltipTrigger><TooltipContent>Close</TooltipContent></Tooltip>;`,
+      errors: [{ messageId: "tooltipOnly" }],
+    },
+    {
+      code: `${lucide}export const A = () => <Button render={<a href="/x" />}><X /></Button>;`,
+      errors: [{ messageId: "noName" }],
+    },
     {
       code: `${lucide}export const A = () => <Button variant="ghost" size="icon"><Trash2 /></Button>;`,
       errors: [{ messageId: "noName" }],

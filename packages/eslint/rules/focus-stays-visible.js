@@ -29,6 +29,10 @@
  *     class such as `focus-within:ring-2` (a search box that rings its
  *     wrapper), a `group` whose children style `group-focus:`, or a `peer`,
  *     whose siblings may style `peer-focus:`.
+ *   - Elements with a class that is not a Tailwind utility, such as
+ *     `focus-ring` or `btn`: it comes from a stylesheet the rule cannot
+ *     read, which may give the focus style. A wrong report costs more than
+ *     a missed one here.
  *   - Whether a focus style is plain enough to see, such as `focus:bg-accent`
  *     alone: that takes judgement, and the review skill covers it.
  */
@@ -41,6 +45,14 @@ const LINK_SOURCES = /^(next\/link|react-router|react-router-dom|@tanstack\/reac
 const REMOVES_OUTLINE = /^outline-(none|hidden|0)$/;
 /** Utilities behind a focus variant that only take an indicator away. */
 const TAKES_AWAY = /^(outline-(none|hidden|0)|ring-0|ring-transparent|shadow-none|border-0|border-transparent)$/;
+
+/**
+ * Tailwind utilities by their first part. A class with no variant that is
+ * not one of them, such as `focus-ring` or `btn`, comes from a stylesheet
+ * the rule cannot read, which may draw a focus style.
+ */
+const TAILWIND =
+  /^-?(\[.+\]|\(.+\)|(sr-only|not-sr-only|peer|group|container|block|inline|inline-block|inline-flex|inline-grid|flex|grid|hidden|contents|table|flow-root|list-item|static|fixed|absolute|relative|sticky|visible|invisible|collapse|isolate|truncate|italic|not-italic|underline|overline|line-through|no-underline|uppercase|lowercase|capitalize|normal-case|antialiased|subpixel-antialiased|ordinal|slashed-zero|tabular-nums|proportional-nums|lining-nums|oldstyle-nums|diagonal-fractions|stacked-fractions|normal-nums|grow|shrink|transform|filter|border|rounded|shadow|ring|outline|blur|transition|resize|prose|dark)(\/\S+)?$|(p|px|py|pt|pr|pb|pl|ps|pe|m|mx|my|mt|mr|mb|ml|ms|me|w|h|size|min-w|min-h|max-w|max-h|inset|inset-x|inset-y|top|right|bottom|left|start|end|z|gap|gap-x|gap-y|space-x|space-y|text|font|leading|tracking|bg|from|via|to|border|divide|outline|ring|ring-offset|shadow|inset-shadow|inset-ring|rounded|opacity|cursor|select|pointer-events|items|justify|content|self|place|order|col|row|grid-cols|grid-rows|auto-cols|auto-rows|grid-flow|flex|basis|grow|shrink|overflow|overscroll|object|aspect|columns|break|box|float|clear|decoration|underline-offset|indent|align|whitespace|wrap|hyphens|list|line-clamp|fill|stroke|transition|duration|delay|ease|animate|scale|rotate|translate|skew|origin|perspective|backface|transform|blur|brightness|contrast|drop-shadow|grayscale|hue-rotate|invert|saturate|sepia|backdrop|mix-blend|bg-blend|appearance|resize|user|fade|zoom|slide|spin|caret|accent|scroll|snap|touch|will-change|forced-color-adjust|field-sizing|color-scheme|table|border-collapse|border-spacing|caption|tab|mask|text-shadow|stroke|outline-offset|font-stretch|inline|block|shadow|display)-\S+)$/;
 
 /** Whether a token draws something on focus. @param {string} token */
 export function isFocusStyle(token) {
@@ -136,6 +148,9 @@ export default defineRule({
         if (list && (!list.complete || list.passThrough)) return;
         const tokens = list ? allTokens(list) : [];
         if (tokens.some(isFocusStyle)) return;
+        // A class from the project's own stylesheet, such as focus-ring, may draw the indicator: stay quiet.
+        if (tokens.some((t) => !parseToken(t).variants.length && !TAILWIND.test(parseToken(t).utility.replace(/^!|!$/g, ""))))
+          return;
         if (focusShownElsewhere(node, tokens)) return;
 
         // Only an outline removed whatever the branches do: a branch may not be taken for this element.

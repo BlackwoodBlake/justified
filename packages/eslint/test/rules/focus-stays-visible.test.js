@@ -25,6 +25,9 @@ run("focus-stays-visible", rule, {
     // Not focusable by Tab: only a script focuses it, as after a form is sent.
     `<h4 tabIndex={-1} className="m-0 text-base font-semibold outline-none">Your booking</h4>`,
     `<div className="outline-none">Panel</div>`,
+    // A class from the project's stylesheet may draw the focus style.
+    `<button className="focus-ring outline-none">Go</button>`,
+    `<button className="btn outline-none">Go</button>`,
     `<a className="outline-none">No href, no focus</a>`,
     `<input type="hidden" className="outline-none" />`,
     // Disabled controls need not take focus.
@@ -57,6 +60,8 @@ run("focus-stays-visible", rule, {
       errors: outlineRemoved,
     },
     { code: `<textarea className="outline-hidden" />`, errors: outlineRemoved },
+    // Every class here is a Tailwind utility, so no stylesheet class may hold a focus style.
+    { code: `<textarea aria-label="Notes" className="min-h-16 resize-none border-0 outline-none focus:ring-0" />`, errors: outlineRemoved },
     {
       code: `<select className={cn("h-9 rounded-md", "outline-none")}><option>UK</option></select>`,
       errors: outlineRemoved,

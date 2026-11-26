@@ -32,6 +32,11 @@ run("character-key-shortcuts", rule, {
     }, []);`,
     `document.addEventListener("keydown", (e) => { if (!(e.metaKey || e.ctrlKey)) return; if (e.key === "k") open(); });`,
     `document.addEventListener("keydown", (e) => { const mod = e.ctrlKey || e.metaKey; if (mod && e.key === "k") open(); });`,
+    // The modifier checked inside the branch for the key: Cmd+K or Ctrl+K, outside KBD-003.
+    `document.addEventListener("keydown", (e) => { if (e.key === "k") { if (e.metaKey || e.ctrlKey) { e.preventDefault(); setOpen(true); } } });`,
+    `document.addEventListener("keydown", (e) => { if (e.key !== "k") return; if (!(e.metaKey || e.ctrlKey)) return; setOpen(true); });`,
+    `document.addEventListener("keydown", (e) => { switch (e.key) { case "k": if (e.metaKey) setOpen(true); break; } });`,
+    `document.addEventListener("keydown", (e) => { e.key === "k" && (e.metaKey || e.ctrlKey) && setOpen(true); });`,
     `window.addEventListener("keydown", (e) => { if (e.getModifierState("Control") && e.key === "s") save(); });`,
     // Keys outside the criterion.
     `document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });`,

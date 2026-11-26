@@ -490,6 +490,28 @@ function readKeydownHandler(context, fn) {
     if (!found || (found.kind === "shift" && k === "plain")) found = { kind: k, node: at };
   };
 
+  /**
+   * Whether the code that runs on the key checks Ctrl, Alt or Cmd itself,
+   * as in `if (e.key === "k") { if (e.metaKey || e.ctrlKey) open(); }`.
+   * Such a shortcut may take a modifier, which KBD-003 leaves alone.
+   * @param {any} branch
+   */
+  const branchChecksModifier = (branch) => {
+    if (!branch) return false;
+    let found = false;
+    walkOwn(branch, keys, (n) => {
+      if (found) return;
+      const test =
+        n.type === "IfStatement" || n.type === "ConditionalExpression"
+          ? n.test
+          : n.type === "LogicalExpression"
+            ? n.left
+            : undefined;
+      if (test && (reader.facts(test, true).modifier || reader.facts(test, false).modifier)) found = true;
+    });
+    return found;
+  };
+
   walkOwn(fn.body, keys, (n) => {
     if (quiet) return;
     // switch (e.key) { case "e": … }
@@ -499,7 +521,7 @@ function readKeydownHandler(context, fn) {
         const lit = unwrap(c.test);
         if (lit?.type !== "Literal" || typeof lit.value !== "string") continue;
         const kind = folded && /^[a-z]$/i.test(lit.value) ? "plain" : charKey(lit.value);
-        if (kind) judge(kind, c.test, conditionsOf(n, fn));
+        if (kind && !c.consequent.some(branchChecksModifier)) judge(kind, c.test, conditionsOf(n, fn));
       }
       return;
     }
@@ -520,12 +542,18 @@ function readKeydownHandler(context, fn) {
       const leaves = !holder.alternate && exits(holder.consequent);
       // `if (e.key === "a") return` skips "a"; `if (e.key !== "a") { … }` acts on every other key.
       if (leaves === matches) return;
+      // The code that runs on the key: the rest of the function after an early exit, or the branch.
+      if (!leaves && branchChecksModifier(matches ? holder.consequent : holder.alternate)) return;
+      if (leaves) {
+        const list = holder.parent?.type === "BlockStatement" ? holder.parent.body : [];
+        if (list.slice(list.indexOf(holder) + 1).some(branchChecksModifier)) return;
+      }
       judge(kind, n, [[holder.test, !leaves], ...conditionsOf(holder, fn)]);
     } else if (holder?.type === "ConditionalExpression" && holder.test === at) {
-      if (matches) judge(kind, n, [[holder.test, true], ...conditionsOf(holder, fn)]);
+      if (matches && !branchChecksModifier(holder.consequent)) judge(kind, n, [[holder.test, true], ...conditionsOf(holder, fn)]);
     } else if (holder?.type === "ExpressionStatement" && at.type === "LogicalExpression" && at !== n) {
       // e.key === "/" && search()
-      if (matches && at.operator === "&&") judge(kind, n, [[at.left, true], ...conditionsOf(holder, fn)]);
+      if (matches && at.operator === "&&" && !branchChecksModifier(at.right)) judge(kind, n, [[at.left, true], ...conditionsOf(holder, fn)]);
     }
   });
   return quiet ? undefined : found;

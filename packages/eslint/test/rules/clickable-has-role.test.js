@@ -65,6 +65,11 @@ run("clickable-has-role", rule, {
     next(`<Button variant="link" onClick={() => setOpen(true)}>Show details</Button>`),
     // router.back is going back in history, not to an address in code.
     next(`<Button variant="link" onClick={() => router.back()}>Back</Button>`),
+    `import { useNavigate } from "react-router-dom";
+    export function Back() {
+      const navigate = useNavigate();
+      return <Button variant="link" onClick={() => navigate(-1)}>Back</Button>;
+    }`,
     // A navigate that is not from useNavigate is not traced.
     `export function A({ navigate }) { return <Button variant="link" onClick={() => navigate("/fees")}>Late fees</Button>; }`,
     // Triggers around real buttons, and without asChild.

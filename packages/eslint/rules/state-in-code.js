@@ -12,7 +12,8 @@
  *      neither it nor anything inside it carries `aria-pressed`,
  *      `aria-selected`, `aria-checked`, `aria-expanded`, `aria-current`,
  *      `aria-sort` or `data-state`, and no text inside it follows the same
- *      state.
+ *      state. An element marked `aria-hidden`, such as a check icon shown
+ *      under the state, is not text: a screen reader hears nothing of it.
  *   2. `opacity-50`, `pointer-events-none` or `cursor-not-allowed` added by
  *      a condition to a button, link or field that acts (`onClick`, `href`
  *      or `type="submit"`) and has neither `disabled` nor `aria-disabled`.
@@ -29,7 +30,8 @@
  *   - shadcn and Radix components that set their own state (`Toggle`,
  *     `TabsTrigger`, `Checkbox`, `RadioGroupItem`, menu items …), and links,
  *     whose current page is NAV-002a (`active-link-aria-current`), and
- *     header cells, whose sort is TBL-002.
+ *     header cells and the sort buttons in them, whose sort state is
+ *     `aria-sort` on the cell (TBL-002), not `aria-pressed`.
  *   - Elements that spread props, which may bring the state.
  *   - Whether a `disabled` or `aria-disabled` follows the same condition as
  *     the faded look: any such attribute quiets check 2.
@@ -174,10 +176,54 @@ export default defineRule({
       if (label?.value?.type === "JSXExpressionContainer" && readsName(label.value.expression, keys, isStateName)) return true;
       walk({ type: "Wrapper", children: element.children }, { ...keys, Wrapper: ["children"] }, (n) => {
         if (found) return false;
-        if (n.type === "JSXExpressionContainer" && readsName(n.expression, keys, isStateName)) found = true;
+        if (n.type === "JSXExpressionContainer" && readsName(n.expression, keys, isStateName) && mayGiveText(n.expression))
+          found = true;
         return undefined;
       });
       return found;
+    };
+
+    /**
+     * Whether what an expression renders may be words. An element marked
+     * `aria-hidden`, such as a check icon, and `null` or `false` are not:
+     * a screen reader hears nothing from them.
+     * @param {any} node
+     * @returns {boolean}
+     */
+    const mayGiveText = (node) => {
+      const n = unwrap(node);
+      if (!n) return false;
+      switch (n.type) {
+        case "ConditionalExpression":
+          return mayGiveText(n.consequent) || mayGiveText(n.alternate);
+        case "LogicalExpression":
+          return n.operator === "&&" ? mayGiveText(n.right) : mayGiveText(n.left) || mayGiveText(n.right);
+        case "Literal":
+          return typeof n.value === "string" ? n.value.trim() !== "" : typeof n.value === "number";
+        case "JSXElement": {
+          const hidden = attributeValue(getAttribute(n.openingElement, "aria-hidden"));
+          return !(hidden === true || hidden === "true");
+        }
+        case "JSXFragment":
+          return n.children.some(
+            (/** @type {any} */ c) =>
+              (c.type === "JSXText" && c.value.trim() !== "") ||
+              (c.type === "JSXExpressionContainer" && mayGiveText(c.expression)) ||
+              (c.type === "JSXElement" && mayGiveText(c)),
+          );
+        default:
+          // A name, a call or a template may hold words.
+          return n.type !== "JSXEmptyExpression";
+      }
+    };
+
+    /** Whether an element sits in a table header cell, whose sort state is TBL-002 (`aria-sort` on the cell). @param {any} element */
+    const inHeaderCell = (element) => {
+      for (let el = element.parent; el; el = el.parent) {
+        if (FUNCTIONS.has(el.type)) return false;
+        if (el.type === "JSXElement" && ["th", "TableHead"].includes(elementName(el.openingElement) ?? "")) return true;
+      }
+      return false;
     };
 
     /**
@@ -266,7 +312,7 @@ export default defineRule({
         readSetters(onClick);
 
         // 1. A look switched by a state, with no state in code.
-        if (TARGETS.has(name) && onClick && !carriesState(element) && !textFollowsState(element)) {
+        if (TARGETS.has(name) && onClick && !carriesState(element) && !textFollowsState(element) && !inHeaderCell(element)) {
           const className = getAttribute(opening, "className");
           let state =
             className?.value?.type === "JSXExpressionContainer" ? switchedBy(className.value.expression) : undefined;

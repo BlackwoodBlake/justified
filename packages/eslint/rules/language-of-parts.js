@@ -3,8 +3,11 @@
  * language than the text around it carries `lang` with that language.
  *
  * Flags:
- *   - A written-out `lang` on any element but `html` that is not a valid
- *     language tag, such as `en_US` or `cn`. (`html` is STR-006.)
+ *   - A written-out `lang` on a native element other than `html` that is
+ *     not a valid language tag, such as `en_US` or `cn`. (`html` is
+ *     STR-006.) A component's `lang` prop, as in `<CodeBlock lang="bash">`,
+ *     often names something else, such as a programming language, so
+ *     components are left alone.
  *   - A language picker built with `.map()` from a list written out in the
  *     same file, where the entries' labels are the languages' own names
  *     (*Polski*, *Português*, *한국어*) for at least two languages, and the
@@ -76,7 +79,8 @@ export default defineRule({
       },
       JSXOpeningElement(opening) {
         const name = elementName(opening);
-        if (name === "html" || name === "Html") return;
+        // Only native elements: a lowercase name with no dot or namespace.
+        if (!name || name === "html" || !/^[a-z][a-z0-9-]*$/.test(name)) return;
         const value = attributeValue(getAttribute(opening, "lang"));
         if (typeof value !== "string") return;
         const hint = invalidTagHint(value);

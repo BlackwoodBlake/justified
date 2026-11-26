@@ -17,7 +17,8 @@
  * Left alone:
  *   - `alt=""` (decoration, which the rule asks for), any alt with more
  *     than the kind word ("Fernhill logo"), and names such as
- *     `alt={user.name}`.
+ *     `alt={user.name}` or `alt={profile.name}` (an avatar's alt is the
+ *     person's name).
  *   - A missing `alt`: jsx-a11y's `alt-text` covers it, also for `Image`
  *     and `AvatarImage` with its `img` setting.
  *   - Images inside a link or button: the exceptions send them to TXT-003
@@ -55,8 +56,14 @@ const FILE_EXTENSION = /\.(png|jpe?g|gif|svg|webp|avif|bmp|ico|tiff?|heic)$/i;
 const ADDRESS_NAME = /^(src|url|href|path|file_?name|file_?path)$/i;
 /** Endings of camel-case names whose value is an address or file name, such as `imageUrl`. */
 const ADDRESS_ENDING = /[a-z](Src|Url|URL|Href|Path|FileName|Filename)$/;
-/** Objects whose `.name` is a file name. */
-const FILE_OBJECT = /file|upload|attachment/i;
+/** Words in an object's name that make its `.name` a file name, as in `file`, `selectedFile` or `upload_item`. */
+const FILE_WORD = /^(files?|uploads?|attachments?)$/i;
+/** Whether a name holds one of those words, read as camel case or snake case, so `profile` is not `file`. @param {string} name */
+const namesFile = (name) =>
+  name
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .split(/[\s_$-]+/)
+    .some((word) => FILE_WORD.test(word));
 
 /** Links and buttons, whose images follow TXT-003 and ACT-001b. */
 const isControl = (/** @type {string} */ name) => {
@@ -88,7 +95,7 @@ function readsFileName(expression) {
   if (ADDRESS_NAME.test(name) || ADDRESS_ENDING.test(name)) return true;
   if (name === "name" && n.type === "MemberExpression") {
     const owner = lastName(n.object);
-    return Boolean(owner && FILE_OBJECT.test(owner));
+    return Boolean(owner && namesFile(owner));
   }
   return false;
 }

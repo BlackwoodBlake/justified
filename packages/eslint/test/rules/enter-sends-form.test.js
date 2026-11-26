@@ -21,6 +21,19 @@ import { Input } from "@/components/ui/input";
 
 run("enter-sends-form", rule, {
   valid: [
+    // Implicit submission: with one single-line field and no submit button, Enter still sends the form to onSubmit.
+    `${STOCK}
+    export const Invite = () => (
+      <form onSubmit={form.handleSubmit(onSubmit)}><Input type="email" aria-label="Email address" /><Button type="button" onClick={form.handleSubmit(onSubmit)}>Send invite</Button></form>
+    );`,
+    `${JUSTIFIED}
+    export const Invite = () => (
+      <form onSubmit={send}><Field label="Email address"><Input type="email" /></Field><Button>Send invite</Button></form>
+    );`,
+    `${JUSTIFIED}
+    export const Invite = () => (
+      <form action={invite}><Field label="Email address"><Input type="email" name="email" /></Field><Button>Send invite</Button></form>
+    );`,
     // The Do: a real form with the submit button at the end (Justified).
     `${JUSTIFIED}
     export function Apply() {
@@ -202,9 +215,17 @@ run("enter-sends-form", rule, {
     {
       code: `${JUSTIFIED}
       export const Invite = () => (
-        <form onSubmit={send}><Field label="Email address"><Input type="email" /></Field><Button>Send invite</Button></form>
+        <form onSubmit={send}><Field label="Name"><Input /></Field><Field label="Email address"><Input type="email" /></Field><Button>Send invite</Button></form>
       );`,
       errors: [{ messageId: "mainNotSubmit" }],
+    },
+    // One single-line field and no submit button: Enter sends the form, but nothing catches it.
+    {
+      code: `${STOCK}
+      export const Invite = () => (
+        <form><Input type="email" aria-label="Email address" /><Button type="button" onClick={form.handleSubmit(onSubmit)}>Send invite</Button></form>
+      );`,
+      errors: [{ messageId: "mainNotSubmitOneField" }],
     },
     // How_to_check 3: a key handler that only cancels Enter, on a field and on the form.
     {

@@ -58,6 +58,24 @@ run("control-has-name", rule, {
     `export const A = () => <Button variant="outline" role="combobox" aria-label="Framework" aria-expanded={open}>Select framework...</Button>;`,
     // An aria-label that holds the visible label.
     `export const A = () => <Field label="Level"><NativeSelect aria-label="Level for Alma" /></Field>;`,
+    // A group label is not each field's own label (FRM-010's exception).
+    `export const A = () => (
+      <Field label="Date of birth">
+        <div className="flex gap-2"><Input aria-label="Day" /><Input aria-label="Month" /><Input aria-label="Year" /></div>
+      </Field>
+    );`,
+    `export const A = () => (
+      <FormItem>
+        <FormLabel>Date of birth</FormLabel>
+        <FormControl><div className="flex gap-2"><Input aria-label="Day" /><Input aria-label="Month" /><Input aria-label="Year" /></div></FormControl>
+      </FormItem>
+    );`,
+    `export const A = () => (
+      <fieldset><legend>Date of birth</legend><Input aria-label="Day" /><Input aria-label="Month" /><Input aria-label="Year" /></fieldset>
+    );`,
+    `export const A = () => (
+      <div role="group" aria-labelledby="dob"><p id="dob">Date of birth</p><Input aria-label="Day" /><Input aria-label="Month" /></div>
+    );`,
     `export const A = () => <div><Label htmlFor="lvl">Level</Label><NativeSelect id="lvl" aria-label="Level for Noor" /></div>;`,
     // The marker in parentheses is FRM-005, not this rule.
     `export const A = () => <div><Label htmlFor="n">Notes for the teacher (optional)</Label><Textarea id="n" aria-label="Notes for the teacher" /></div>;`,

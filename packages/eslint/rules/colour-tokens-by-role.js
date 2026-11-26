@@ -48,6 +48,10 @@
  *   - `ring-ring` with no variant, which may draw focus in a picture or a
  *     focus state set by script, and `data-[selected=true]:` in a command
  *     menu, which marks the item the keyboard is on.
+ *   - `text-white` on `bg-destructive` under the same variants, as shadcn's
+ *     own destructive `Button` and `Badge` variants write it, and an
+ *     arbitrary colour that only reads a token, such as
+ *     `text-[hsl(var(--muted-foreground))]`.
  *   - Meaning-based parts: `text-destructive` for a sale price, `bg-success`
  *     as a brand colour, `--chart-*` for status, and pairs split across
  *     parent and child. The review skill covers them.
@@ -66,6 +70,9 @@ const RAW_INK = new RegExp(
   `^(?:text|placeholder|border(?:-[xytrblse])?|divide|ring|ring-offset|outline|decoration|caret|accent)-${COLOUR}$`,
 );
 const RAW_FILL = new RegExp(`^bg-${COLOUR}$`);
+/** An arbitrary colour that only reads a token, such as `text-[hsl(var(--muted-foreground))]`: a token, not a raw colour. */
+const TOKEN_FUNCTION =
+  /^[\w-]+-\[(?:color:)?(?:rgba?|hsla?|oklch|oklab|lab|lch|hwb)\(\s*var\(--[\w-]+\)\s*(?:[/,]\s*[\d.]+%?\s*)?\)\](?:\/\S+)?$/;
 const COLOUR_VALUE = /^\s*(#[0-9a-fA-F]{3,8}|(rgba?|hsla?|oklch|oklab|lab|lch|hwb|color)\()/;
 
 // shadcn's `Spinner` draws a lucide icon, so it counts as an icon here.
@@ -211,8 +218,12 @@ export default defineRule({
       const parsed = tokens.map((t) => ({ token: t, ...parseToken(t) }));
       const raw = [];
       for (const p of parsed) {
+        if (TOKEN_FUNCTION.test(p.utility)) continue;
         if (RAW_INK.test(p.utility)) {
           if (/-(white|black)(\/\S+)?$/.test(p.utility) && p.utility.startsWith("text-") && (media ??= overMedia(node)))
+            continue;
+          // shadcn's own destructive button and badge: text-white on bg-destructive under the same variants.
+          if (p.utility === "text-white" && parsed.some((q) => /^bg-destructive(\/\S+)?$/.test(q.utility) && q.variants.join(":") === p.variants.join(":")))
             continue;
           raw.push(p.token);
         } else if (RAW_FILL.test(p.utility)) {
