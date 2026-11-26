@@ -2,7 +2,7 @@
 
 The design tokens of Justified by Blackwood & Blake as CSS custom properties: colour, typography, space, shape, focus, target size and motion, in a light and a dark theme.
 
-The colour names follow shadcn's theme variables, so shadcn components pick them up without changes. Every text and border pair is measured against WCAG 2.2 in both themes before a release ([1.4.3 Contrast (Minimum)](https://www.w3.org/TR/WCAG22/#contrast-minimum) and [1.4.11 Non-text Contrast](https://www.w3.org/TR/WCAG22/#non-text-contrast)).
+The colour names follow shadcn's theme variables, so shadcn components pick them up without changes. A fixed list of colour pairs, for text, input borders and the focus ring, is measured against WCAG 2.2 in both themes before a release ([1.4.3 Contrast (Minimum)](https://www.w3.org/TR/WCAG22/#contrast-minimum) and [1.4.11 Non-text Contrast](https://www.w3.org/TR/WCAG22/#non-text-contrast)). Every colour token is in at least one of those pairs, except `--border` for dividers and card edges and `--overlay` for the scrim behind a dialog, which carry no text or control of their own. The test fails if a colour token is added without a pair or a reason.
 
 ## Install
 
