@@ -532,6 +532,8 @@ export const FRM012b: RuleExamples = {
           pressed.
         </>
       ),
+      notLinted:
+        "Lint gap: the rule sentence does not say a switch must apply its setting at once; that is our own advice in Do.",
       Demo: SettingsWithSwitch,
     },
   ],
