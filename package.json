@@ -15,7 +15,9 @@
     "check-public": "tsx scripts/check-public.ts",
     "similarity": "tsx scripts/similarity.ts",
     "build": "npm run build --workspace packages/patterns && npm run build --workspace adapters/shadcn && npm run build --workspace adapters/agents",
-    "test": "npm run test --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present && npm run test-scripts",
+    "test-scripts": "tsx --test \"scripts/test/*.test.ts\"",
+    "typecheck": "tsc --noEmit -p .",
     "storybook": "npm run dev --workspace examples",
     "build-storybook": "npm run build --workspace examples"
   },
