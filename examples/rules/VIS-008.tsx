@@ -68,7 +68,7 @@ function PointerOnlyCard({ onOpen }: { onOpen?: () => void }) {
   return (
     <div
       data-look-name="Project card"
-      className={`relative flex w-full flex-col gap-1 rounded-lg border border-border p-4 text-card-foreground ${COLOUR_TRANSITION} bg-card cursor-pointer`}
+      className="relative flex w-full flex-col gap-1 rounded-lg border border-border p-4 text-card-foreground transition-colors duration-(--motion-duration-fast) ease-standard bg-card cursor-pointer"
     >
       <h4 className="m-0 text-base font-semibold">
         {/* A real address. A plain click is stopped so the example stays put, and the line below says where it would go. */}
@@ -265,8 +265,6 @@ export const VIS008: RuleExamples = {
         </>
       ),
       Demo: CardSceneDont,
-      notLinted:
-        "Lint gap: a stretched link is read only on the shadcn Card; this card is a div, as the adapter has no Card.",
     },
     {
       kind: "do",

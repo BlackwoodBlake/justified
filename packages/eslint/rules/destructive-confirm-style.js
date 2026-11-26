@@ -14,6 +14,9 @@
  *     starts with Save, Send, Create, Add or Publish;
  *   - Cancel drawn as the filled main button while the destructive button
  *     in the same footer uses `outline`, `secondary`, `ghost` or `link`;
+ *   - Cancel given the fill on purpose, with `variant="default"` or a
+ *     `bg-primary` class, beside a red destructive button in the same
+ *     footer: the styles steer the person towards Cancel;
  *   - `opacity-*` or `bg-destructive/*` with no state prefix on a
  *     destructive button that can be pressed, which fades it all the time.
  *
@@ -29,6 +32,9 @@
  *   - A custom red, or danger shown only by a border or icon: telling
  *     these apart takes judgement, so the review skill covers them.
  *   - The faded look of a button with a literal `disabled`.
+ *   - A `Button` with no variant as Cancel beside a red button: the
+ *     project's own default may not be the fill, so only a fill written
+ *     out is reported there.
  */
 import { ancestorInTree, staticClasses, visibleText } from "../lib/button-label-helpers.js";
 import { defineRule } from "../lib/define-rule.js";
@@ -89,7 +95,7 @@ export default defineRule({
   level: "guideline",
   verdict: "Split (1 of 2)",
   description:
-    "In an alert dialog: a Delete or Remove button without the danger style, the danger style on Cancel or on a safe action, a filled Cancel beside a quiet destructive button, and a faded destructive button.",
+    "In an alert dialog: a Delete or Remove button without the danger style, the danger style on Cancel or on a safe action, a Cancel filled beside a quiet destructive button or given the fill beside a red one, and a faded destructive button.",
   type: "suggestion",
   messages: {
     missingDanger:
@@ -100,6 +106,8 @@ export default defineRule({
       '"{{text}}" destroys nothing, but has the danger style. Keep red for the button that deletes or removes something, so it still warns.',
     filledCancel:
       'the Cancel button is the filled main button while "{{text}}" is drawn as a quiet button. That steers the person away instead of warning them. Give Cancel the outline style and the destructive button variant="destructive".',
+    filledCancelBesideRed:
+      'the Cancel button is given the filled main style beside "{{text}}". Two strong buttons steer the person towards Cancel, and the safe choice looks like the one to take. Give Cancel the outline style and keep the red for "{{text}}".',
     faded:
       '"{{className}}" fades this destructive button while it can be pressed, which may lower the contrast of its text. Remove the class; a disabled button fades on its own while it cannot be pressed.',
   },
@@ -108,7 +116,7 @@ export default defineRule({
     const footers = new Map();
     /** @param {any} footer */
     const footerEntry = (footer) => {
-      if (!footers.has(footer)) footers.set(footer, { filledCancels: [], quiet: [] });
+      if (!footers.has(footer)) footers.set(footer, { filledCancels: [], explicitCancels: [], quiet: [], red: [] });
       return footers.get(footer);
     };
 
@@ -129,8 +137,11 @@ export default defineRule({
         const cancel = name === "AlertDialogCancel" || insideCancel || (text !== undefined && whole(text) === "cancel");
         if (cancel) {
           if (isRed(l)) context.report({ node: opening, messageId: "redCancel" });
-          else if (footer && isFilled(insideCancel ? "Button" : name, l))
+          else if (footer && isFilled(insideCancel ? "Button" : name, l)) {
             footerEntry(footer).filledCancels.push(opening);
+            if (l.variant === "default" || l.classes.some((c) => /^bg-primary(\/\d+)?$/.test(c)))
+              footerEntry(footer).explicitCancels.push(opening);
+          }
           return;
         }
         if (!text) return;
@@ -139,7 +150,7 @@ export default defineRule({
           if (!isRed(l)) {
             context.report({ node: opening, messageId: "missingDanger", data: { text } });
             if (footer && l.variant && QUIET.has(l.variant)) footerEntry(footer).quiet.push(text);
-          }
+          } else if (footer) footerEntry(footer).red.push(text);
           const disabled = attributeValue(getAttribute(opening, "disabled"));
           const fading = disabled === true ? undefined : fadingClass(l.classes);
           if (fading && isRed(l)) context.report({ node: opening, messageId: "faded", data: { className: fading } });
@@ -151,10 +162,13 @@ export default defineRule({
         }
       },
       "Program:exit"() {
-        for (const { filledCancels, quiet } of footers.values()) {
-          if (!quiet.length) continue;
-          for (const node of filledCancels)
-            context.report({ node, messageId: "filledCancel", data: { text: quiet[0] } });
+        for (const { filledCancels, explicitCancels, quiet, red } of footers.values()) {
+          if (quiet.length)
+            for (const node of filledCancels)
+              context.report({ node, messageId: "filledCancel", data: { text: quiet[0] } });
+          else if (red.length)
+            for (const node of explicitCancels)
+              context.report({ node, messageId: "filledCancelBesideRed", data: { text: red[0] } });
         }
       },
     };

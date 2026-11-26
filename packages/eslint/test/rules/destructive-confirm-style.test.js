@@ -53,8 +53,19 @@ run("destructive-confirm-style", rule, {
     alert(`<AlertDialogCancel /><AlertDialogAction variant="destructive">Close account</AlertDialogAction>`),
     // A safe-looking word that still destroys.
     alert(`<AlertDialogCancel /><AlertDialogAction variant="destructive">Send to trash</AlertDialogAction>`),
-    // A filled Cancel beside a red action is left to review (the how_to_check names a quiet action).
+    // A Cancel Button with no variant beside a red action: the project's default may not be the fill.
     alert(`<Button>Cancel</Button><AlertDialogAction variant="destructive">Delete invoice</AlertDialogAction>`),
+    // A filled Cancel in an alert dialog that destroys nothing.
+    alert(
+      `<AlertDialogCancel variant="default">Stay on page</AlertDialogCancel><AlertDialogAction variant="outline">Leave page</AlertDialogAction>`,
+    ),
+    // A Cancel whose fill only shows on hover, or whose class is not written out.
+    alert(
+      `<AlertDialogCancel className="hover:bg-primary/10" /><AlertDialogAction variant="destructive">Delete invoice</AlertDialogAction>`,
+    ),
+    alert(
+      `<AlertDialogCancel className={steer} /><AlertDialogAction variant="destructive">Delete invoice</AlertDialogAction>`,
+    ),
     // The component's own hover, and the faded look while disabled.
     alert(
       `<AlertDialogCancel /><Button variant="destructive" className="hover:bg-destructive/90 disabled:opacity-50">Delete project</Button>`,
@@ -130,6 +141,25 @@ run("destructive-confirm-style", rule, {
         `<AlertDialogCancel className="bg-primary text-primary-foreground" /><AlertDialogAction variant="ghost">Remove member</AlertDialogAction>`,
       ),
       errors: [{ messageId: "filledCancel" }, { messageId: "missingDanger" }],
+    },
+    // Cancel given the fill on purpose beside a red destructive button: the Don't example, written out.
+    {
+      code: alert(
+        `<AlertDialogCancel className="border-transparent bg-primary text-primary-foreground hover:bg-primary/90" /><AlertDialogAction variant="destructive">Delete invoice</AlertDialogAction>`,
+      ),
+      errors: [{ messageId: "filledCancelBesideRed", data: { text: "Delete invoice" } }],
+    },
+    {
+      code: alert(
+        `<AlertDialogCancel variant="default">Cancel</AlertDialogCancel><AlertDialogAction className="bg-destructive text-white">Delete project</AlertDialogAction>`,
+      ),
+      errors: [{ messageId: "filledCancelBesideRed", data: { text: "Delete project" } }],
+    },
+    {
+      code: alert(
+        `<AlertDialogCancel asChild><Button variant="default">Cancel</Button></AlertDialogCancel><Button variant="destructive">Remove member</Button>`,
+      ),
+      errors: [{ messageId: "filledCancelBesideRed" }],
     },
     // A destructive button faded while it can be pressed.
     {
