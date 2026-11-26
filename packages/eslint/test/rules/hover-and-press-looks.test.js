@@ -91,6 +91,8 @@ run("hover-and-press-looks", rule, {
     `export const A = () => (<button className="bg-linear-to-r from-primary to-secondary px-4" onClick={go}>Go</button>)`,
     `export const A = () => (<button className="absolute inset-0 bg-background/80" onClick={close} aria-label="Close" />)`,
     `export const A = () => (<div className="has-[>button:active]:bg-muted"><button className="border px-2" onClick={go}>Go</button></div>)`,
+    // A Button that takes the caller's className: the look may come from there.
+    `function M({ className }) { return <Button variant="ghost" className={cn("hover:bg-transparent", className)}>Menu</Button>; }`,
   ],
   invalid: [
     {

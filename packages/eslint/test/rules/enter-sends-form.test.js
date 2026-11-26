@@ -179,6 +179,17 @@ run("enter-sends-form", rule, {
         </Form>
       );
     }`,
+    // Since the shadcn apps/v4 corpus.
+    // shadcn's react-aria and Base UI bases: their Button is not a submit button by default.
+    `import { Button } from "@/registry/bases/aria/ui/button";
+    import { Input } from "@/registry/bases/aria/ui/input";
+    export const SignIn = () => (<form onSubmit={signIn}><Input type="password" /><Button variant="ghost" onPress={toggle}>Show password</Button><Button type="submit">Sign in</Button></form>);`,
+    `import { Button } from "@/styles/base-nova/ui/button";
+    import { Input } from "@/styles/base-nova/ui/input";
+    export const SignIn = () => (<form onSubmit={signIn}><Input type="password" /><Button variant="ghost" onClick={toggle}>Show password</Button><Button type="submit">Sign in</Button></form>);`,
+    // A trigger's render draws the button with type="button".
+    `${STOCK}
+    export const Edit = () => (<form onSubmit={save}><Input name="n" /><DialogTrigger render={<Button variant="outline" />}>Open</DialogTrigger><Button type="submit">Save</Button></form>);`,
   ],
   invalid: [
     // How_to_check 1: react-hook-form with no <form>.

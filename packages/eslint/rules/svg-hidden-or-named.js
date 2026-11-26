@@ -19,6 +19,9 @@
  *     sheet that holds only `defs` or `symbol`.
  *   - An `svg` inside a link, a button, a menu item or another control:
  *     the exceptions send those icons to ACT-001b and TXT-003.
+ *   - An `svg` kept in an object, array or variable to be rendered
+ *     elsewhere, where it may sit in a control, and one drawn into a
+ *     picture by `ImageResponse` (next/og).
  *   - Icon components from libraries. Whether a library hides its icons
  *     depends on the library and its version.
  *   - An `aria-hidden` icon that is the only sign of a status: whether
@@ -119,7 +122,7 @@ export default defineRule({
         if (/(^|\s)(\S+:)*hidden(\s|$)/.test(staticClass(node) ?? "") || displayNone(node)) return;
         const element = node.parent;
         if (childrenNameOrHide(element)) return;
-        if (hasCoveringAncestor(element)) return;
+        if (hasCoveringAncestor(element) || notRenderedHere(element)) return;
         context.report({ node, messageId: "unnamed" });
       },
     };
@@ -129,5 +132,28 @@ export default defineRule({
 /** Whether any ancestor element covers the svg. @param {any} element */
 function hasCoveringAncestor(element) {
   for (let n = element.parent; n; n = n.parent) if (n.type === "JSXElement" && coversSvg(n)) return true;
+  return false;
+}
+
+/** Nodes JSX passes through on its way to where it is kept. */
+const WRAPS = /^(JSXElement|JSXFragment|JSXExpressionContainer|ConditionalExpression|LogicalExpression)$/;
+const STORED = new Set(["Property", "VariableDeclarator", "ArrayExpression", "AssignmentExpression"]);
+
+/**
+ * Whether the svg is not rendered where it is written: JSX kept in an
+ * object, array or variable to be rendered elsewhere, perhaps inside a
+ * control, or JSX drawn into a picture by `ImageResponse` (next/og), which
+ * never reaches a screen reader.
+ * @param {any} element
+ */
+function notRenderedHere(element) {
+  let n = element;
+  while (n.parent && WRAPS.test(n.parent.type)) n = n.parent;
+  if (n.parent && STORED.has(n.parent.type)) return true;
+  for (let a = element.parent; a; a = a.parent) {
+    if (a.type !== "NewExpression" && a.type !== "CallExpression") continue;
+    const callee = unwrap(a.callee);
+    if (callee?.type === "Identifier" && callee.name === "ImageResponse") return true;
+  }
   return false;
 }

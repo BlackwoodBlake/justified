@@ -271,7 +271,7 @@ export default defineRule({
 
         // 2. A highlight taken away with nothing in its place.
         const base = name.split(".").pop() ?? "";
-        if (HOVER_ITEMS.test(base) && list.complete && !(base === "Button" && attributeValue(getAttribute(node, "variant")) === "link")) {
+        if (HOVER_ITEMS.test(base) && list.complete && !list.passThrough && !(base === "Button" && attributeValue(getAttribute(node, "variant")) === "link")) {
           const all = list.parts.flatMap((p) => p.tokens);
           const stripped = (/** @type {RegExp} */ variant) =>
             tokens.find((t) => {

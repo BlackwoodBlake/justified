@@ -40,8 +40,21 @@ run("svg-hidden-or-named", rule, {
     `export const N = () => <svg aria-hidden="true"><svg x="10">${path}</svg></svg>;`,
     // Library icons are not inline svg.
     `import { Check } from "lucide-react";\nexport const C = () => <span><Check className="size-4" /> Paid</span>;`,
+    // Since the shadcn apps/v4 corpus.
+    // Kept in an object to be rendered elsewhere, perhaps inside a button.
+    `const logos = { lucide: (<svg viewBox="0 0 24 24"><path d="M0 0" /></svg>) };
+    export function P() { return <button type="button">Lucide <span>{logos.lucide}</span></button>; }`,
+    `const STYLES = [{ name: "Vega", icon: <svg viewBox="0 0 24 24" role="img"><path d="M0 0" /></svg> }];`,
+    // Drawn into an Open Graph picture, never shown to a screen reader.
+    `import { ImageResponse } from "next/og";
+    export function GET() { return new ImageResponse(<div><svg viewBox="0 0 24 24"><path d="M0 0" /></svg></div>); }`,
   ],
   invalid: [
+    {
+      // Returned in place, an svg is still read.
+      code: `export function Logo() { return <div><svg viewBox="0 0 24 24"><path d="M0 0" /></svg> Acme Inc</div>; }`,
+      errors: [{ messageId: "unnamed" }],
+    },
     {
       code: `export const Tick = () => <svg viewBox="0 0 24 24" className="size-4">${path}</svg>;`,
       errors: [{ messageId: "unnamed" }],

@@ -33,7 +33,11 @@
  * control a component returns with nothing around it (its caller may wrap
  * it in a label), a control passed as a prop such as `render={<Input />}`
  * (the component that takes it may add the name), labels whose text is
- * computed, and visible text that spells no word.
+ * computed, and visible text that spells no word. Also a `SelectTrigger`
+ * from react-aria (`react-aria-components`, or a shadcn aria base such as
+ * `aria/ui/select`), which takes its name from the root `Select`'s label
+ * or its shown value, and a control with a `slot`, such as react-aria's
+ * `<Checkbox slot="selection" />`, whose slot gives it its name.
  */
 import { defineRule } from "../lib/define-rule.js";
 import {
@@ -106,6 +110,8 @@ export default defineRule({
     const sourceCode = context.sourceCode;
     /** @type {Set<string>} */
     let icons = new Set();
+    /** Whether `SelectTrigger` comes from react-aria, which names it from its `Select` or value. */
+    let ariaSelect = false;
     /** Visible text of labels with a written-out htmlFor, by that id. @type {Map<string, string | undefined>} */
     const labelsFor = new Map();
     /** Controls with an id and an aria-label, checked against labelsFor at the end. @type {{ node: any, id: string, label: string }[]} */
@@ -182,6 +188,12 @@ export default defineRule({
     return {
       Program(node) {
         icons = iconImports(node);
+        ariaSelect = node.body.some(
+          (/** @type {any} */ s) =>
+            s.type === "ImportDeclaration" &&
+            /^react-aria-components$|\/aria(-[a-z]+)?\/ui(-[a-z]+)?\//.test(String(s.source.value)) &&
+            s.specifiers.some((/** @type {any} */ x) => x.local.name === "SelectTrigger"),
+        );
       },
       JSXElement(element) {
         const opening = element.openingElement;
@@ -203,6 +215,7 @@ export default defineRule({
         const type = attributeValue(getAttribute(opening, "type"));
         if ((name === "input" || name === "Input") && typeof type === "string" && NOT_CONTROLS.has(type)) return;
         if (hasSpread(opening) || isAriaHidden(opening) || isPropValue(element)) return;
+        if (getAttribute(opening, "slot") || (name === "SelectTrigger" && ariaSelect)) return;
 
         const ariaLabel = getAttribute(opening, "aria-label");
         const labelledBy = getAttribute(opening, "aria-labelledby");

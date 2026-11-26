@@ -83,8 +83,15 @@ run("clickable-has-role", rule, {
     `export function P() { return <PaginationLink href="?page=2" onClick={track}>2</PaginationLink>; }`,
     `export function P() { return <PaginationLink href="#">2</PaginationLink>; }`,
     `export function B() { return <BreadcrumbLink asChild><Link href="/docs">Docs</Link></BreadcrumbLink>; }`,
+    // Since the shadcn apps/v4 corpus.
+    // A trigger's div that only passes on the clicks of the button inside it.
+    `export const A = () => <CollapsibleTrigger asChild><div className="flex items-center"><Button variant="ghost">Expand</Button><Separator /></div></CollapsibleTrigger>;`,
   ],
   invalid: [
+    {
+      code: `export const A = () => <PopoverTrigger asChild><span className="underline">Details</span></PopoverTrigger>;`,
+      errors: [{ messageId: "triggerChild" }],
+    },
     // The Don't: the card has the click and nothing inside is a link.
     {
       code: next(`<Card onClick={() => router.push("/books/" + book.id)} className="cursor-pointer">

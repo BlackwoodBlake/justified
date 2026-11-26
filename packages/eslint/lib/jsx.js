@@ -94,13 +94,16 @@ export function attributeValue(attribute) {
 }
 
 /**
- * Whether an element is the value of a prop, as in `render={<Button />}`.
+ * Whether an element is the value of a prop, as in `render={<Button />}`,
+ * or a prop's default, as in `{ render = <Button /> }`.
  * The component that takes it may add children and props, such as a name,
  * so what the element shows is not the whole story.
  * @param {any} element A JSXElement.
  */
 export const isPropValue = (element) =>
-  element.parent?.type === "JSXExpressionContainer" && element.parent.parent?.type === "JSXAttribute";
+  (element.parent?.type === "JSXExpressionContainer" && element.parent.parent?.type === "JSXAttribute") ||
+  // A default for a prop, such as `{ render = <Button /> }`, is passed on the same way.
+  element.parent?.type === "AssignmentPattern";
 
 /** The nearest JSX element around a node, not counting the node itself. @param {any} node */
 export function parentElement(node) {

@@ -77,6 +77,9 @@ run("table-has-title", rule, {
     `<Table><TableHeader><TableRow><TableHead>Item</TableHead></TableRow></TableHeader>{children}</Table>`,
     // A table from another library, set up through props.
     `<Table dataSource={rows} columns={columns} />`,
+    // Since the shadcn apps/v4 corpus.
+    // A table in a figure with its caption beside it.
+    `export const A = () => <figure><Table><TableHeader><TableRow><TableHead>Invoice</TableHead></TableRow></TableHeader><TableBody>{rows}</TableBody></Table><TableCaption>Recent invoices</TableCaption></figure>;`,
   ],
   invalid: [
     { code: dataTable(), errors: [{ messageId: "noTitle" }] },

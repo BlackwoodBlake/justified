@@ -28,7 +28,9 @@
  *   - A pointer shortcut: a card or badge that holds a link, a button or
  *     another component that may render one, and an icon inside a control.
  *     A handler that only stops propagation.
- *   - Anything with `role`, spread props or `asChild`.
+ *   - Anything with `role`, spread props or `asChild`, and a trigger's
+ *     `div` or `span` that holds a button or link, whose clicks it only
+ *     passes on.
  *   - Act, then move: a handler that does anything besides navigating, an
  *     address or label about signing out or searching, an address built
  *     from React state or an input's value, and a button inside a form.
@@ -40,6 +42,18 @@ import { readClassList } from "../lib/class-token-helpers.js";
 import { attributeValue, elementName, findAncestorElement, getAttribute, hasSpread, unwrap, walk } from "../lib/jsx.js";
 import { ACT_THEN_MOVE, TRIGGERS, handlerReader, isOn, onlyChild, propertyName } from "../lib/link-role-helpers.js";
 import { iconImports, isIcon } from "../lib/name-helpers.js";
+
+/** Whether an element holds a button or a link below it. @param {any} element @param {any} keys */
+function holdsControl(element, keys) {
+  let found = false;
+  walk(element, keys, (n) => {
+    if (found) return false;
+    if (n !== element && n.type === "JSXElement" && /^(a|button|Button|Link)$/.test(elementName(n.openingElement) ?? ""))
+      found = true;
+    return undefined;
+  });
+  return found;
+}
 
 const CARD_PARTS = new Set([
   "Card",
@@ -148,7 +162,8 @@ function create(context) {
       if (hasSpread(opening) || getAttribute(opening, "role")) return;
       const onClick = getAttribute(opening, "onClick");
 
-      // A trigger with asChild around something that has no role.
+      // A trigger with asChild around something that has no role, and that holds no button or link whose clicks it
+      // only passes on.
       if (TRIGGERS.has(name) && isOn(opening, "asChild")) {
         const child = onlyChild(element);
         const childName = child ? (elementName(child.openingElement) ?? "") : "";
@@ -157,7 +172,8 @@ function create(context) {
           /^(div|span|Avatar|Badge)$/.test(childName) &&
           !hasSpread(child.openingElement) &&
           !getAttribute(child.openingElement, "role") &&
-          !isOn(child.openingElement, "asChild")
+          !isOn(child.openingElement, "asChild") &&
+          !holdsControl(child, context.sourceCode.visitorKeys)
         )
           context.report({
             node: child.openingElement,

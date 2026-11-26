@@ -59,8 +59,15 @@ run("act-with-button", rule, {
     wrap(`<HoverCard><HoverCardTrigger asChild><Button variant="link">@nextjs</Button></HoverCardTrigger></HoverCard>`),
     wrap(`<HoverCardTrigger asChild><a href="/u/nextjs">@nextjs</a></HoverCardTrigger>`),
     wrap(`<DropdownMenuItem asChild><Link href="/episodes">Episodes</Link></DropdownMenuItem>`),
+    // Since the shadcn apps/v4 corpus.
+    // A placeholder link that only cancels its address acts on nothing in place.
+    `export const A = () => <a href="#" onClick={(e) => e.preventDefault()}>Learn more</a>;`,
   ],
   invalid: [
+    {
+      code: `export const A = () => <a href="#" onClick={(e) => { e.preventDefault(); setShareOpen(true); }}>Share</a>;`,
+      errors: [{ messageId: "fakeHref" }],
+    },
     // The Don'ts, with their values written out.
     {
       code: wrap(`<a href="#" onClick={(e) => { e.preventDefault(); setShareOpen(true) }}>Share episode</a>`),

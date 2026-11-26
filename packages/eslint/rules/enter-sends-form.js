@@ -41,7 +41,10 @@
  * the worst case; forms with an `id`, which a button elsewhere may point
  * to; forms that hold a component or a value this file does not show,
  * since it may hold the submit button; a button whose type is computed or
- * set by a spread or a wrapper such as `DialogClose asChild`; and two
+ * set by a spread or a wrapper such as `DialogClose asChild` or
+ * `DialogTrigger render={<Button />}`; a `Button` from shadcn's react-aria
+ * or Base UI base (`aria/ui/button`, `base-nova/ui/button`), which react-aria
+ * makes `type="button"` and Base UI may too; and two
  * buttons both marked `type="submit"`.
  */
 import { defineRule } from "../lib/define-rule.js";
@@ -55,7 +58,17 @@ import {
   outerScope,
   resolveFunction,
 } from "../lib/form-entry-helpers.js";
-import { attributeValue, elementName, getAttribute, hasSpread, parentElement, staticValue, unwrap, walk } from "../lib/jsx.js";
+import {
+  attributeValue,
+  elementName,
+  getAttribute,
+  hasSpread,
+  isPropValue,
+  parentElement,
+  staticValue,
+  unwrap,
+  walk,
+} from "../lib/jsx.js";
 
 const SENDS = (/** @type {string} */ name) => name === "handleSubmit" || name === "requestSubmit";
 const FOOTERS = new Set(["DialogFooter", "SheetFooter"]);
@@ -113,6 +126,14 @@ function buttonKind(element, sources) {
     return "unknown";
   }
   if (source === "justified") return "none";
+  // shadcn's react-aria base wraps react-aria's Button, which is type="button" by default; the Base UI base is
+  // left unknown.
+  const path = name === "Button" ? (sources.get("Button")?.path ?? "") : "";
+  if (/(^|\/)aria(-[a-z]+)?\/ui(-[a-z]+)?\/button$/.test(path)) return "none";
+  if (/(^|\/)base(-[a-z]+)?\/ui(-[a-z]+)?\/button$/.test(path)) return "unknown";
+  // A button given as the `render` of a trigger, which draws it with type="button", as asChild does.
+  const holder = isPropValue(element) ? element.parent.parent : undefined;
+  if (holder?.name?.name === "render") return TYPED_WRAPPERS.has(elementName(holder.parent) ?? "") ? "none" : "unknown";
   // No type: a submit button, unless a wrapper with asChild gives it one.
   const parent = parentElement(element);
   if (parent && getAttribute(parent.openingElement, "asChild")) {

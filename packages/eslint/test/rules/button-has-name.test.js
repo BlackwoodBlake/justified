@@ -63,8 +63,18 @@ run("button-has-name", rule, {
     `${lucide}export const A = () => <Button size="icon" aria-label="Button"><X /></Button>;`,
     // A button with text and no aria-label needs nothing.
     `export const A = () => <Button>Save draft</Button>;`,
+    // Since the shadcn apps/v4 corpus.
+    // A button given as a prop's default: the component that takes it adds the name.
+    `function ToastClose({ render = <Button variant="ghost" size="icon-sm" />, ...props }) { return <Close aria-label="Close toast" render={render} {...props}><XIcon aria-hidden /></Close>; }`,
+    // A base-ui trigger drawn as an addon box, and a Button drawn as a span inside another control.
+    `export const A = () => <Tooltip><TooltipTrigger render={<InputGroupAddon align="inline-end" />}><AudioLinesIcon /></TooltipTrigger><TooltipContent>Voice Mode</TooltipContent></Tooltip>;`,
+    `export const A = () => <SidebarMenuButton>Acme<Button size="icon-sm" render={<span />} nativeButton={false}><GalleryIcon /></Button></SidebarMenuButton>;`,
   ],
   invalid: [
+    {
+      code: `export const A = () => <Tooltip><TooltipTrigger render={<InputGroupButton size="icon-xs" />}><CopyIcon /></TooltipTrigger><TooltipContent>Copy</TooltipContent></Tooltip>;`,
+      errors: [{ messageId: "tooltipOnly" }],
+    },
     // base-ui's render prop: an icon-only trigger whose rendered button has no name either.
     {
       code: `${lucide}export const A = () => <Tooltip><TooltipTrigger render={<Button size="icon" />}><X /></TooltipTrigger><TooltipContent>Close</TooltipContent></Tooltip>;`,

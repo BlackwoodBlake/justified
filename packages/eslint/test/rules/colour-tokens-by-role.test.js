@@ -96,8 +96,26 @@ run("colour-tokens-by-role", rule, {
     // Classes the code does not state, and partial classes.
     `<span className={\`text-\${tone}-600\`}>Status</span>`,
     `<span className={tone}>Status</span>`,
+    // Since the shadcn apps/v4 corpus: icons by other names, and boxes that hold no text.
+    // Icons, under any name: shadcn's IconPlaceholder and an Icons object.
+    `<IconPlaceholder lucide="CircleIcon" className="animate-pulse text-red-500" />`,
+    `<div className="flex size-16 items-center justify-center bg-neutral-950 text-neutral-100"><div><Icons.logo className="size-12" /></div></div>`,
+    // Markup set from a string, such as a logo: the code shows no text to colour.
+    `<span className="text-neutral-100 [&_svg]:fill-current" dangerouslySetInnerHTML={{ __html: LOGO }} />`,
+    // A foreground beside a fill on a box that holds only an icon colours no text.
+    `import { IconCheck } from "@tabler/icons-react";
+    export const A = () => <div className="bg-primary text-foreground"><IconCheck className="size-3" /></div>;`,
   ],
   invalid: [
+    {
+      // A box with text beside the icon still colours that text.
+      code: `<div className="text-neutral-400"><Icons.logo /> Acme Inc</div>`,
+      errors: [{ messageId: "rawPalette" }],
+    },
+    {
+      code: `<div className="bg-primary text-foreground"><IconCheck /> Saved</div>`,
+      errors: [{ messageId: "wrongFill" }],
+    },
     // Raw palette on text, a control, a state or an edge.
     { code: `<p className="text-sm text-gray-500">Last updated today</p>`, errors: rawPalette },
     { code: `<div className="rounded-lg border border-gray-200 p-4" />`, errors: rawPalette },

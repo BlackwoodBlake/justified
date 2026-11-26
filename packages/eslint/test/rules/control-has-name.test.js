@@ -102,8 +102,22 @@ run("control-has-name", rule, {
         </RadioGroup>
       </div>
     );`,
+    // Since the shadcn apps/v4 corpus: react-aria selects and slotted controls.
+    // react-aria's SelectTrigger takes its name from the Select's label or its shown value.
+    `import { Select, SelectTrigger, SelectValue } from "@/registry/bases/aria/ui/select";
+    export function F() { return <div><Select aria-label="Fruits"><SelectTrigger><SelectValue /></SelectTrigger></Select></div>; }`,
+    `import { Select, SelectTrigger, SelectValue } from "@/styles/aria-nova/ui/select";
+    export function F() { return <div><Select placeholder="Select a fruit"><SelectTrigger><SelectValue /></SelectTrigger></Select></div>; }`,
+    // A control in a slot, such as react-aria's selection checkbox, is named by the slot.
+    `export function F() { return <Table><TableHeader><TableHead><Checkbox slot="selection" /></TableHead></TableHeader></Table>; }`,
   ],
   invalid: [
+    {
+      // A Radix SelectTrigger gets no name from its Select.
+      code: `import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
+      export function F() { return <div><Select><SelectTrigger><SelectValue placeholder="Choose a pool" /></SelectTrigger></Select></div>; }`,
+      errors: [{ messageId: "noName" }],
+    },
     {
       // The Don't: the notes paragraph is not tied to the text area.
       code: `export const A = () => (
