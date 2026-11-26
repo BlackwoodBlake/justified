@@ -31,13 +31,13 @@ The analysing, writing and review agents each leave fixed files, described in `W
 - Never copy or lightly rework a sentence from a source, and never follow a source's structure, headings, order, images or examples.
 - A rule page shows our own rule, the verdict and each source's stance as a mark and a link. It never reproduces or summarises what a source says.
 - Source excerpts go only in `.sources-cache/`, which is never committed.
-- `npm run similarity` must pass for every text that draws on sources, `npm run similarity -- --rules .analysis` for every analysis, and `npm run similarity -- --rules examples/rules` for the live examples. Exit code 0 = clean, 1 = overlap found, 2 = setup error.
+- `npm run similarity` must pass for every text that draws on sources, `npm run similarity -- --rules .analysis` for every analysis, and `npm run similarity -- --rules examples/rules` for the live examples. It compares the frontmatter's text (title, how_to_check, changelog notes) as well as the body. It needs `.sources-cache/`, so CI cannot run it: run it locally before handing over. Exit code 0 = clean, 1 = overlap found, 2 = setup error.
 
 ## Repository
 
 - English, sentence case, plain words.
-- npm workspaces: `packages/tokens`, `packages/patterns`, `packages/eslint` (lint rules; see its `ADDING-A-RULE.md`), `adapters/shadcn` and `examples` (Storybook). `rules/` holds the rules, one folder per area, `sources/sources.yaml` the pages they rest on, and `adapters/agents/` builds the agent files from the rules.
-- Run `npm ci` once. `npm test` checks token contrast in both themes and runs the ESLint rules' tests; change a colour only if it still passes.
+- npm workspaces: `packages/tokens`, `packages/patterns`, `packages/eslint` (lint rules; see its `ADDING-A-RULE.md`), `adapters/shadcn`, `adapters/agents` (builds the agent files from the rules) and `examples` (Storybook). `rules/` holds the rules, one folder per area, and `sources/sources.yaml` the pages they rest on.
+- Run `npm ci` once. `npm test` checks token contrast in both themes (and that every colour token is measured), runs the ESLint rules' tests and the tests of the scripts in `scripts/test/`; change a colour only if it still passes. `npm run typecheck` runs TypeScript over the scripts, tokens, adapter and examples.
 - The website is not in this repository. It lives in a separate private repository, is built on these packages and is published at blackwoodblake.com/design-system. Nothing here may depend on the website.
 - `packages/tokens`, `packages/patterns`, `packages/eslint` and `adapters/agents` are published to npm. `adapters/shadcn` and `examples` stay `"private": true`. To release: bump the version in a pull request (and the package's README if what it holds changed), merge it, then the maintainer runs the Publish workflow (`.github/workflows/publish.yml`), which stages every version not on npm yet with trusted publishing and provenance. A staged version goes live only when the maintainer approves it on npmjs.com with two-factor authentication. Never publish from a local machine.
 - Never claim "compliant", "certified", "approved" or "guarantees" (see `CONTENT.md`).
