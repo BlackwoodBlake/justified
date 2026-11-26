@@ -1,10 +1,14 @@
 import { Checkbox } from "@blackwoodblake/justified-shadcn/checkbox";
 import { Field } from "@blackwoodblake/justified-shadcn/field";
 import { Input } from "@blackwoodblake/justified-shadcn/input";
+import { PlusIcon } from "@blackwoodblake/justified-shadcn/icons";
 import { Switch } from "@blackwoodblake/justified-shadcn/switch";
+import { useState } from "react";
 
 import { Meter, meterRows, Readouts, Themes } from "./colour-demo";
+import { Outcome } from "./dialog";
 import type { RuleExamples } from "./frame";
+import { ACTIVE_SHADOW, COLOUR_TRANSITION, FOCUS, HOVER_STILL, PRESSED_STILL, Strip, type Look } from "./states";
 
 /*
  * VIS-004: the parts people need to see to find a control and tell its state
@@ -70,6 +74,65 @@ function MeterScene({ pale }: { pale: boolean }) {
   );
 }
 
+/*
+ * Hover and press (VIS-004 1.1.0): a hover or a press may be faint, but it may
+ * not take away the edge people find a control by. An icon-only outline
+ * button, "Add task", measured at rest, hovered and pressed. The stills hold
+ * each look with the same classes as the live button, so the edge can be
+ * measured in each, in both themes. The Don't gives it hover:border-transparent
+ * and active:border-transparent.
+ */
+
+const EDGE_ROWS = [
+  { target: "rest", label: "Edge at rest", kind: "border" as const, need: 3 },
+  { target: "hover", label: "Edge while hovered", kind: "border" as const, need: 3 },
+  { target: "pressed", label: "Edge while pressed", kind: "border" as const, need: 3 },
+];
+
+function AddButton({ gone, force, measure, onPress }: { gone: boolean; force?: Look; measure?: string; onPress?: () => void }) {
+  const edge = gone ? "hover:border-transparent active:border-transparent" : "";
+  const stillEdge = gone && force !== "rest" ? "border-transparent" : "";
+  const look = force
+    ? `${force === "hover" ? HOVER_STILL : force === "pressed" ? PRESSED_STILL : "bg-background"} ${stillEdge}`
+    : `bg-background hover:bg-accent hover:text-accent-foreground active:bg-accent ${ACTIVE_SHADOW} ${edge}`;
+  return (
+    <button
+      type="button"
+      aria-label="Add task"
+      data-measure={measure}
+      onClick={onPress}
+      className={`relative inline-flex size-10 cursor-pointer items-center justify-center rounded-md border border-input text-foreground ${COLOUR_TRANSITION} ${FOCUS} ${look}`}
+    >
+      <PlusIcon className="size-5" />
+    </button>
+  );
+}
+
+function EdgeScene({ gone }: { gone: boolean }) {
+  const [said, setSaid] = useState("");
+  return (
+    <Themes>
+      {() => (
+        <div className="grid gap-3">
+          <Strip
+            cols={3}
+            compact
+            cells={(["rest", "hover", "pressed"] as const).map((l) => ({
+              label: l === "rest" ? "At rest" : l === "hover" ? "Hover" : "Pressed",
+              node: <AddButton gone={gone} force={l} measure={l} />,
+            }))}
+          />
+          <div className="flex justify-center">
+            <AddButton gone={gone} onPress={() => setSaid("Task added")} />
+          </div>
+          <Outcome>{said}</Outcome>
+          <Readouts rows={EDGE_ROWS} />
+        </div>
+      )}
+    </Themes>
+  );
+}
+
 export const VIS004: RuleExamples = {
   id: "VIS-004",
   examples: [
@@ -127,6 +190,30 @@ export const VIS004: RuleExamples = {
           <MeterScene pale />
         </div>
       ),
+    },
+    {
+      kind: "do",
+      title: "An edge that stays while hovered and pressed",
+      caption: (
+        <>
+          The icon-only <em>Add task</em> button keeps <code>border-input</code> in every look and only adds a fill
+          and an inner shadow. The edge is measured against the page around the button at rest, hovered and pressed, in both themes. Hover and press the
+          live button too.
+        </>
+      ),
+      Demo: () => <EdgeScene gone={false} />,
+    },
+    {
+      kind: "dont",
+      title: "A hover that takes the edge away",
+      caption: (
+        <>
+          The same button with <code>hover:border-transparent</code> and <code>active:border-transparent</code>. A
+          hover fill may be faint, but this one leaves an icon with no edge to find it by: the edge is gone, and what is
+          left is the hover fill, about 1.2 to 1.4:1 against the page.
+        </>
+      ),
+      Demo: () => <EdgeScene gone />,
     },
   ],
 };

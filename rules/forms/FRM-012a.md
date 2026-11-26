@@ -4,7 +4,7 @@ title: Changing a value does not send a form, open a page or move focus unless p
 short: No context change on input
 area: forms
 status: proposed
-version: "1.0.0"
+version: "1.0.1"
 verdict: requirement
 judges: { spoken: 0, agreeing: 0 }
 law:
@@ -22,7 +22,7 @@ stances:
   carbon:   { stance: silent }
   govuk:    { stance: supports, sources: [govuk-date-input] }
   nngroup:  { stance: supports, sources: [nngroup-checkboxes-vs-radio-buttons] }
-conflicts_checked: 2026-11-25
+conflicts_checked: 2026-11-26
 check: review
 how_to_check:
   - 'An `onValueChange`, `onCheckedChange` or `onChange` on a `Select`, `RadioGroup`, `Checkbox`, `Switch` or input that calls `router.push` to another page, `navigate()`, `window.location`, `window.open` or opens a `Dialog`. Leave it if text before the control says so, or if only search params change for the same view.'
@@ -31,6 +31,9 @@ how_to_check:
   - 'A notice given only in a `Tooltip`, a `placeholder` or text after the control. It must come before the control in reading order.'
   - 'Change a filter, sort or radio with the keyboard and see whether focus stays on the control rather than moving to the first result or elsewhere.'
 changelog:
+  - version: "1.0.1"
+    date: 2026-11-26
+    note: Refers to FRM-015 for Enter in a single-line field, which is activation.
   - version: "1.0.0"
     date: 2026-11-25
     note: First version.
@@ -73,7 +76,7 @@ This rule holds the law's floor, where a notice is enough. FRM-012b is the judge
 
 ## Exceptions
 
-- **Activation.** Pressing a button or a link is not a change of value. A submit button that sends the form, a button that opens a dialog, or a link to another page is outside this rule. Where focus goes after a failed send is FRM-011.
+- **Activation.** Pressing a button or a link is not a change of value. A submit button that sends the form, a button that opens a dialog, or a link to another page is outside this rule. So is Enter in a single-line field that sends the form, as FRM-015 says. Where focus goes after a failed send is FRM-011.
 - **Saving a setting.** Saving a setting in the background, with the page left as it is, is not sending a form. The *Return reminders* switch under Do may save at once.
 - **Changes of content.** Fields that appear, a list that filters or sorts, a setting that applies at once, tabs and accordions, all with focus kept, are allowed. Announcing them is FBK-004; where the wait shows is STA-001.
 - **A view that swaps entirely.** A select that turns the whole main area from a list into a board may count as a large rearrangement. Our own advice: use tabs or a toggle group that updates in place and keeps focus.

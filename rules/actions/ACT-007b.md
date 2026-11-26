@@ -4,7 +4,7 @@ title: Tell assistive technology what each step of a keyboard move did
 short: Announce keyboard moves
 area: actions
 status: proposed
-version: "1.0.0"
+version: "1.0.1"
 verdict: insufficient-evidence
 judges: { spoken: 0, agreeing: 0 }
 law:
@@ -26,7 +26,7 @@ stances:
   carbon:   { stance: silent }
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-drag-drop] }
-conflicts_checked: 2026-11-25
+conflicts_checked: 2026-11-26
 check: lint
 how_to_check:
   - 'A dnd-kit `DndContext` with `KeyboardSensor` in its `sensors`, or no `sensors` at all, which includes it by default, that passes no `accessibility.announcements` with `onDragStart`, `onDragOver`, `onDragEnd` and `onDragCancel`, so the default messages read out ids.'
@@ -35,6 +35,9 @@ how_to_check:
   - 'A live region of your own inside the `SortableContext` or the list that re-renders on each move, so nothing is read.'
   - 'With a screen reader on, pick an item up with the keyboard, move it one step, then press Escape: are the pick-up, the new position and the cancel each read in words?'
 changelog:
+  - version: "1.0.1"
+    date: 2026-11-26
+    note: Points to STA-005a for a keyboard move the server refuses after the drop.
   - version: "1.0.0"
     date: 2026-11-25
     note: First version.
@@ -64,7 +67,7 @@ None of the three judges speaks to telling assistive technology what a move did,
 - Set `screenReaderInstructions` to say which keys pick up, move and drop. Our own choice, not part of the guideline: Space to pick up and drop, the arrow keys to move, Escape to cancel.
 - Give each handle a name, as 4.1.2 asks. Putting the item in it, such as "Reorder The Hobbit", is our own choice.
 - Keep the live region in the page before the first move, as FBK-004 says. dnd-kit does this for you; a region of your own must sit outside the list that re-renders.
-- Our own advice: after the drop, keep focus on the moved item's handle, even when the re-order renders the row again, so focus does not fall to the top of the page. That serves [WCAG 2.2, 2.4.3 Focus Order](https://www.w3.org/TR/WCAG22/#focus-order).
+- Our own advice: after the drop, keep focus on the moved item's handle, even when the re-order renders the row again, so focus does not fall to the top of the page. That serves [WCAG 2.2, 2.4.3 Focus Order](https://www.w3.org/TR/WCAG22/#focus-order). A move the server refuses after the drop goes back as STA-005a describes, focus included.
 - When the item is moved through the menu from ACT-007a, such as *Move to Done*, focus returns to the item and a short line "Moved to Done" is shown. That line is a status message, so FBK-004 applies.
 
 ## Don't

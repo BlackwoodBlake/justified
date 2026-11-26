@@ -4,7 +4,7 @@ title: When a menu shows the current page, say so in the code on that item
 short: Current page in code
 area: navigation
 status: proposed
-version: "1.0.0"
+version: "1.0.1"
 verdict: requirement
 judges: { spoken: 1, agreeing: 1 }
 law:
@@ -22,7 +22,7 @@ stances:
   carbon:   { stance: supports, sources: [carbon-ui-shell-left-panel-accessibility] }
   govuk:    { stance: silent }
   nngroup:  { stance: silent }
-conflicts_checked: 2026-11-25
+conflicts_checked: 2026-11-26
 check: lint
 how_to_check:
   - 'A shadcn `SidebarMenuButton` or `SidebarMenuSubButton` with `isActive` whose link has no `aria-current`, such as `<SidebarMenuButton asChild isActive={active}><Link href="/invoices">`, and no visually hidden text such as "(current page)" inside the link. React Router''s `NavLink` as the child sets it itself.'
@@ -31,6 +31,9 @@ how_to_check:
   - '`aria-current` on an `li`, `div` or other wrapper instead of the `a`, or `aria-selected` used on a menu link in its place.'
   - '`aria-current` set on every item of a menu, or `"page"` able to match two items in the same menu. On a page that is not in the menu, `aria-current="true"` on its section''s item is fine.'
 changelog:
+  - version: "1.0.1"
+    date: 2026-11-26
+    note: Points to STR-006a for the entries of a language picker.
   - version: "1.0.0"
     date: 2026-11-25
     note: First version.
@@ -70,4 +73,5 @@ A highlighted menu item tells a sighted person where they are. A screen reader u
 - **A menu that shows no current item.** There is nothing to expose, so this rule asks nothing. Whether it should show one is NAV-002b.
 - **Tabs.** shadcn `Tabs` switch a panel in place, and Radix already exposes the selected tab. This rule is for menus of links that go to pages.
 - **Steps and result pages.** The same attribute takes the values `step` for the current step in a process and `page` for the current page of results in pagination. Those are outside this navigation rule.
+- **Language pickers.** The current entry in a language picker is said in code the same way, for example with `aria-current`. The language of each entry is STR-006a.
 - **Neighbouring rules.** The menu's `nav` and its name are STR-004. What the current item looks like is NAV-002b.

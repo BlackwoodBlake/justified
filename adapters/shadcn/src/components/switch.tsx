@@ -19,6 +19,12 @@ export function Switch({ className, ...props }: ComponentProps<typeof SwitchPrim
       className={cn(
         "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent bg-input",
         "data-[state=checked]:bg-primary disabled:cursor-not-allowed disabled:opacity-50",
+        // Hover and press (VIS-008) move the track towards the text colour, which only
+        // raises the thumb's contrast against it (VIS-004). Off stays grey, on stays blue.
+        "data-[state=unchecked]:not-disabled:not-aria-disabled:hover:bg-[color-mix(in_oklab,var(--input),var(--foreground)_15%)]",
+        "data-[state=unchecked]:not-disabled:not-aria-disabled:active:bg-[color-mix(in_oklab,var(--input),var(--foreground)_30%)]",
+        "data-[state=checked]:not-disabled:not-aria-disabled:hover:bg-[color-mix(in_oklab,var(--primary),var(--foreground)_15%)]",
+        "data-[state=checked]:not-disabled:not-aria-disabled:active:bg-[color-mix(in_oklab,var(--primary),var(--foreground)_30%)]",
         colourTransition,
         focusRing,
         targetArea,

@@ -4,7 +4,7 @@ title: Let a control that holds a choice only record it, and put actions on butt
 short: Choices are not actions
 area: forms
 status: proposed
-version: "1.0.0"
+version: "1.0.1"
 verdict: majority
 judges: { spoken: 3, agreeing: 2 }
 law:
@@ -22,13 +22,16 @@ stances:
   carbon:   { stance: opposes, sources: [carbon-select, carbon-dropdown] }
   govuk:    { stance: silent }
   nngroup:  { stance: supports, sources: [nngroup-checkboxes-vs-radio-buttons, nngroup-drop-down-menus, nngroup-toggle-switch-guidelines] }
-conflicts_checked: 2026-11-25
+conflicts_checked: 2026-11-26
 check: lint
 how_to_check:
   - 'A `Select`, `RadioGroup`, `Checkbox`, `Switch`, `ToggleGroup` or `DropdownMenuRadioItem` whose `onValueChange` or `onCheckedChange` calls `router.push`, `navigate()`, `window.location` or `window.open` to go to another page or step, even with a notice. Leave alone a change of search params that filters or sorts the same view.'
   - 'A value change on such a control that calls `form.handleSubmit()`, `requestSubmit()` or runs a command such as export. A switch that applies and saves its own setting in place is fine.'
   - 'A `ToggleGroup` or filter chip group with an item that runs a command or opens another page, such as "Export tasks" or "Add a task".'
 changelog:
+  - version: "1.0.1"
+    date: 2026-11-26
+    note: Refers to ACT-009a and ACT-009b for whether to build a link or a button.
   - version: "1.0.0"
     date: 2026-11-25
     note: First version.
@@ -73,4 +76,4 @@ A notice is easy to miss, and for a radio group it does not help the keyboard at
 - **Updates in place.** Revealing fields, filtering or sorting a list in place, switching a view in place and applying a setting at once are what a choice may do. They are not actions in the sense of this rule.
 - **Menus of commands and places.** A `DropdownMenu` whose items are commands or links is a menu of actions, not a control that holds a choice. This rule is about the role a control plays, not about a component's name.
 - **Text fields.** Sending a field when it is full, such as a one-time code, is covered by FRM-012a. Asking for a button there instead of a notice is FRM-012a's own advice, not part of this rule.
-- **Neighbouring rules.** The law's floor, where a notice before the control is enough, is FRM-012a. The button's label is ACT-001a, its place ACT-003b, and whether a submit button may be unavailable ACT-004 and ACT-005. Announcing updates in place is FBK-004.
+- **Neighbouring rules.** The law's floor, where a notice before the control is enough, is FRM-012a. Which of a button and a link to build is the guidelines' own choice: a link for going somewhere (ACT-009a), a button for acting in place (ACT-009b). The button's label is ACT-001a, its place ACT-003b, and whether a submit button may be unavailable ACT-004 and ACT-005. Announcing updates in place is FBK-004.

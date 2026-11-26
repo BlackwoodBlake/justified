@@ -14,7 +14,7 @@ import { Field } from "@blackwoodblake/justified-shadcn/field";
 import { AlertIcon, CheckIcon, TrashIcon } from "@blackwoodblake/justified-shadcn/icons";
 import { Input } from "@blackwoodblake/justified-shadcn/input";
 import { NativeSelect } from "@blackwoodblake/justified-shadcn/native-select";
-import { Children, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { Children, useEffect, useLayoutEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 
 import { DialogPicture, drawnRing, Still } from "./dialog";
 import type { RuleExamples } from "./frame";
@@ -29,6 +29,10 @@ import type { RuleExamples } from "./frame";
  * route are unavailable until the reply, and the dialog says it is working.
  * Don't 1 and 2 are the rule's own: no sign at all, and a dialog that closes
  * on Escape while the delete runs on unseen.
+ *
+ * Do 3 and Don't 5: the widened exception. A hire card moved at once, then
+ * refused. The Do puts it back in its place, says so on the card and in the
+ * polite line; the Don't snaps it back with no word.
  *
  * Every press is guarded while the request is out (STA-005b), also in the
  * Don'ts, so each Don't breaks only STA-005a.
@@ -364,6 +368,116 @@ function DeleteHire({ waits }: { waits: boolean }) {
   );
 }
 
+/* ---------- A change shown at once, then refused ---------- */
+
+type Card = { id: string; name: string };
+const CARDS: Card[] = [
+  { id: "mixer", name: "Concrete mixer, 1 day" },
+  { id: "jack", name: "Pallet jack, 2 days" },
+  { id: "tower", name: "Scaffold tower, 5 days" },
+];
+
+function MoveBoard({ explains }: { explains: boolean }) {
+  const [cols, setCols] = useState<Record<string, "Booked" | "Out">>({ mixer: "Booked", jack: "Booked", tower: "Out" });
+  const [pending, setPending] = useState<string | undefined>();
+  const [refused, setRefused] = useState<{ id: string; to: "Booked" | "Out" } | undefined>();
+  const [said, setSaid] = useState("");
+  const focusId = useRef<string | undefined>(undefined);
+  const attempts = useRef(0);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  // A card that changes column is a new element, so focus is put back on its button.
+  useLayoutEffect(() => {
+    const id = focusId.current;
+    if (id && document.activeElement === document.body) {
+      root.current?.querySelector<HTMLElement>(`[data-move="${id}"]`)?.focus();
+    }
+    focusId.current = undefined;
+  });
+
+  const move = (id: string, to: "Booked" | "Out") => {
+    if (pending) return;
+    focusId.current = id;
+    const from = cols[id];
+    const name = CARDS.find((c) => c.id === id)!.name;
+    setRefused(undefined);
+    setSaid("");
+    setPending(id);
+    // The card sits in its new column from the press.
+    setCols((c) => ({ ...c, [id]: to }));
+    attempts.current += 1;
+    // The first reply refuses, a second try is agreed.
+    const refuse = attempts.current % 2 === 1;
+    timer.current = setTimeout(() => {
+      // Focus is only put back when the person is still on this card's button.
+      const btn = root.current?.querySelector(`[data-move="${id}"]`);
+      focusId.current = document.activeElement === btn ? id : undefined;
+      setPending(undefined);
+      if (!refuse) return;
+      setCols((c) => ({ ...c, [id]: from }));
+      if (explains) {
+        setRefused({ id, to });
+        setSaid(`${name} could not be moved to ${to}. The booking system did not answer.`);
+      }
+    }, 1500);
+  };
+
+  const column = (col: "Booked" | "Out") => (
+    <div role="group" aria-labelledby={`move-${col}`} className="grid content-start gap-2 rounded-md border border-border bg-background p-2">
+      <h4 id={`move-${col}`} className="m-0 text-sm font-semibold">{col}</h4>
+      <ul className="m-0 grid list-none gap-2 p-0">
+        {CARDS.filter((c) => cols[c.id] === col).map((c) => {
+          const to = col === "Booked" ? "Out" : "Booked";
+          const bad = refused?.id === c.id;
+          return (
+            <li key={c.id} className="grid gap-1.5 rounded-md border border-border bg-card p-2 text-sm">
+              <span>{c.name}</span>
+              {bad && (
+                <span className="font-medium text-destructive">
+                  <AlertIcon className="mr-1 inline size-4 align-text-bottom" />
+                  Could not be moved to {refused.to}. The booking system did not answer.
+                </span>
+              )}
+              <span className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  data-move={c.id}
+                  aria-disabled={pending ? true : undefined}
+                  onClick={(e) => {
+                    if (pending) e.preventDefault();
+                    else move(c.id, to);
+                  }}
+                >
+                  Move to {to}
+                  <span className="sr-only">, {c.name}</span>
+                </Button>
+                {bad && (
+                  <Button variant="ghost" size="sm" onClick={() => move(c.id, refused.to)}>
+                    Try again<span className="sr-only">, {c.name}</span>
+                  </Button>
+                )}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+
+  return (
+    <div ref={root} className="grid w-full max-w-md gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
+        {column("Booked")}
+        {column("Out")}
+      </div>
+      <Status tone="failed">{said}</Status>
+    </div>
+  );
+}
+
 export const STA005a: RuleExamples = {
   id: "STA-005a",
   examples: [
@@ -413,6 +527,32 @@ export const STA005a: RuleExamples = {
         </>
       ),
       Demo: () => <DeleteHire waits={false} />,
+    },
+    {
+      kind: "do",
+      title: "A card moved at once, put back with a word",
+      caption: (
+        <>
+          Press <em>Move to Out</em> on <em>Concrete mixer, 1 day</em>. The card is in <em>Out</em> at once, with no
+          sending sign. The first reply, after a moment, refuses: the card is back in <em>Booked</em> in its old place,
+          says "Could not be moved to Out. The booking system did not answer.", the same text is written to the polite
+          line, and focus stays on its button. <em>Try again</em> is agreed. This holds because the move costs little and
+          can be put back.
+        </>
+      ),
+      Demo: () => <MoveBoard explains />,
+    },
+    {
+      kind: "dont",
+      title: "The card snaps back with no word",
+      caption: (
+        <>
+          Press <em>Move to Out</em> on <em>Concrete mixer, 1 day</em>. The card moves at once and, when the reply
+          refuses, jumps back to <em>Booked</em> with no text on the card and nothing announced. Someone who looked away,
+          or cannot see the board, believes it is out.
+        </>
+      ),
+      Demo: () => <MoveBoard explains={false} />,
     },
   ],
 };
