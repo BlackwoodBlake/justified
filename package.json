@@ -5,6 +5,7 @@
   "workspaces": [
     "packages/tokens",
     "packages/patterns",
+    "packages/eslint",
     "adapters/shadcn",
     "adapters/agents",
     "examples"
