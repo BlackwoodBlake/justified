@@ -42,7 +42,7 @@
  *
  * Exit code: 0 = all good, 1 = problems found, 2 = setup error.
  */
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, extname, join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { parse } from "yaml";
@@ -148,7 +148,8 @@ function parseArgs(argv: string[]): Options {
     i++;
   }
   const rules = opts.rules ?? "rules";
-  const own = rules === "rules";
+  // Compared as real paths, so ./rules or an absolute path to this repository's rules counts too.
+  const own = existsSync(rules) && existsSync("rules") && realpathSync(rules) === realpathSync("rules");
   return {
     rules,
     sources: opts.sources ?? "sources/sources.yaml",
@@ -287,10 +288,17 @@ type Context = {
   warnings: Problems;
 };
 
-/** The rule ids a rule's text names, other than its own. Only ids with a known area prefix count. */
-function references(text: string, own: string): Set<string> {
+/**
+ * The rule ids a rule names, other than its own: in the frontmatter's
+ * values and in the body. Only ids with a known area prefix count. The
+ * changelog and fenced code are left out, since history may name an id
+ * that was retired or renamed and a code sample may hold any id.
+ */
+function references(fm: Obj, text: string, own: string): Set<string> {
+  const body = text.replace(/^---\n[\s\S]*?\n---\n/, "").replace(/^```[\s\S]*?^```/gm, "");
+  const values = JSON.stringify({ ...fm, changelog: undefined });
   const refs = new Set<string>();
-  for (const m of text.matchAll(RULE_REF)) if (m[1] in AREAS && m[0] !== own) refs.add(m[0]);
+  for (const m of `${values}\n${body}`.matchAll(RULE_REF)) if (m[1] in AREAS && m[0] !== own) refs.add(m[0]);
   return refs;
 }
 
@@ -300,7 +308,7 @@ function checkExamples(fm: Obj, examples: string, p: (msg: string) => void) {
   if (!existsSync(file)) p(`${file} is missing: every rule has live examples (see examples/rules/)`);
   else {
     const code = readFileSync(file, "utf8");
-    if (!/kind:\s*"do"/.test(code) || !/kind:\s*"dont"/.test(code)) p(`${file} needs at least one Do and one Don't`);
+    if (!/kind:\s*["']do["']/.test(code) || !/kind:\s*["']dont["']/.test(code)) p(`${file} needs at least one Do and one Don't`);
   }
   const stories = join(examples, "stories", "rules", `${fm.id}.stories.tsx`);
   if (!existsSync(stories)) return p(`${stories} is missing: every rule has stories in Storybook`);
@@ -325,7 +333,7 @@ function checkRule(file: string, ctx: Context) {
   const p = (msg: string) => problems.push(`${file}: ${msg}`);
 
   for (const key of Object.keys(fm)) if (!KEYS.includes(key)) p(`unknown frontmatter key "${key}" (known: ${KEYS.join(", ")})`);
-  if (isText(fm.id)) ctx.rules.set(fm.id, { file, check: fm.check, refs: references(text, fm.id) });
+  if (isText(fm.id)) ctx.rules.set(fm.id, { file, check: fm.check, refs: references(fm, text, fm.id) });
 
   // id, file name and area
   const id = fm.id;
@@ -448,7 +456,8 @@ function checkRule(file: string, ctx: Context) {
   // body
   const body = text.replace(/^---\n[\s\S]*?\n---\n/, "");
   for (const name of SECTIONS) {
-    const section = body.match(new RegExp(`^## ${name}\\n([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, "m"));
+    const heading = name.replace("'", "['’]"); // a straight or a curly apostrophe in "Don't"
+    const section = body.match(new RegExp(`^## ${heading}\\n([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, "m"));
     if (!section || !section[1].trim()) p(`the "## ${name}" section is missing or empty`);
   }
 

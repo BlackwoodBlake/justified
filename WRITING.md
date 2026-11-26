@@ -35,6 +35,8 @@ sources.
 | Analysing | Source excerpts | `.sources-cache/<source-id>.md` | never |
 | Analysing | Analysis | `.analysis/<RULE-ID>.md` | never |
 | Writing | Rule | `rules/<area>/<RULE-ID>.md` | yes |
+| Writing | Live examples | `examples/rules/<RULE-ID>.tsx` | yes |
+| Writing | Stories | `examples/stories/rules/<RULE-ID>.stories.tsx` | yes |
 | Review | Review report | `.analysis/<RULE-ID>.review.md` | never |
 
 Templates for each file are in `templates/`.
@@ -61,7 +63,15 @@ Templates for each file are in `templates/`.
   certain situation opens with it, such as "When a navigation menu
   shows ..." or "In a dialog that ...", so a person or an agent can tell
   first whether the rule applies at all. The body goes on with why it
-  matters, Do and Don't cases and exceptions.
+  matters, Do and Don't cases and exceptions, under the headings Rule,
+  Why, Do, Don't and Exceptions (and Our reasons for a guideline). None
+  of them may be empty: write "None." under Exceptions when there are
+  none. `npm run check` stops a missing or empty section.
+- **Live examples.** Every rule has `examples/rules/<RULE-ID>.tsx`, with
+  at least one Do and one Don't built from our own components, and
+  stories in `examples/stories/rules/<RULE-ID>.stories.tsx` titled
+  by area and short name, such as "Rules/Forms/FRM-001 Visible label".
+  `npm run check` stops a rule without them.
 - **How to check.** Two frontmatter fields say how to find a break of
   the rule. `how_to_check` lists one to five things to look for, such as
   `mode: "onChange"` in react-hook-form or a submit button with
@@ -142,7 +152,9 @@ nothing.
 ## Check before merging
 - Every source in the verdict table is linked, current and dated.
 - The rule passes `npm run similarity`, and the analysis passes
-  `npm run similarity -- --rules .analysis`.
+  `npm run similarity -- --rules .analysis`, and the live examples pass
+  `npm run similarity -- --rules examples/rules`.
+- The rule has its live examples, with a Do and a Don't, and its stories.
 - `npm run check` passes.
 - No conflict with a published rule, or the conflict is resolved.
 - The review agent has approved.
