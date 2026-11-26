@@ -113,8 +113,146 @@ run("choice-does-not-navigate", rule, {
     `export function Field() { return <input type="text" onChange={(e) => location.assign(e.target.value)} />; }`,
     // A local variable named location is not the page's location.
     `export function F() { const location = useLocation(); return <Select onValueChange={(v) => location.replace(v)}><SelectTrigger /></Select>; }`,
+    // A switch in a form that applies something in place: it reveals fields.
+    `export function Billing() {
+      const [other, setOther] = useState(false);
+      return (
+        <form onSubmit={save}>
+          <Switch checked={other} onCheckedChange={setOther} />
+          {other && <Input name="billing" />}
+          <Button type="submit">Save address</Button>
+        </form>
+      );
+    }`,
+    `export function Billing({ form, onSubmit }) {
+      const other = form.watch("other");
+      return (
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <FormField control={form.control} name="other" render={({ field }) => (
+            <FormItem><FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
+          )} />
+          {other && <Input name="billing" />}
+          <Button type="submit">Save address</Button>
+        </form>
+      );
+    }`,
+    // A switch outside a form, or in a form with no submit button the rule can see.
+    `export function Digest() { const [on, setOn] = useState(false); return <Switch checked={on} onCheckedChange={setOn} />; }`,
+    `export function F() { return <form><Switch name="digest" /><SaveButton /></form>; }`,
+    `export function F() { return <form><Switch name="digest" /><Button type="button" onClick={save}>Save</Button></form>; }`,
+    `export function F() { return <form><Switch name="digest" /><Button onClick={save}>Save</Button></form>; }`,
+    // A checkbox in a settings form with Save is the rule's own Do.
+    `export function F() { return <form onSubmit={save}><Checkbox name="digest" /><Button type="submit">Save settings</Button></form>; }`,
+    // A setter from a prop, or a switch whose handler does more, is not traced.
+    `export function F({ setOn }) { return <form><Switch onCheckedChange={setOn} /><Button type="submit">Save</Button></form>; }`,
+    `export function F() {
+      const [on, setOn] = useState(false);
+      return <form><Switch checked={on} onCheckedChange={(v) => { setOn(v); applyTheme(v); }} /><Button type="submit">Save</Button></form>;
+    }`,
+    `export function F() {
+      const [on, setOn] = useState(false);
+      return <form><Switch checked={on} onCheckedChange={setOn} /><p>{on ? "On" : "Off"}</p><Button type="submit">Save</Button></form>;
+    }`,
+    `export function F() { return <form><Switch name="digest" {...rest} /><Button type="submit">Save</Button></form>; }`,
+    // A choice that sets state not bound to a dialog, or closes one.
+    `export function F() {
+      const [open, setOpen] = useState(false);
+      const [plan, setPlan] = useState("a");
+      return (<><RadioGroup value={plan} onValueChange={setPlan}><RadioGroupItem value="a" /></RadioGroup>
+        <Dialog open={open} onOpenChange={setOpen}><DialogContent /></Dialog></>);
+    }`,
+    `export function F() {
+      const [open, setOpen] = useState(true);
+      return (<Dialog open={open} onOpenChange={setOpen}><DialogContent><Checkbox onCheckedChange={() => setOpen(false)} /></DialogContent></Dialog>);
+    }`,
+    // A button that opens a dialog is the rule's own Do.
+    `export function F() {
+      const [open, setOpen] = useState(false);
+      return (<><Button onClick={() => setOpen(true)}>Set up automatic payments</Button>
+        <Dialog open={open} onOpenChange={setOpen}><DialogContent /></Dialog></>);
+    }`,
   ],
   invalid: [
+    {
+      // The rule's own Don't: a switch in a settings form that waits for Save settings.
+      code: `export function Settings({ save }) {
+        const [draft, setDraft] = useState(false);
+        return (
+          <form onSubmit={(e) => { e.preventDefault(); save(draft); }}>
+            <Switch checked={draft} onCheckedChange={setDraft} />
+            <Button type="submit">Save settings</Button>
+          </form>
+        );
+      }`,
+      errors: [{ messageId: "waitsForSave" }],
+    },
+    {
+      // shadcn's own switch form: each switch waits for Submit.
+      code: `export function SwitchForm({ form, onSubmit }) {
+        return (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+              <FormField
+                control={form.control}
+                name="marketing_emails"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <FormLabel>Marketing emails</FormLabel>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <Button type="submit">Submit</Button>
+            </form>
+          </Form>
+        );
+      }`,
+      errors: [{ messageId: "waitsForSave" }],
+    },
+    {
+      // Uncontrolled: its value goes only with the form.
+      code: `export function F() { return <form action={save}><Switch name="digest" defaultChecked /><button>Save settings</button></form>; }`,
+      errors: [{ messageId: "waitsForSave" }],
+    },
+    {
+      code: `export function F() {
+        const [on, setOn] = useState(false);
+        return <form onSubmit={() => send({ on })}><Switch checked={on} onCheckedChange={(v) => setOn(v)} /><input type="submit" value="Save" /></form>;
+      }`,
+      errors: [{ messageId: "waitsForSave" }],
+    },
+    {
+      // The rule's own Don't: a switch that opens the card dialog, even with a notice.
+      code: `export function AutoPay() {
+        const [open, setOpen] = useState(false);
+        const [on, setOn] = useState(false);
+        return (
+          <>
+            <Switch checked={on} onCheckedChange={(v) => { if (v) setOpen(true); else setOn(false); }} />
+            <Dialog open={open} onOpenChange={setOpen}><DialogContent /></Dialog>
+          </>
+        );
+      }`,
+      errors: [{ messageId: "opensDialog", data: { control: "Switch" } }],
+    },
+    {
+      code: `export function F() {
+        const [open, setOpen] = useState(false);
+        return (<><Checkbox onCheckedChange={setOpen} /><Sheet open={open}><SheetContent /></Sheet></>);
+      }`,
+      errors: [{ messageId: "opensDialog", data: { control: "Checkbox" } }],
+    },
+    {
+      code: `export function F() {
+        const [confirming, setConfirming] = useState(false);
+        const pick = (v) => { setPlan(v); setConfirming(true); };
+        return (<><Select onValueChange={pick}><SelectTrigger /></Select>
+          <AlertDialog open={confirming} onOpenChange={setConfirming}><AlertDialogContent /></AlertDialog></>);
+      }`,
+      errors: [{ messageId: "opensDialog", data: { control: "Select" } }],
+    },
     {
       // The rule's own Don't: Switch workspace as a Select.
       code: next(

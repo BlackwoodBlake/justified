@@ -22,8 +22,103 @@ export function NewPassword() {
   const form = useForm({ mode: "onChange" });
   return <input type="password" autoComplete="new-password" {...form.register("password")} />;
 }`,
+    // The Do example: a shown error is rechecked on change, a new one waits for blur.
+    `const valid = (v) => /^\\d{5}$/.test(v);
+export function Address() {
+  const [postcode, setPostcode] = useState("");
+  const [changed, setChanged] = useState(false);
+  const [error, setError] = useState();
+  const message = "Enter a five-digit postcode, for example 11359.";
+  return (
+    <Input
+      value={postcode}
+      onChange={(e) => {
+        const v = e.target.value;
+        setPostcode(v);
+        setChanged(true);
+        if (error && valid(v)) setError(undefined);
+      }}
+      onBlur={() => { if (changed) setError(valid(postcode) ? undefined : message); }}
+    />
+  );
+}`,
+    // Rechecking a shown error on change, written other ways.
+    `export function F({ form }) {
+  const [error, setError] = useState("");
+  return <Input onChange={(e) => { if (!error) return; setError(ok(e.target.value) ? "" : "Enter a postcode."); }} />;
+}`,
+    `export function F({ form }) {
+  return <Input onChange={(e) => { if (form.formState.errors.postcode && !ok(e.target.value)) form.setError("postcode", { message: "Enter a postcode." }); }} />;
+}`,
+    `export function F() {
+  const [error, setError] = useState("");
+  const shown = Boolean(error);
+  return <Input onChange={(e) => setError(shown && !ok(e.target.value) ? "Enter a postcode." : "")} />;
+}`,
+    // After the field was left once: needs judgement, left to review.
+    `export function F() {
+  const [left, setLeft] = useState(false);
+  const [error, setError] = useState("");
+  return <Input onBlur={() => setLeft(true)} onChange={(e) => { if (left) setError(ok(e.target.value) ? "" : "Enter a postcode."); }} />;
+}`,
+    // Only clearing, state not named for an error, and results of helpers.
+    `export function F() { const [error, setError] = useState(""); return <Input onChange={() => setError("")} />; }`,
+    `export function F() { const [hint, setHint] = useState(""); return <Input onChange={(e) => setHint(ok(e.target.value) ? "" : "Five digits")} />; }`,
+    `export function F() { const [error, setError] = useState(); return <Input onChange={(e) => setError(schema.safeParse(e.target.value).error?.issues[0].message)} />; }`,
+    `export function F({ trigger }) { return <Input onChange={() => trigger("postcode")} />; }`,
+    // A setError from props, and not a text field.
+    `export function F({ setError }) { return <Input onChange={(e) => setError(ok(e.target.value) ? "" : "Enter a postcode.")} />; }`,
+    `export function F() { const [error, setError] = useState(""); return <input type="checkbox" onChange={() => setError("Accept the terms.")} />; }`,
+    `export function F() { const [error, setError] = useState(""); return <Select onValueChange={() => setError("Pick one.")} />; }`,
+    // A new password shows progress against its rules (Exceptions).
+    `export function F() { const [error, setError] = useState(""); return <Input type="password" autoComplete="new-password" onChange={(e) => setError(e.target.value.length < 12 ? "At least 12 characters" : "")} />; }`,
+    // Work set up for later is not this change.
+    `export function F() { const [error, setError] = useState(""); return <Input onChange={() => fetchLater(() => setError("Address not found."))} />; }`,
   ],
   invalid: [
+    {
+      // The Don't example: checked on every key press.
+      code: `const valid = (v) => /^\\d{5}$/.test(v);
+export function EagerAddress() {
+  const [postcode, setPostcode] = useState("");
+  const [error, setError] = useState();
+  const message = "Enter a five-digit postcode, for example 11359.";
+  return (
+    <Input
+      value={postcode}
+      onChange={(e) => {
+        const v = e.target.value;
+        setPostcode(v);
+        setError(valid(v) ? undefined : message);
+      }}
+    />
+  );
+}`,
+      errors: [{ messageId: "whileTyping", line: 12 }],
+    },
+    {
+      code: `export function F() {
+  const [emailError, setEmailError] = useState("");
+  return <input type="email" onChange={(e) => { if (!e.target.value.includes("@")) setEmailError(\`Enter an email address like name@example.com.\`); }} />;
+}`,
+      errors: [{ messageId: "whileTyping" }],
+    },
+    {
+      // react-hook-form's setError from a change handler, through a local function.
+      code: `export function F({ form, field }) {
+  function check(v) { if (v.length !== 5) form.setError("postcode", { type: "pattern", message: "Enter five digits." }); }
+  return <Input {...field} onChange={(e) => { field.onChange(e); check(e.target.value); }} />;
+}`,
+      errors: [{ messageId: "whileTyping" }],
+    },
+    {
+      code: `export function F() {
+  const [error, setError] = useState(null);
+  const onChange = (e) => setError(!ok(e.target.value) && "Enter a postcode.");
+  return <Textarea onChange={onChange} />;
+}`,
+      errors: [{ messageId: "whileTyping" }],
+    },
     {
       code: `${rhf}const f = () => useForm({ mode: "onChange" });`,
       errors: [{ messageId: "typing", data: { mode: "onChange" } }],

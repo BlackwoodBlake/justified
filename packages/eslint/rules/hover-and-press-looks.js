@@ -13,7 +13,15 @@
  *      `className` to be read, and a `div` also `cursor-pointer`, a `role`
  *      or a `tabIndex`, since a `div` with `onClick` is often a wrapper that
  *      catches its children's clicks. A `Card` without a `className` has no
- *      look.
+ *      look. A `div` or `li` with `relative` and `cursor-pointer` and a link
+ *      stretched over it is read like such a `Card`, when every element
+ *      between them is a plain HTML element that positions nothing.
+ *   1b. A native `button` with `onClick` whose stated classes give it its
+ *      own fill or border (so the browser no longer draws it), with no
+ *      `hover:` or `active:` look on it or inside it, and no element around
+ *      it that styles its children (`[&_button]:…`, `*:…`) or whose classes
+ *      are not stated in full. A `disabled` or `aria-disabled` button is
+ *      left to sub-check 3.
  *   2. `hover:bg-transparent` on a `Button`, a menu, command or select item
  *      with no other `hover:` look, and `focus:bg-transparent` or
  *      `data-[highlighted]:bg-transparent` on a menu item with no other
@@ -78,7 +86,7 @@ export default defineRule({
   level: "rule",
   verdict: "Unanimous (3 of 3)",
   description:
-    "A clickable Card, div, li or tr with no hover or press look, hover:bg-transparent with nothing in its place on a Button or menu item, and hover or press looks on an aria-disabled element.",
+    "A clickable Card, div, li, tr or styled native button with no hover or press look, hover:bg-transparent with nothing in its place on a Button or menu item, and hover or press looks on an aria-disabled element.",
   messages: {
     noLook:
       "this {{name}} does something when pressed but has no hover: or active: look, so nothing changes under the pointer or the finger. Add both, such as hover:bg-accent and active:shadow-inner; a pointing cursor is not a change of the element.",
@@ -121,10 +129,75 @@ export default defineRule({
       return found;
     };
 
+    /**
+     * Whether every element between a link and the box is a plain HTML
+     * element whose classes are stated and position nothing, so the link
+     * stretches over the box.
+     * @param {any} link A JSXOpeningElement. @param {any} box A JSXElement.
+     */
+    const directlyInside = (link, box) => {
+      for (let n = link.parent.parent; n && n !== box; n = n.parent) {
+        if (n.type !== "JSXElement") continue;
+        const name = elementName(n.openingElement) ?? "";
+        if (!/^[a-z]/.test(name)) return false;
+        const between = knownList(n.openingElement);
+        if (!between || between.tokens.some((t) => /^(relative|absolute|fixed|sticky)$/.test(t))) return false;
+      }
+      return true;
+    };
+
+    /** Whether any element inside carries a hover or press look of its own. @param {any} element */
+    const lookInside = (element) => {
+      let found = false;
+      walk(element, keys, (n) => {
+        if (found) return false;
+        if (n.type !== "JSXOpeningElement" || n === element.openingElement) return undefined;
+        const list = readClassList(context, n);
+        if (hasSpread(n) || (list && (!list.complete || hasLook(list.parts.flatMap((p) => p.tokens))))) found = true;
+        return undefined;
+      });
+      return found;
+    };
+
+    /**
+     * Whether an element around this one styles its children, as in
+     * `[&_button]:hover:bg-accent` or `*:hover:underline`, which may give
+     * this element its look.
+     * @param {any} element
+     */
+    const stylesChildren = (element) => {
+      for (let n = element.parent; n; n = n.parent) {
+        if (n.type !== "JSXElement") continue;
+        const list = readClassList(context, n.openingElement);
+        if (list && (!list.complete || list.passThrough)) return true;
+        const tokens = list ? list.parts.flatMap((p) => p.tokens) : [];
+        if (tokens.some((t) => parseToken(t).variants.some((v) => v.startsWith("[&") || v.startsWith("*"))))
+          return true;
+      }
+      return false;
+    };
+
     return {
       JSXElement(element) {
         const opening = element.openingElement;
         const name = elementName(opening) ?? "";
+
+        // 1b. A native button the code styles itself, with no look under the pointer or the press.
+        if (name === "button") {
+          const onClick = getAttribute(opening, "onClick");
+          if (!onClick || onlyStops(onClick) || getAttribute(opening, "disabled") || getAttribute(opening, "aria-disabled"))
+            return;
+          const list = knownList(opening);
+          if (!list?.present) return;
+          // Styled by the code, not left to the browser: its own fill or border.
+          const styled = list.tokens.some((t) => {
+            const { variants, utility } = parseToken(t);
+            return variants.length === 0 && /^(bg-(?!transparent$|none$)|border$|border-\d)/.test(utility);
+          });
+          if (styled && !hasLook(list.tokens) && !lookInside(element) && !stylesChildren(element))
+            context.report({ node: opening, messageId: "noLook", data: { name } });
+          return;
+        }
 
         // 1. Clickable cards, items and rows.
         if (CLICKABLE.has(name)) {
@@ -139,6 +212,17 @@ export default defineRule({
             // A backdrop or a layer over the page is a whole container, not a control.
             if (list.tokens.includes("fixed") || (list.tokens.includes("absolute") && list.tokens.includes("inset-0"))) return;
             if (!hasLook(list.tokens)) context.report({ node: opening, messageId: "noLook", data: { name } });
+            return;
+          }
+          if (name === "div" || name === "li") {
+            // A link stretched over a box drawn as one target: `relative` and `cursor-pointer` on the box, and no
+            // positioned element between it and the link that the link could stretch over instead.
+            if (!list.tokens.includes("relative") || !list.tokens.includes("cursor-pointer")) return;
+            const link = stretchedLink(element);
+            if (!link || !directlyInside(link, element)) return;
+            const linkList = knownList(link);
+            if (linkList && !hasLook(list.tokens) && !hasLook(linkList.tokens))
+              context.report({ node: opening, messageId: "noLook", data: { name } });
             return;
           }
           if (name !== "Card") return;

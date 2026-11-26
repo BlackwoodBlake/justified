@@ -47,6 +47,29 @@ run("hover-and-press-looks", rule, {
     `<button aria-disabled="false" className="hover:bg-accent">Rename</button>`,
     `<button disabled={locked} aria-disabled={locked} className="hover:bg-accent disabled:pointer-events-none">Rename</button>`,
     `<a aria-disabled={locked} className="[&:not([aria-disabled=true])]:hover:underline">Rename</a>`,
+    // A box with a link stretched over it and a look, on the box, its group or the link.
+    `<div className="relative cursor-pointer rounded-lg border hover:bg-accent active:shadow-inner"><h4><a href="/x" className="after:absolute after:inset-0">Atlas</a></h4></div>`,
+    `<div className="group relative cursor-pointer rounded-lg border"><a href="/x" className="after:absolute after:inset-0 group-hover:underline">Atlas</a></div>`,
+    `<li className="relative cursor-pointer"><a href="/x" className="after:absolute after:inset-0 hover:after:bg-accent/50">Atlas</a></li>`,
+    // Not certain the link stretches over this box: no relative, no cursor-pointer, or a positioned box between.
+    `<div className="cursor-pointer rounded-lg border"><a href="/x" className="after:absolute after:inset-0">Atlas</a></div>`,
+    `<div className="relative rounded-lg border"><a href="/x" className="after:absolute after:inset-0">Atlas</a></div>`,
+    `<div className="relative cursor-pointer"><div className="relative p-4"><a href="/x" className="after:absolute after:inset-0">Atlas</a></div></div>`,
+    `<div className="relative cursor-pointer"><Header><a href="/x" className="after:absolute after:inset-0">Atlas</a></Header></div>`,
+    `<div className="relative cursor-pointer"><a href="/x" className={linkClass}>Atlas</a></div>`,
+    // Native buttons with a look, left to the browser, or whose look a child carries.
+    `<button type="button" onClick={go} className="rounded-md border px-3 hover:bg-accent">Share</button>`,
+    `<button type="button" onClick={go} className="rounded-md bg-primary px-3 active:bg-primary/80">Share</button>`,
+    `<button type="button" onClick={go}>Share</button>`,
+    `<button type="button" onClick={go} className="px-3 text-sm underline">Show more</button>`,
+    `<button type="button" onClick={go} className="rounded-md border px-3"><span className="hover:underline">Share</span></button>`,
+    `<button type="button" onClick={go} className="rounded-md border px-3"><Icon {...props} /></button>`,
+    `<button type="button" onClick={go} className={cn("rounded-md border px-3", look)}>Share</button>`,
+    `<div className="flex [&_button]:hover:bg-accent"><button type="button" onClick={go} className="rounded-md border px-3">Share</button></div>`,
+    `<div className={cn("flex", toolbar)}><button type="button" onClick={go} className="rounded-md border px-3">Share</button></div>`,
+    // A button that is off, or a picture of one with no handler.
+    `<button type="button" onClick={go} disabled className="rounded-md border px-3">Share</button>`,
+    `<button type="button" tabIndex={-1} className="rounded-md bg-accent px-3">Share</button>`,
   ],
   invalid: [
     // The VIS-008 Don'ts, written out.
@@ -58,6 +81,24 @@ run("hover-and-press-looks", rule, {
     { code: `<tr onClick={() => openOrder(o.id)} className="border-b">{cells}</tr>`, errors: noLook },
     { code: `<Link href="/projects/atlas"><Card>Atlas</Card></Link>`, errors: noLook },
     { code: `<Card className="relative"><a href="/x" className="after:absolute after:inset-0">Atlas</a></Card>`, errors: noLook },
+    {
+      // The card Don't, written out: a div with only a pointing cursor and a link stretched over it.
+      code: `<div className="relative flex flex-col gap-1 rounded-lg border p-4 bg-card cursor-pointer"><h4 className="m-0 text-base"><a href="/projects/atlas" className="after:absolute after:inset-0">Atlas redesign</a></h4><p>12 tasks</p></div>`,
+      errors: [{ messageId: "noLook", data: { name: "div" } }],
+    },
+    {
+      code: `<li className="relative cursor-pointer border-b py-2"><Link href="/a" className="after:absolute after:inset-0">Atlas</Link></li>`,
+      errors: [{ messageId: "noLook", data: { name: "li" } }],
+    },
+    {
+      // A native button the code styles, with nothing under the pointer or the press.
+      code: `<button type="button" onClick={download} className="inline-flex size-10 items-center justify-center rounded-md border cursor-pointer"><DownloadIcon /></button>`,
+      errors: [{ messageId: "noLook", data: { name: "button" } }],
+    },
+    {
+      code: `<button onClick={save} className="rounded-md bg-primary px-4 py-2 text-primary-foreground">Save</button>`,
+      errors: [{ messageId: "noLook", data: { name: "button" } }],
+    },
     { code: `<Button variant="ghost" className="hover:bg-transparent">More</Button>`, errors: stripped },
     { code: `<Button variant="ghost" className="px-0 hover:bg-transparent hover:cursor-pointer">More</Button>`, errors: stripped },
     { code: `<CommandItem className="data-[selected=true]:bg-transparent">Calendar</CommandItem>`, errors: stripped },
