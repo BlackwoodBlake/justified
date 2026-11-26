@@ -19,9 +19,11 @@
  *     focus-bound (the rule's exception).
  *   - Escape, the arrows, Enter, Space, Tab, Delete and the function keys,
  *     and every binding with Ctrl, Alt or Cmd (`mod`, `$mod`, `meta` …).
- *     A key whose own branch checks Ctrl, Alt or Cmd, as in
+ *     A key whose action runs only while Ctrl, Alt or Cmd is held, as in
  *     `if (e.key === "k") { if (e.metaKey) open(); }`, counts as one with a
- *     modifier, whichever way the check goes.
+ *     modifier. A branch that returns when a modifier is held, or picks one
+ *     action with the modifier and another without, still acts on the key
+ *     alone and is reported.
  *   - Any binding under a condition that reads something besides the event,
  *     which may be the setting, and event checks through a function the rule
  *     cannot read.

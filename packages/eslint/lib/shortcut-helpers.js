@@ -490,26 +490,41 @@ function readKeydownHandler(context, fn) {
     if (!found || (found.kind === "shift" && k === "plain")) found = { kind: k, node: at };
   };
 
+  /** The object a call or member chain starts from, as `e` in `e.key.toLowerCase()`. @param {any} node */
+  const rootObject = (node) => {
+    let n = unwrap(node);
+    while (n?.type === "MemberExpression" || n?.type === "CallExpression")
+      n = unwrap(n.type === "MemberExpression" ? n.object : n.callee);
+    return n;
+  };
+
   /**
-   * Whether the code that runs on the key checks Ctrl, Alt or Cmd itself,
-   * as in `if (e.key === "k") { if (e.metaKey || e.ctrlKey) open(); }`.
-   * Such a shortcut may take a modifier, which KBD-003 leaves alone.
-   * @param {any} branch
+   * Whether the code that runs on the key acts only while Ctrl, Alt or Cmd
+   * is held, as in `if (e.key === "k") { if (e.metaKey || e.ctrlKey) open(); }`.
+   * Such a shortcut takes a modifier, which KBD-003 leaves alone. Every
+   * call and assignment in the code must sit under a condition that holds
+   * only with the modifier, apart from calls on the event itself such as
+   * `e.preventDefault()`. Code that returns when a modifier is held, or
+   * picks one action with the modifier and another without, still acts on
+   * the plain key.
+   * @param {any[]} statements The code that runs on the key.
+   * @param {any} stop The node the code sits in.
    */
-  const branchChecksModifier = (branch) => {
-    if (!branch) return false;
-    let found = false;
-    walkOwn(branch, keys, (n) => {
-      if (found) return;
-      const test =
-        n.type === "IfStatement" || n.type === "ConditionalExpression"
-          ? n.test
-          : n.type === "LogicalExpression"
-            ? n.left
-            : undefined;
-      if (test && (reader.facts(test, true).modifier || reader.facts(test, false).modifier)) found = true;
-    });
-    return found;
+  const actsOnlyWithModifier = (statements, stop) => {
+    let actions = 0;
+    let unguarded = false;
+    for (const statement of statements) {
+      if (!statement) continue;
+      walkOwn(statement, keys, (n) => {
+        if (unguarded) return;
+        if (n.type !== "CallExpression" && n.type !== "AssignmentExpression") return;
+        if (n.type === "CallExpression" && reader.isEvent(rootObject(n.callee))) return;
+        actions++;
+        const guarded = conditionsOf(n, stop).some(([test, positive]) => reader.facts(test, positive).modifier);
+        if (!guarded) unguarded = true;
+      });
+    }
+    return actions > 0 && !unguarded;
   };
 
   walkOwn(fn.body, keys, (n) => {
@@ -521,7 +536,7 @@ function readKeydownHandler(context, fn) {
         const lit = unwrap(c.test);
         if (lit?.type !== "Literal" || typeof lit.value !== "string") continue;
         const kind = folded && /^[a-z]$/i.test(lit.value) ? "plain" : charKey(lit.value);
-        if (kind && !c.consequent.some(branchChecksModifier)) judge(kind, c.test, conditionsOf(n, fn));
+        if (kind && !actsOnlyWithModifier(c.consequent, c)) judge(kind, c.test, conditionsOf(n, fn));
       }
       return;
     }
@@ -543,17 +558,20 @@ function readKeydownHandler(context, fn) {
       // `if (e.key === "a") return` skips "a"; `if (e.key !== "a") { … }` acts on every other key.
       if (leaves === matches) return;
       // The code that runs on the key: the rest of the function after an early exit, or the branch.
-      if (!leaves && branchChecksModifier(matches ? holder.consequent : holder.alternate)) return;
+      const branch = matches ? holder.consequent : holder.alternate;
+      if (!leaves && actsOnlyWithModifier([branch], holder)) return;
       if (leaves) {
         const list = holder.parent?.type === "BlockStatement" ? holder.parent.body : [];
-        if (list.slice(list.indexOf(holder) + 1).some(branchChecksModifier)) return;
+        if (actsOnlyWithModifier(list.slice(list.indexOf(holder) + 1), holder.parent)) return;
       }
       judge(kind, n, [[holder.test, !leaves], ...conditionsOf(holder, fn)]);
     } else if (holder?.type === "ConditionalExpression" && holder.test === at) {
-      if (matches && !branchChecksModifier(holder.consequent)) judge(kind, n, [[holder.test, true], ...conditionsOf(holder, fn)]);
+      if (matches && !actsOnlyWithModifier([holder.consequent], holder))
+        judge(kind, n, [[holder.test, true], ...conditionsOf(holder, fn)]);
     } else if (holder?.type === "ExpressionStatement" && at.type === "LogicalExpression" && at !== n) {
       // e.key === "/" && search()
-      if (matches && at.operator === "&&" && !branchChecksModifier(at.right)) judge(kind, n, [[at.left, true], ...conditionsOf(holder, fn)]);
+      if (matches && at.operator === "&&" && !actsOnlyWithModifier([at.right], at))
+        judge(kind, n, [[at.left, true], ...conditionsOf(holder, fn)]);
     }
   });
   return quiet ? undefined : found;
