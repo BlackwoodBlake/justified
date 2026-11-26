@@ -28,7 +28,7 @@
  * Exit code: 0 = clean, 1 = something found, 2 = setup error.
  */
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -51,14 +51,15 @@ const CHECKS: Check[] = [
 /**
  * Common Swedish words that are not English words, or so rare in English
  * that two of them on one line mean Swedish. Spelled without the three
- * Swedish letters, which are caught on their own. Words that are also English or
- * common in code (den, men, till, under, nu, vi, om, av) are left out.
+ * Swedish letters, which are caught on their own. Words that are also
+ * English or common in code are left out, such as den, men, till, under,
+ * nu, vi, om, av, fast, tack, bra, sedan, dag, vid and andra.
  */
 const SWEDISH = new Set(
   ("och inte eller eftersom alltid aldrig finns kanske varje detta denna dessa utan bara ska skall " +
-   "att det som jag ett har kan vara blir efter sedan mycket hur vad alla inga ingen sitt sina " +
-   "mot vid nej tack hej regel regler regeln sidan mappen gjort klart fixa behover maste ocksa " +
-   "nagon nagot andra skriv skrivs ligger finns heter fast bra dag idag igen")
+   "att det som jag ett har kan vara blir efter mycket hur vad alla inga ingen sitt sina " +
+   "mot nej hej regel regler regeln sidan mappen gjort klart fixa behover maste ocksa " +
+   "nagon nagot skriv skrivs ligger heter idag igen")
     .split(" "),
 );
 const SWEDISH_MIN = 2;
@@ -169,4 +170,7 @@ function main() {
   console.log("check-public: nothing private found in tracked files.");
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
+// Runs when started as a script, not when the tests import it. Real paths on both sides, so a
+// symlinked checkout or a relative path never makes it skip the check in silence.
+const started = process.argv[1] && existsSync(process.argv[1]) ? realpathSync(resolve(process.argv[1])) : null;
+if (started === realpathSync(fileURLToPath(import.meta.url))) main();

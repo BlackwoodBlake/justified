@@ -49,8 +49,40 @@ export const UNMEASURED: Record<string, string> = {
   overlay: "the scrim behind a dialog, which carries no text and no control of its own",
 };
 
-/** A CSS value that is a colour. */
-const COLOUR = /^(?:#[0-9a-f]{3,8}|(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix)\(.*\)|transparent)$/i;
+/** A CSS value that is a colour: hex, a colour function, or a keyword. */
+const COLOUR = /^(?:#[0-9a-f]{3,8}|(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix|light-dark)\(.*\))$/i;
+/** CSS's named colours (CSS Color Module Level 4) and colour keywords. */
+const NAMED = new Set(
+  ("aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown " +
+   "burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan " +
+   "darkgoldenrod darkgray darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid " +
+   "darkred darksalmon darkseagreen darkslateblue darkslategray darkslategrey darkturquoise darkviolet " +
+   "deeppink deepskyblue dimgray dimgrey dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro " +
+   "ghostwhite gold goldenrod gray green greenyellow grey honeydew hotpink indianred indigo ivory khaki " +
+   "lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow " +
+   "lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray " +
+   "lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine " +
+   "mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise " +
+   "mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab " +
+   "orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru " +
+   "pink plum powderblue purple rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown " +
+   "seagreen seashell sienna silver skyblue slateblue slategray slategrey snow springgreen steelblue tan " +
+   "teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen " +
+   "transparent currentcolor canvas canvastext linktext visitedtext activetext buttonface buttontext " +
+   "buttonborder field fieldtext highlight highlighttext selecteditem selecteditemtext mark marktext graytext accentcolor accentcolortext")
+    .split(" "),
+);
+
+/** Whether a token's value is a colour, following var() to the token it names. */
+function isColour(vars: Record<string, string>, value: string, seen = new Set<string>()): boolean {
+  const v = value.trim();
+  if (COLOUR.test(v) || NAMED.has(v.toLowerCase())) return true;
+  const alias = v.match(/^var\(\s*--([a-z0-9-]+)\s*(?:,\s*(.+))?\)$/i);
+  if (!alias || seen.has(alias[1])) return false;
+  seen.add(alias[1]);
+  const target = vars[alias[1]];
+  return (target !== undefined && isColour(vars, target, seen)) || (alias[2] !== undefined && isColour(vars, alias[2], seen));
+}
 
 /**
  * Colour tokens that no pair measures and that UNMEASURED does not explain,
@@ -60,7 +92,7 @@ const COLOUR = /^(?:#[0-9a-f]{3,8}|(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|
 export function coverage(themes: Themes): { unmeasured: string[]; stale: string[] } {
   const inPairs = new Set(PAIRS.flatMap((p) => [p.fg, p.bg]));
   const colours = new Set(
-    (["light", "dark"] as const).flatMap((t) => Object.entries(themes[t]).filter(([, v]) => COLOUR.test(v)).map(([k]) => k)),
+    (["light", "dark"] as const).flatMap((t) => Object.entries(themes[t]).filter(([, v]) => isColour(themes[t], v)).map(([k]) => k)),
   );
   return {
     unmeasured: [...colours].filter((t) => !inPairs.has(t) && !(t in UNMEASURED)).sort(),
