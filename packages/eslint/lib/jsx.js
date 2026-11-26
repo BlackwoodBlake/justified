@@ -48,11 +48,25 @@ export const baseName = (opening) => elementName(opening)?.split(".").pop();
  * @param {string} name
  */
 export function getAttribute(opening, name) {
-  return opening.attributes.find((a) => a.type === "JSXAttribute" && a.name.type === "JSXIdentifier" && a.name.name === name);
+  return opening.attributes.find(
+    (a) => a.type === "JSXAttribute" && a.name.type === "JSXIdentifier" && a.name.name === name,
+  );
 }
 
 /** Whether the element spreads props, which may set anything. @param {any} opening */
 export const hasSpread = (opening) => opening.attributes.some((a) => a.type === "JSXSpreadAttribute");
+
+/**
+ * The children that are more than white space or comments.
+ * @param {any} element A JSXElement or JSXFragment.
+ * @returns {any[]}
+ */
+export const meaningfulChildren = (element) =>
+  element.children.filter(
+    (/** @type {any} */ c) =>
+      !(c.type === "JSXText" && c.value.trim() === "") &&
+      !(c.type === "JSXExpressionContainer" && c.expression.type === "JSXEmptyExpression"),
+  );
 
 /**
  * A string, number or boolean the code states for certain, or `undefined`.
@@ -78,6 +92,15 @@ export function attributeValue(attribute) {
   if (attribute.value.type === "JSXExpressionContainer") return staticValue(attribute.value.expression);
   return undefined;
 }
+
+/**
+ * Whether an element is the value of a prop, as in `render={<Button />}`.
+ * The component that takes it may add children and props, such as a name,
+ * so what the element shows is not the whole story.
+ * @param {any} element A JSXElement.
+ */
+export const isPropValue = (element) =>
+  element.parent?.type === "JSXExpressionContainer" && element.parent.parent?.type === "JSXAttribute";
 
 /** The nearest JSX element around a node, not counting the node itself. @param {any} node */
 export function parentElement(node) {
@@ -116,7 +139,8 @@ export function walk(node, keys, visit) {
     for (const key of keys[n.type] ?? []) {
       const child = n[key];
       if (Array.isArray(child)) {
-        for (let i = child.length - 1; i >= 0; i--) if (child[i] && typeof child[i].type === "string") stack.push([child[i], n]);
+        for (let i = child.length - 1; i >= 0; i--)
+          if (child[i] && typeof child[i].type === "string") stack.push([child[i], n]);
       } else if (child && typeof child.type === "string") stack.push([child, n]);
     }
   }
@@ -138,7 +162,8 @@ export function readsName(expression, keys, test) {
       const isProperty = parent && parent.type === "MemberExpression" && parent.property === n && !parent.computed;
       if (!isKey && !isProperty && test(n.name)) found = true;
     }
-    if (n.type === "MemberExpression" && !n.computed && n.property.type === "Identifier" && test(n.property.name)) found = true;
+    if (n.type === "MemberExpression" && !n.computed && n.property.type === "Identifier" && test(n.property.name))
+      found = true;
     return undefined;
   });
   return found;

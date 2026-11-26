@@ -1,5 +1,5 @@
 import { Button } from "@blackwoodblake/justified-shadcn/button";
-import { useId, useMemo, useRef, useState } from "react";
+import { type ReactNode, useId, useMemo, useRef, useState } from "react";
 
 import { Outcome, useSay } from "./dialog";
 import type { RuleExamples } from "./frame";
@@ -63,7 +63,21 @@ const WORDS: Record<Key, { name: string; asc: string; desc: string }> = {
   time: { name: "finish time", asc: "fastest first", desc: "slowest first" },
 };
 
-function Results({ mode }: { mode: Mode }) {
+type HeadProps = { text: string; icon: ReactNode; ariaSort?: "ascending" | "descending"; onPress: () => void };
+
+// Only the pointer Don't renders this header, so lint reports on it land on that Don't alone.
+function PointerHead({ text, icon, ariaSort, onPress }: HeadProps) {
+  return (
+    <TableHead scope="col" aria-sort={ariaSort} onClick={onPress} className="cursor-pointer">
+      <span className="inline-flex items-center gap-2">
+        {text}
+        {icon}
+      </span>
+    </TableHead>
+  );
+}
+
+function Results({ mode, Head }: { mode: Mode; Head?: (props: HeadProps) => ReactNode }) {
   const id = useId();
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "time", dir: "asc" });
   const [said, say] = useSay();
@@ -88,16 +102,7 @@ function Results({ mode }: { mode: Mode }) {
     // aria-sort belongs on the header cell, and only the Don't about arrows leaves it out.
     const ariaSort = active && mode !== "arrow" ? (sort.dir === "asc" ? "ascending" : "descending") : undefined;
 
-    if (mode === "pointer") {
-      return (
-        <TableHead key={key} scope="col" aria-sort={ariaSort} onClick={() => press(key)} className="cursor-pointer">
-          <span className="inline-flex items-center gap-2">
-            {text}
-            {icon}
-          </span>
-        </TableHead>
-      );
-    }
+    if (Head) return <Head key={key} text={text} icon={icon} ariaSort={ariaSort} onPress={() => press(key)} />;
     return (
       <TableHead key={key} scope="col" aria-sort={ariaSort}>
         <Button
@@ -170,7 +175,7 @@ export const TBL002: RuleExamples = {
           handler sits on the cell and there is no button inside it. A keyboard user cannot sort at all.
         </>
       ),
-      Demo: () => <Results mode="pointer" />,
+      Demo: () => <Results mode="pointer" Head={PointerHead} />,
     },
     {
       kind: "dont",
@@ -190,9 +195,9 @@ export const TBL002: RuleExamples = {
       caption: (
         <>
           The order is in <code>aria-sort</code>, as it should be. But the button now has the name &ldquo;Sort by finish
-          time&rdquo;, an instruction read out on every visit, and the same name is given to the column heading,
-          so a screen reader says &ldquo;Sort by club&rdquo; before each value in the column. The name still contains
-          the visible words, so this is our own advice and not a failure of the law: keep the name to the heading.
+          time&rdquo;, an instruction read out on every visit, and the same name is given to the column heading, so a
+          screen reader says &ldquo;Sort by club&rdquo; before each value in the column. The name still contains the
+          visible words, so this is our own advice and not a failure of the law: keep the name to the heading.
         </>
       ),
       Demo: () => <Results mode="label" />,

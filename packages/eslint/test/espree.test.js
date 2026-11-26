@@ -17,8 +17,9 @@ export function SignUp() {
   const { isValid } = form.formState;
   return (
     <form onSubmit={form.handleSubmit(save)}>
-      <input name="first" /><input name="last" /><input name="email" type="email" />
-      <input name="phone" type="tel" /><input name="street" />
+      <input name="first" aria-label="First name" /><input name="last" aria-label="Last name" />
+      <input name="email" type="email" aria-label="Email" /><input name="phone" type="tel" aria-label="Phone" />
+      <input name="street" aria-label="Street" />
       <button type="submit" disabled={!isValid}>Create account</button>
     </form>
   );

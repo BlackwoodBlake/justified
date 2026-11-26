@@ -32,11 +32,11 @@ This writes `rules/index.js` from the files in `rules/`. Commit the result. Neve
 These files are shared. Leave them alone in a rule's branch, and propose a change to them on its own:
 
 - `index.js`, `index.d.ts`, `package.json`
-- everything in `lib/` (`define-rule.js`, `jsx.js`)
+- everything in `lib/`: `define-rule.js`, `jsx.js` and the helpers that several rules share (`button-label-helpers.js`, `button-row-helpers.js`, `class-token-helpers.js`, `name-helpers.js`)
 - `test/helpers.js`, `test/setup.js`, `test/shadcn.js`, `test/plugin.test.js`, `test/examples.test.js`, `test/example-map.js`
 - `scripts/`, and anything outside `packages/eslint`
 
-If you need a helper, write it in your rule file. If it proves useful to several rules, it can move into `lib/jsx.js` later.
+If you need a helper, write it in your rule file, or import one of the shared helpers in `lib/`. If it proves useful to several rules, it can move into `lib/` later.
 
 ## The rule file
 
