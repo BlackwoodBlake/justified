@@ -74,8 +74,144 @@ export function Address() {
     `export function F() { const [error, setError] = useState(""); return <Input type="password" autoComplete="new-password" onChange={(e) => setError(e.target.value.length < 12 ? "At least 12 characters" : "")} />; }`,
     // Work set up for later is not this change.
     `export function F() { const [error, setError] = useState(""); return <Input onChange={() => fetchLater(() => setError("Address not found."))} />; }`,
+    // Since the review of 0.1.1: errors from a request, limit messages, and an empty setError message.
+    // Clears the error only when one is shown
+    `
+    export function A() {
+      const [error, setError] = useState("")
+      return <Input onChange={(e) => { if (error && valid(e.target.value)) setError("") }} />
+    }`,
+    // Checks again only when an error is shown
+    `
+    export function A() {
+      const [error, setError] = useState<string | null>(null)
+      return <Input onChange={(e) => { setValue(e.target.value); if (error) setError(validate(e.target.value)) }} />
+    }`,
+    // Guarded by a touched flag
+    `
+    export function A() {
+      const [touched, setTouched] = useState(false)
+      const [error, setError] = useState("")
+      return <Input onBlur={() => setTouched(true)} onChange={(e) => { if (touched && !ok(e.target.value)) setError("Enter an email address") }} />
+    }`,
+    // Cleared while typing, set only on blur
+    `
+    export function A() {
+      const [emailError, setEmailError] = useState("")
+      return <Input onChange={(e) => { setEmail(e.target.value); setEmailError("") }} onBlur={() => { if (!ok(email)) setEmailError("Enter an email address") }} />
+    }`,
+    // A new password with its rules beside the field
+    `
+    export function A() {
+      const [error, setError] = useState("")
+      return <Input type="password" autoComplete="new-password" onChange={(e) => { if (e.target.value.length < 8) setError("At least 8 characters") }} />
+    }`,
+    // A hint state, not an error
+    `
+    export function A() {
+      const [hint, setHint] = useState("")
+      return <Input onChange={(e) => setHint(e.target.value.length > 3 ? "Looks good" : "")} />
+    }`,
+    // A limit message in a state named for the limit is FRM-017c, not an error
+    `
+    export function A() {
+      const [limitError, setLimitError] = useState("")
+      return <Textarea maxLength={200} onChange={(e) => setLimitError(e.target.value.length >= 200 ? "You have reached 200 characters" : "")} />
+    }`,
+    // react-hook-form setError only when the field already has an error
+    `
+    export function A() {
+      const { setError, formState: { errors } } = useForm()
+      return <Input onChange={(e) => { if (errors.code && bad(e.target.value)) setError("code", { message: "Check the code" }) }} />
+    }`,
+    // setError with an empty message clears it
+    `
+    export function A() {
+      const { setError } = useForm()
+      return <Input onChange={() => setError("root.server", { type: "manual", message: "" })} />
+    }`,
+    // An error from a failed search request, set in a catch
+    `
+    export function A() {
+      const [searchError, setSearchError] = useState("")
+      return <Input type="search" onChange={async (e) => { try { setResults(await find(e.target.value)) } catch { setSearchError("Search is not working right now") } }} />
+    }`,
+    // A boolean flag, not a message
+    `
+    export function A() {
+      const [hasError, setHasError] = useState(false)
+      return <Input onChange={(e) => setHasError(!ok(e.target.value))} />
+    }`,
+    // Guarded by a local read from shown state
+    `
+    export function A() {
+      const [error, setError] = useState("")
+      return <Input onChange={(e) => { const shown = Boolean(error); if (shown) setError(ok(e.target.value) ? "" : "Enter a postcode") }} />
+    }`,
+    // A file input
+    `
+    export function A() {
+      const [error, setError] = useState("")
+      return <Input type="file" onChange={(e) => { if (e.target.files![0].size > 1e6) setError("The file is larger than 1 MB") }} />
+    }`,
+    // A field whose type is not written out
+    `
+    export function A({ kind }) {
+      const [error, setError] = useState("")
+      return <Input type={kind} onChange={(e) => { if (!e.target.value) setError("Pick a date") }} />
+    }`,
+    // Guarded by a once-submitted prop
+    `
+    export function A({ submitted }) {
+      const [error, setError] = useState("")
+      return <Input onChange={(e) => { if (submitted && !ok(e.target.value)) setError("Enter a postcode") }} />
+    }`,
+    // Guarded by a ref
+    `
+    export function A() {
+      const left = useRef(false)
+      const [error, setError] = useState("")
+      return <Input onBlur={() => (left.current = true)} onChange={(e) => { if (left.current && !ok(e.target.value)) setError("Enter a postcode") }} />
+    }`,
+    // An error set after an await comes from a request, not from a check of the value.
+    `export function A() {
+      const [nameError, setNameError] = useState("");
+      return <Input onChange={async (e) => { const taken = await isTaken(e.target.value); if (taken) setNameError("That name is taken"); }} />;
+    }`,
+    // A state named for a count or what remains holds a limit message.
+    `export function A() {
+      const [remainingError, setRemainingError] = useState("");
+      return <Textarea onChange={(e) => setRemainingError(e.target.value.length > 180 ? "20 characters left" : "")} />;
+    }`,
   ],
   invalid: [
+    {
+      // The Don't: an error set on each key
+      code: `
+      export function A() {
+        const [error, setError] = useState("")
+        return <Input onChange={(e) => { if (!/^\\d{5}$/.test(e.target.value)) setError("Enter a five-digit postcode") }} />
+      }`,
+      errors: [{ messageId: "whileTyping" }],
+    },
+    {
+      // The same through a local helper
+      code: `
+      export function A() {
+        const [error, setError] = useState("")
+        const check = (v: string) => { if (!ok(v)) setError(\`"\${v}" is not a postcode\`) }
+        return <Input onChange={(e) => check(e.target.value)} />
+      }`,
+      errors: [{ messageId: "whileTyping" }],
+    },
+    {
+      // An await after the error is set does not make it a request's error.
+      code: `export function A() {
+        const [error, setError] = useState("");
+        return <Input onChange={async (e) => { if (!/^\\d{5}$/.test(e.target.value)) setError("Enter a 5-digit ZIP code"); await save(e.target.value); }} />;
+      }`,
+      errors: [{ messageId: "whileTyping" }],
+    },
     {
       // The Don't example: checked on every key press.
       code: `const valid = (v) => /^\\d{5}$/.test(v);

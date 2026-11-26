@@ -33,6 +33,11 @@
  *     the error, and server checks on each change: whether they add an
  *     error or only clear one takes judgement. The review skill covers them.
  *   - Options that are not written as an object literal in the call.
+ *   - An error set inside a `catch` or after an `await`, which comes from a
+ *     request, such as a search that fails, not from a check of the value;
+ *     a state named for a limit, count, remaining or length, which holds a
+ *     limit message (FRM-017c), not an error; and `setError` with an empty
+ *     `message`, which clears one.
  */
 import { defineRule } from "../lib/define-rule.js";
 import { attributeValue, elementName, getAttribute, importedNames, staticValue, unwrap, walk } from "../lib/jsx.js";
@@ -43,6 +48,8 @@ const TEXT_TYPES = new Set(["text", "email", "tel", "url", "search", "password",
 const CHANGE_HANDLERS = new Set(["onChange", "onInput"]);
 const FUNCTIONS = new Set(["FunctionExpression", "ArrowFunctionExpression", "FunctionDeclaration"]);
 const ERROR_STATE = /error/i;
+/** A state about a length limit is a count, not an error message (FRM-017c). */
+const NOT_ERROR_STATE = /limit|count|remaining|length/i;
 
 export default defineRule({
   id: "FRM-002b",
@@ -122,7 +129,7 @@ export default defineRule({
       const isUseState =
         init?.type === "CallExpression" &&
         (hook?.name === "useState" || (hook?.type === "MemberExpression" && hook.property.name === "useState"));
-      return isUseState && ERROR_STATE.test(state.name);
+      return isUseState && ERROR_STATE.test(state.name) && !NOT_ERROR_STATE.test(state.name);
     };
 
     /** Whether a value may be an error message. @param {any} node @param {number} [depth] @returns {boolean} */
@@ -225,8 +232,14 @@ export default defineRule({
             ? callee.property.name
             : undefined;
       // react-hook-form: setError(name, { type, message })
-      if (name === "setError" && call.arguments.length >= 2 && unwrap(call.arguments[1])?.type === "ObjectExpression")
-        return true;
+      const options = unwrap(call.arguments[1]);
+      if (name === "setError" && call.arguments.length >= 2 && options?.type === "ObjectExpression") {
+        // An empty message clears the error rather than setting one.
+        const message = options.properties.find(
+          (/** @type {any} */ p) => p.type === "Property" && !p.computed && p.key.name === "message",
+        );
+        return !message || staticValue(message.value) !== "";
+      }
       return isErrorSetter(callee) && call.arguments.length === 1 && mayBeMessage(call.arguments[0]);
     };
 
@@ -245,6 +258,23 @@ export default defineRule({
     };
 
     /**
+     * Whether a call in a function runs only after a request: inside a
+     * `catch`, or after an `await`. Such an error comes from a request,
+     * not from a check of the value the person types.
+     * @param {any} call @param {any} fn
+     */
+    const afterRequest = (call, fn) => {
+      for (let n = call.parent; n && n !== fn; n = n.parent) if (n.type === "CatchClause") return true;
+      let awaited = false;
+      walk(fn.body, sourceCode.visitorKeys, (n) => {
+        if (awaited || FUNCTIONS.has(n.type)) return false;
+        if (n.type === "AwaitExpression" && n.range[0] < call.range[1]) awaited = true;
+        return undefined;
+      });
+      return awaited;
+    };
+
+    /**
      * The first call in a handler that sets a new error while typing.
      * @param {any} fn @param {any} component @param {number} depth
      * @returns {any}
@@ -257,6 +287,7 @@ export default defineRule({
         if (found || FUNCTIONS.has(n.type)) return false;
         if (n.type !== "CallExpression") return undefined;
         if (setsError(n)) {
+          if (afterRequest(n, fn)) return undefined;
           const value = n.arguments.length === 1 ? n.arguments[0] : undefined;
           if (guardedOnlyByValue(n, fn, fn, component) && valueGuardedOnlyByValue(value, fn, component)) found = n;
         } else if (depth < 1 && unwrap(n.callee)?.type === "Identifier") {
