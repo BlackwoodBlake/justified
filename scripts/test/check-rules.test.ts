@@ -209,13 +209,37 @@ describe("check-rules", () => {
     });
 
     it("rejects a dead reference in the frontmatter too", () => {
-      expectProblem({ rules: { "actions/ACT-001.md": ruleText({ note: "Points to FRM-404." }) } }, /refers to FRM-404/);
+      expectProblem({ rules: { "actions/ACT-001.md": ruleText({ how: "A button that breaks FRM-404." }) } }, /refers to FRM-404/);
+    });
+
+    it("leaves ids in the changelog and in fenced code alone", () => {
+      const body = ruleText().split("---\n\n")[1].replace("None.", "None.\n\n```tsx\n// FRM-404\n```");
+      const r = run({ rules: { "actions/ACT-001.md": ruleText({ note: "Was FRM-404 before.", body }) } });
+      assert.equal(r.status, 0, r.out);
+    });
+
+    it("accepts a Don't heading with a curly apostrophe", () => {
+      const body = ruleText().split("---\n\n")[1].replace("## Don't", "## Don’t");
+      const r = run({ rules: { "actions/ACT-001.md": ruleText({ body }) } });
+      assert.equal(r.status, 0, r.out);
     });
   });
 
   describe("examples", () => {
     it("fails when a rule has no examples file", () => {
       expectProblem({ examples: { "stories/rules/ACT-001.stories.tsx": STORY } }, /examples\/rules\/ACT-001\.tsx is missing/);
+    });
+
+    it("accepts examples written with single quotes", () => {
+      const examples = { "rules/ACT-001.tsx": `export const ACT001 = { examples: [{ kind: 'do' }, { kind: 'dont' }] };\n`, "stories/rules/ACT-001.stories.tsx": STORY };
+      const r = run({ examples });
+      assert.equal(r.status, 0, r.out);
+    });
+
+    it("checks examples and lint rules when the repository's rules are named another way", () => {
+      const repo = join(import.meta.dirname, "..", "..");
+      const res = spawnSync(TSX, [SCRIPT, "--rules", "./rules/"], { cwd: repo, encoding: "utf8" });
+      assert.match(res.stdout + res.stderr, /lint covers part of it/);
     });
 
     it("fails when the examples have no Don't", () => {
