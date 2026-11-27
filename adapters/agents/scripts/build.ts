@@ -13,6 +13,13 @@
 ^ *     SKILL.md, checks/<area>.md, rules/   the rules: how to work and report,
  *                                          and every rule's how_to_check
  *
+ * With --compact, it also writes a shorter variant that is not part of the
+ * package yet (npm run build:compact):
+ *
+ *   dist/AGENTS-compact.md                 one line per rule: id, short name
+ *   dist/skills/justified-compact/         and title, grouped by area; the
+ *     SKILL.md, rules/<id>.md              full rules as above
+ *
  * The short files are what an agent keeps in mind; it opens a full rule
  * only when its work touches that rule. Reads
  * packages/patterns/dist/rules.json, so run the patterns build first (the
@@ -365,6 +372,56 @@ Change no code unless the person asks. When they do, fix what the report lists, 
 ${licence}
 `;
 
+// The compact variant: one line per rule, the title as the rule in brief, and
+// the full rule opened on demand. Behind --compact while it is measured.
+
+const mark = (r: Rule) => (r.verdict === "requirement" ? " [WCAG]" : r.level === "guideline" ? " [guideline]" : "");
+const brief = (r: Rule) => `- **${r.id}** ${r.short}: ${r.title}.${mark(r)}`;
+const byArea = areas.map((a) => `## ${a.label}\n\n${inArea(a.area).map(brief).join("\n")}`).join("\n\n");
+
+const compactIntro = (where: string) => `These are the behaviour rules of Justified by Blackwood & Blake for shadcn apps: ${total}, one line each, grouped by area. Following them helps you work toward WCAG 2.2 AA. It does not make a product compliant and is not a certification.
+
+## How to use this file
+
+- Use it whenever you build, change or review interface code.
+- Each line gives a rule's id, its short name and the rule in brief. Many say first which situation they cover; where the code has no such situation, the rule does not apply.
+- A line is not enough to follow its rule. Before you write or review code that a line covers, read the full rule: ${where} It holds the rule in full, Why, Do, Don't, Exceptions and How to check. Apply the exceptions only as written.
+- Prefer Justified's components where they exist; they already follow the rules. Install them with the shadcn CLI, for example \`npx shadcn@latest add ${SITE}/r/field.json\`.
+- When you review code, name each rule by its id, for example "FRM-002a".
+
+## Rules and guidelines
+
+A line marked [WCAG] is a rule that WCAG 2.2 Level AA requires. An unmarked line is a rule that most or all of the design systems behind Justified support. A line marked [guideline] is our own choice. Each full rule gives its verdict: how strongly WCAG and those design systems agree.
+
+- **A rule that WCAG requires:** follow it. If the person you work for asks for something else, do what they ask, and tell them which WCAG 2.2 criterion is involved, by number and name, as the full rule gives it.
+- **Any other rule:** follow it. If the person you work for asks for something else, do what they ask, and tell them which rule it departs from and why the rule exists.
+- **A guideline:** follow it where the project has no convention of its own. Where the project already does it another way, keep the project's way and say nothing.
+- **When two apply:** a rule that WCAG requires comes before other rules, a narrower rule before a wider one, and any rule before a guideline.`;
+
+const compactSkill = `---
+name: justified
+description: Behaviour rules from Justified by Blackwood & Blake for shadcn apps. Use when building, changing or reviewing interface code with forms, fields, labels, validation, input types, paste, buttons, links, dialogs, toasts, error messages, loading states, tooltips, hover and pressed states, keyboard focus, shortcuts, page language, zoom or layout.
+---
+
+# Justified behaviour rules
+
+${compactIntro(`\`rules/<id>.md\` next to this file, with the id in lower case, such as \`rules/frm-002a.md\` for FRM-002a, or, if that folder was not installed, ${SITE}/agents/rules/frm-002a.md.`)}
+- To review a change or a folder against every rule, use the \`justified-review\` skill if it is installed.
+
+${byArea}
+
+${licence}
+`;
+
+const compactAgents = `# Justified behaviour rules
+
+${compactIntro(`${SITE}/agents/rules/<id>.md, with the id in lower case, such as ${SITE}/agents/rules/frm-002a.md for FRM-002a.`)}
+
+${byArea}
+
+${licence}
+`;
+
 rmSync(out, { recursive: true, force: true });
 const ruleDirs = [join(out, "rules"), ...["justified", "justified-review"].map((s) => join(out, "skills", s, "rules"))];
 for (const dir of ruleDirs) {
@@ -378,6 +435,14 @@ writeFileSync(join(reviewDir, "SKILL.md"), review);
 for (const a of areas) writeFileSync(join(reviewDir, "checks", `${a.area}.md`), checkFile(a));
 writeFileSync(join(out, "AGENTS.md"), agents);
 writeFileSync(join(out, "AGENTS-full.md"), full);
+const compact = process.argv.includes("--compact");
+if (compact) {
+  const dir = join(out, "skills", "justified-compact");
+  mkdirSync(join(dir, "rules"), { recursive: true });
+  for (const r of rules) writeFileSync(join(dir, "rules", file(r)), one(r));
+  writeFileSync(join(dir, "SKILL.md"), compactSkill);
+  writeFileSync(join(out, "AGENTS-compact.md"), compactAgents);
+}
 console.log(
-  `agents: wrote SKILL.md, justified-review (SKILL.md and ${areas.length} check files), AGENTS.md, AGENTS-full.md and ${rules.length} rule file(s) (${total})`,
+  `agents: wrote SKILL.md, justified-review (SKILL.md and ${areas.length} check files), AGENTS.md, AGENTS-full.md${compact ? ", the compact SKILL.md and AGENTS-compact.md" : ""} and ${rules.length} rule file(s) (${total})`,
 );
