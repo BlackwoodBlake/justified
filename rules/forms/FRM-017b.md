@@ -4,7 +4,7 @@ title: State a free-text field's length limit and show how much is used
 short: Length limit shown
 area: forms
 status: proposed
-version: "1.0.0"
+version: "1.0.1"
 verdict: insufficient-evidence
 judges: { spoken: 1, agreeing: 1 }
 law:
@@ -23,12 +23,15 @@ stances:
   govuk:    { stance: supports, sources: [govuk-character-count] }
   nngroup:  { stance: silent }
 conflicts_checked: 2026-11-26
-check: lint
+check: review
 how_to_check:
   - '`maxLength` on a `<Textarea>` or a free-text `<Input>` with no limit in its label or hint, or with no count anywhere in the field''s markup.'
   - 'A limit only in a schema, such as `z.string().max(500)`, with no limit stated and no count shown before the form is sent.'
   - 'A count such as `{value.length}/500` in a `<span>` that the field does not point to with `aria-describedby`.'
 changelog:
+  - version: "1.0.1"
+    date: 2026-11-26
+    note: Checked by review, since no lint rule covers it. No change in what the guideline asks.
   - version: "1.0.0"
     date: 2026-11-26
     note: First version.

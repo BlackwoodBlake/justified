@@ -4,7 +4,7 @@ title: Keep what people enter in a longer page form when they leave, and show th
 short: Keep work on leaving
 area: forms
 status: proposed
-version: "1.0.0"
+version: "1.0.1"
 verdict: insufficient-evidence
 judges: { spoken: 1, agreeing: 1 }
 law:
@@ -31,6 +31,9 @@ how_to_check:
   - 'A save with no status shown near the form, a "Saved" that shows before the server has answered, or a delayed save that is dropped when the route changes or the tab closes.'
   - 'A draft in the browser''s storage that holds a password, a card number or a one-time code.'
 changelog:
+  - version: "1.0.1"
+    date: 2026-11-26
+    note: No possessive on a source's name. No change in what the guideline asks.
   - version: "1.0.0"
     date: 2026-11-26
     note: First version.
@@ -46,7 +49,7 @@ A question before leaving, as FRM-004c asks, protects the work only at the momen
 
 ## Our reasons
 
-Fewer than two judges have spoken about keeping work on pages, so the verdict is Insufficient evidence (1 of 3 judges spoke) and this guideline is our choice. Apple supports keeping the work; showing that it is kept rests on NN/g, not on Apple. GOV.UK and NN/g support the guideline as expert witnesses who do not vote. That Apple's stance carries to the web is our own reading. We keep the work for four reasons.
+Fewer than two judges have spoken about keeping work on pages, so the verdict is Insufficient evidence (1 of 3 judges spoke) and this guideline is our choice. Apple supports keeping the work; showing that it is kept rests on NN/g, not on Apple. GOV.UK and NN/g support the guideline as expert witnesses who do not vote. That the Apple stance also holds on the web is our own reading. We keep the work for four reasons.
 
 - **A question does not cover every way out.** The browser decides whether its leave prompt shows, and a crash or a lost connection shows nothing. Only work that is already kept is safe in all those cases.
 - **It costs the person nothing.** A question costs a step each time someone leaves with changes. A kept draft costs no step, and the person who comes back finds their work.

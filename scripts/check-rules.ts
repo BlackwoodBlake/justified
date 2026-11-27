@@ -27,13 +27,28 @@
  * "partial" is allowed in an analysis, never in a rule file: narrow the
  * rule until each judge either supports or opposes it.
  *
+ * It also checks what the rules point to:
+ *
+ *   - Every criterion in `law` is a WCAG 2.2 success criterion, with its own
+ *     name and link (scripts/wcag.ts). Only a Level A or AA criterion can
+ *     make a rule a Requirement.
+ *   - Every rule id named in a rule (frontmatter or body) is a rule.
+ *   - Every rule has its live examples, with a Do and a Don't, and its
+ *     stories (examples/rules/<ID>.tsx and examples/stories/rules/).
+ *   - A rule with `check: lint` has a lint rule in packages/eslint, and
+ *     every lint rule is for a rule. A lint rule for a rule checked another
+ *     way is allowed, since it may cover the part of the rule that is
+ *     certain in code; each such pair is printed as a note.
+ *
  * Exit code: 0 = all good, 1 = problems found, 2 = setup error.
  */
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { basename, dirname, extname, join, relative } from "node:path";
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { basename, dirname, extname, join, relative, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { parse } from "yaml";
 
 import { deriveLevel, RULE_WORD_LIMIT, ruleWords } from "./level.ts";
+import { criterionUrl, WCAG22 } from "./wcag.ts";
 
 // ---------------------------------------------------------------- fixed terms
 
@@ -70,7 +85,6 @@ const AREA_LABELS: Record<string, string> = {
   visual: "Colour and motion",
 };
 const SHORT_MAX = 30;
-const shorts = new Map<string, string>();
 
 const SYSTEMS = {
   wcag: "law",
@@ -91,19 +105,35 @@ const VERDICTS = ["requirement", "unanimous", "majority", "split", "insufficient
 const CHECKS = ["lint", "runtime", "review", "manual"];
 const HOW_TO_CHECK_MAX = 5;
 const HOW_TO_CHECK_WORDS = 50;
+/** Every key a rule's frontmatter may hold. Anything else is a typo or a field no script reads. */
+const KEYS = [
+  "id", "title", "short", "area", "status", "version", "verdict", "judges", "law",
+  "stances", "conflicts_checked", "check", "how_to_check", "changelog",
+];
+/** The sections every rule body has (WRITING.md, templates/rule.md). A guideline adds "Our reasons". */
+const SECTIONS = ["Rule", "Why", "Do", "Don't", "Exceptions"];
+/** Files in the rules folder that are not rules. */
+const NOT_RULES = [".gitkeep", ".DS_Store"];
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const SEMVER = /^\d+\.\d+\.\d+$/;
 const RULE_ID = /^([A-Z]{3})-\d{3}[a-z]?$/;
+/** A rule id in running text, such as "see FRM-004c". */
+const RULE_REF = /\b([A-Z]{3})-\d{3}[a-z]?\b/g;
 const SOURCE_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CRITERION = /^\d\.\d\.\d{1,2}$/;
 
 // ---------------------------------------------------------------- options
 
-type Options = { rules: string; sources: string };
+/**
+ * `examples` is the Storybook workspace and `eslint` the lint plugin's
+ * index.js. With the default rules folder they default to the ones in this
+ * repository. With another rules folder they are checked only when given.
+ */
+type Options = { rules: string; sources: string; examples: string | null; eslint: string | null };
 
 function parseArgs(argv: string[]): Options {
-  const opts: Options = { rules: "rules", sources: "sources/sources.yaml" };
+  const opts: Partial<Options> = {};
   for (let i = 0; i < argv.length; i++) {
     const flag = argv[i];
     const value = argv[i + 1];
@@ -111,11 +141,21 @@ function parseArgs(argv: string[]): Options {
     switch (flag) {
       case "--rules": opts.rules = value; break;
       case "--sources": opts.sources = value; break;
+      case "--examples": opts.examples = value; break;
+      case "--eslint": opts.eslint = value; break;
       default: fail(`Unknown option ${flag}`);
     }
     i++;
   }
-  return opts;
+  const rules = opts.rules ?? "rules";
+  // Compared as real paths, so ./rules or an absolute path to this repository's rules counts too.
+  const own = existsSync(rules) && existsSync("rules") && realpathSync(rules) === realpathSync("rules");
+  return {
+    rules,
+    sources: opts.sources ?? "sources/sources.yaml",
+    examples: opts.examples ?? (own ? "examples" : null),
+    eslint: opts.eslint ?? (own ? "packages/eslint/index.js" : null),
+  };
 }
 
 function fail(message: string): never {
@@ -148,12 +188,14 @@ function isHttps(v: unknown): boolean {
   }
 }
 
-function listMarkdown(dir: string): string[] {
+/** Every rule file. Any other file is a problem, so a rule saved as .MD or .markdown is never skipped. */
+function listMarkdown(dir: string, problems: Problems): string[] {
   const out: string[] = [];
   for (const entry of readdirSync(dir)) {
     const path = join(dir, entry);
-    if (statSync(path).isDirectory()) out.push(...listMarkdown(path));
+    if (statSync(path).isDirectory()) out.push(...listMarkdown(path, problems));
     else if (extname(path) === ".md") out.push(path);
+    else if (!NOT_RULES.includes(entry)) problems.push(`${path}: a file in the rules folder must end in .md`);
   }
   return out.sort();
 }
@@ -234,7 +276,51 @@ function frontmatter(text: string): unknown {
   return m ? parse(m[1]) : undefined;
 }
 
-function checkRule(file: string, rulesDir: string, sources: Map<string, Source>, ids: Map<string, string>, problems: Problems, warnings: Problems) {
+type Context = {
+  rulesDir: string;
+  examples: string | null;
+  sources: Map<string, Source>;
+  ids: Map<string, string>;
+  shorts: Map<string, string>;
+  /** Each rule's check and the rule ids its text names, for the checks that need every rule. */
+  rules: Map<string, { file: string; check: unknown; refs: Set<string> }>;
+  problems: Problems;
+  warnings: Problems;
+};
+
+/**
+ * The rule ids a rule names, other than its own: in the frontmatter's
+ * values and in the body. Only ids with a known area prefix count. The
+ * changelog and fenced code are left out, since history may name an id
+ * that was retired or renamed and a code sample may hold any id.
+ */
+function references(fm: Obj, text: string, own: string): Set<string> {
+  const body = text.replace(/^---\n[\s\S]*?\n---\n/, "").replace(/^```[\s\S]*?^```/gm, "");
+  const values = JSON.stringify({ ...fm, changelog: undefined });
+  const refs = new Set<string>();
+  for (const m of `${values}\n${body}`.matchAll(RULE_REF)) if (m[1] in AREAS && m[0] !== own) refs.add(m[0]);
+  return refs;
+}
+
+/** Every rule has live examples with at least one Do and one Don't, and stories titled by area and short name. */
+function checkExamples(fm: Obj, examples: string, p: (msg: string) => void) {
+  const file = join(examples, "rules", `${fm.id}.tsx`);
+  if (!existsSync(file)) p(`${file} is missing: every rule has live examples (see examples/rules/)`);
+  else {
+    const code = readFileSync(file, "utf8");
+    if (!/kind:\s*["']do["']/.test(code) || !/kind:\s*["']dont["']/.test(code)) p(`${file} needs at least one Do and one Don't`);
+  }
+  const stories = join(examples, "stories", "rules", `${fm.id}.stories.tsx`);
+  if (!existsSync(stories)) return p(`${stories} is missing: every rule has stories in Storybook`);
+  // A rule's stories sit in the menu under its area and short name.
+  if (isText(fm.area) && isText(fm.short)) {
+    const want = `title: "Rules/${AREA_LABELS[fm.area] ?? fm.area}/${fm.id} ${fm.short}"`;
+    if (!readFileSync(stories, "utf8").includes(want)) p(`${stories} must have ${want}`);
+  }
+}
+
+function checkRule(file: string, ctx: Context) {
+  const { rulesDir, sources, ids, shorts, problems, warnings } = ctx;
   let fm: unknown;
   const text = readFileSync(file, "utf8");
   try {
@@ -245,6 +331,9 @@ function checkRule(file: string, rulesDir: string, sources: Map<string, Source>,
   }
   if (!isObj(fm)) return problems.push(`${file}: frontmatter is missing`);
   const p = (msg: string) => problems.push(`${file}: ${msg}`);
+
+  for (const key of Object.keys(fm)) if (!KEYS.includes(key)) p(`unknown frontmatter key "${key}" (known: ${KEYS.join(", ")})`);
+  if (isText(fm.id)) ctx.rules.set(fm.id, { file, check: fm.check, refs: references(fm, text, fm.id) });
 
   // id, file name and area
   const id = fm.id;
@@ -270,13 +359,8 @@ function checkRule(file: string, rulesDir: string, sources: Map<string, Source>,
     if (fm.short.length > SHORT_MAX) p(`short must be ${SHORT_MAX} characters at most`);
     if (shorts.has(fm.short)) p(`short "${fm.short}" is also used by ${shorts.get(fm.short)}`);
     shorts.set(fm.short, file);
-    // A rule's stories sit in the menu under its area and short name.
-    const stories = join("examples/stories/rules", `${fm.id}.stories.tsx`);
-    if (rulesDir === "rules" && existsSync(stories) && isText(fm.area)) {
-      const want = `title: "Rules/${AREA_LABELS[fm.area] ?? fm.area}/${fm.id} ${fm.short}"`;
-      if (!readFileSync(stories, "utf8").includes(want)) p(`${stories} must have ${want}`);
-    }
   }
+  if (ctx.examples && isText(fm.id)) checkExamples(fm, ctx.examples, p);
   if (!STATUSES.includes(fm.status as string)) p(`status must be one of ${STATUSES.join(", ")}`);
   if (!isText(fm.version) || !SEMVER.test(fm.version)) p('version must be semver in quotes, for example "1.0.0"');
   // The changelog is newest first and starts at the rule's own version; the website reads its dates that way.
@@ -316,11 +400,17 @@ function checkRule(file: string, rulesDir: string, sources: Map<string, Source>,
   else
     law.forEach((c, i) => {
       if (!isObj(c)) return p(`law[${i}] must be a mapping`);
-      if (!isText(c.criterion) || !CRITERION.test(c.criterion)) p(`law[${i}].criterion must be a quoted number such as "3.3.1"`);
-      if (!isText(c.name)) p(`law[${i}].name is missing`);
-      if (!isHttps(c.url) || !String(c.url).startsWith("https://www.w3.org/")) p(`law[${i}].url must link to the criterion on w3.org`);
-      if (c.relation === "requires") requiredByLaw = true;
-      else if (c.relation !== "supports") p(`law[${i}].relation must be "requires" or "supports"`);
+      if (c.relation !== "requires" && c.relation !== "supports") p(`law[${i}].relation must be "requires" or "supports"`);
+      if (!isText(c.criterion) || !CRITERION.test(c.criterion)) return p(`law[${i}].criterion must be a quoted number such as "3.3.1"`);
+      const known = WCAG22.get(c.criterion);
+      if (!known) return p(`law[${i}].criterion ${c.criterion} is not a WCAG 2.2 success criterion`);
+      if (c.name !== known.name) p(`law[${i}].name must be "${known.name}" for ${c.criterion}`);
+      if (c.url !== criterionUrl(known)) p(`law[${i}].url must be ${criterionUrl(known)}`);
+      if (c.relation === "requires") {
+        // Our law is Level AA: a Level AAA criterion may support a rule but never make it a Requirement.
+        if (known.level === "AAA") p(`law[${i}]: ${c.criterion} is Level AAA, so it cannot make the rule a Requirement; use relation: supports`);
+        else requiredByLaw = true;
+      }
     });
 
   // stances
@@ -363,6 +453,14 @@ function checkRule(file: string, rulesDir: string, sources: Map<string, Source>,
     }
   }
 
+  // body
+  const body = text.replace(/^---\n[\s\S]*?\n---\n/, "");
+  for (const name of SECTIONS) {
+    const heading = name.replace("'", "['’]"); // a straight or a curly apostrophe in "Don't"
+    const section = body.match(new RegExp(`^## ${heading}\\n([\\s\\S]*?)(?=^## |(?![\\s\\S]))`, "m"));
+    if (!section || !section[1].trim()) p(`the "## ${name}" section is missing or empty`);
+  }
+
   // verdict
   if (!VERDICTS.includes(fm.verdict as string)) p(`verdict must be one of ${VERDICTS.join(", ")}`);
   const judges = fm.judges;
@@ -376,7 +474,6 @@ function checkRule(file: string, rulesDir: string, sources: Map<string, Source>,
     p(`judges must be { spoken: ${derived.spoken}, agreeing: ${derived.agreeing} } to match the stances`);
 
   // level
-  const body = text.replace(/^---\n[\s\S]*?\n---\n/, "");
   if (deriveLevel(derived.verdict) === "guideline") {
     if (!/^## Our reasons$/m.test(body)) p('a guideline (Split or Insufficient evidence) needs an "Our reasons" section');
     const supporters = STANCE_SYSTEMS.filter((s) => (stances as Record<string, { stance?: string }>)[s]?.stance === "supports").length;
@@ -384,24 +481,68 @@ function checkRule(file: string, rulesDir: string, sources: Map<string, Source>,
       p("a guideline needs at least one judge or witness who supports it");
   }
   const words = ruleWords(body);
-  if (words === 0) p('the "## Rule" section is missing or empty');
-  else if (words > RULE_WORD_LIMIT) warnings.push(`${file}: the rule is ${words} words; aim for ${RULE_WORD_LIMIT} or fewer`);
+  if (words > RULE_WORD_LIMIT) warnings.push(`${file}: the rule is ${words} words; aim for ${RULE_WORD_LIMIT} or fewer`);
 }
 
 // ---------------------------------------------------------------- main
 
-function main() {
+/** The Justified id each lint rule rests on, from the plugin's own metadata. */
+async function lintIds(path: string): Promise<Map<string, string>> {
+  let plugin: { rules?: Record<string, { meta?: { docs?: { justifiedId?: unknown } } }> };
+  try {
+    plugin = (await import(pathToFileURL(resolve(path)).href)).default;
+  } catch (e) {
+    fail(`could not load the lint plugin ${path} (${(e as Error).message.split("\n")[0]})`);
+  }
+  const out = new Map<string, string>();
+  for (const [name, rule] of Object.entries(plugin.rules ?? {})) out.set(name, String(rule.meta?.docs?.justifiedId));
+  return out;
+}
+
+/** `check: lint` must have a lint rule, and a lint rule must rest on a rule. */
+function checkLint(lint: Map<string, string>, ctx: Context, notes: string[]) {
+  const linted = new Map<string, string[]>();
+  for (const [name, id] of lint) {
+    if (!ctx.rules.has(id)) ctx.problems.push(`lint rule ${name} is for ${id}, which is not a rule`);
+    else linted.set(id, [...(linted.get(id) ?? []), name]);
+  }
+  for (const [id, { file, check }] of ctx.rules) {
+    const names = linted.get(id);
+    if (check === "lint" && !names)
+      ctx.problems.push(`${file}: check is lint but no lint rule in packages/eslint is for ${id}; add one or name the layer that finds a break (WRITING.md)`);
+    // Allowed: the lint rule covers the part of the rule that is certain in code, and `check` names the layer for the rest.
+    if (check !== "lint" && names) notes.push(`${id}: check is ${check}, and lint covers part of it (${names.join(", ")})`);
+  }
+}
+
+async function main() {
   const opts = parseArgs(process.argv.slice(2));
   if (!existsSync(opts.rules)) fail(`Rules folder not found: ${opts.rules}`);
   if (!existsSync(opts.sources)) fail(`Source register not found: ${opts.sources}`);
+  if (opts.examples && !existsSync(opts.examples)) fail(`Examples folder not found: ${opts.examples}`);
 
   const problems: Problems = [];
-  const sources = checkSources(opts.sources, problems);
-  const ruleFiles = listMarkdown(opts.rules);
-  const ids = new Map<string, string>();
   const warnings: Problems = [];
-  for (const file of ruleFiles) checkRule(file, opts.rules, sources, ids, problems, warnings);
+  const notes: string[] = [];
+  const ctx: Context = {
+    rulesDir: opts.rules,
+    examples: opts.examples,
+    sources: checkSources(opts.sources, problems),
+    ids: new Map(),
+    shorts: new Map(),
+    rules: new Map(),
+    problems,
+    warnings,
+  };
+  const ruleFiles = listMarkdown(opts.rules, problems);
+  for (const file of ruleFiles) checkRule(file, ctx);
+  for (const [id, { file, refs }] of ctx.rules)
+    for (const ref of refs) if (!ctx.rules.has(ref)) problems.push(`${file}: refers to ${ref}, which is not a rule (${id})`);
+  if (opts.eslint) checkLint(await lintIds(opts.eslint), ctx, notes);
+
+  for (const note of notes) console.log(`note: ${note}`);
   for (const warning of warnings) console.log(`warning: ${warning}`);
+  const { sources } = ctx;
 
   if (problems.length === 0) {
     console.log(`check-rules: all good (${ruleFiles.length} rules, ${sources.size} sources)`);
@@ -412,4 +553,4 @@ function main() {
   process.exit(1);
 }
 
-main();
+await main();

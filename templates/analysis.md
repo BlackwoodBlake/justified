@@ -16,7 +16,7 @@ stances:
     alternative: null         # the source's own position when it opposes, for a reverse trial
     anchor: null              # section link on the page, for example "#alignment"
     confidence: high          # high | medium | low
-    platform_note: null       # Apple: say when web differs from Apple's platforms
+    platform_note: null       # Apple: say when web differs from the Apple platforms
   - source: null
     system: material
     stance: silent
