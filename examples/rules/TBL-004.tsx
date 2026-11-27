@@ -161,7 +161,7 @@ function FilteredHeading() {
   );
 }
 
-function Untied({ label }: { label?: string }) {
+function HeadingNotTied() {
   const title = useId();
   const scope = useRef<HTMLDivElement>(null);
   return (
@@ -170,7 +170,42 @@ function Untied({ label }: { label?: string }) {
         Stock below reorder level
       </h4>
       {/* The scroll area has a generic name on purpose: LAY-001 needs one, and naming it after the heading would tie the two, which is what this Don't leaves out. */}
-      <Table scrollLabelledBy={label ? title : undefined} scrollLabel={label ? undefined : "Scrollable table area"} aria-label={label}>
+      <Table scrollLabel="Scrollable table area">
+        <TableHeader>
+          <TableRow>
+            <TableHead scope="col">Item</TableHead>
+            <TableHead scope="col">On hand</TableHead>
+            <TableHead scope="col">Reorder level</TableHead>
+            <TableHead scope="col">Supplier</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {STOCK.map((s) => (
+            <TableRow key={s.item}>
+              <TableHead scope="row" className="h-auto py-2 font-normal text-foreground">
+                {s.item}
+              </TableHead>
+              <TableCell className="tabular-nums">{s.onHand}</TableCell>
+              <TableCell className="tabular-nums">{s.level}</TableCell>
+              <TableCell>{s.supplier}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <TableNames scope={scope} />
+    </div>
+  );
+}
+
+function LabelDiffers() {
+  const title = useId();
+  const scope = useRef<HTMLDivElement>(null);
+  return (
+    <div ref={scope} className={stack}>
+      <h4 id={title} className="m-0 text-base font-semibold">
+        Stock below reorder level
+      </h4>
+      <Table scrollLabelledBy={title} aria-label="Inventory grid">
         <StockRows />
       </Table>
       <TableNames scope={scope} />
@@ -214,7 +249,7 @@ export const TBL004: RuleExamples = {
           the page&apos;s tables gives &ldquo;table&rdquo;, and on a page with two such tables a person cannot tell them apart.
         </>
       ),
-      Demo: () => <Untied />,
+      Demo: HeadingNotTied,
     },
     {
       kind: "dont",
@@ -226,7 +261,9 @@ export const TBL004: RuleExamples = {
           for the visible words does not find it.
         </>
       ),
-      Demo: () => <Untied label="Inventory grid" />,
+      notLinted:
+        "Lint gap: the table has an aria-label written out, and whether it matches the visible title takes the page and a judgement.",
+      Demo: LabelDiffers,
     },
   ],
 };

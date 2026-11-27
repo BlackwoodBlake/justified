@@ -28,12 +28,7 @@ const start: Attachment[] = [
   { name: "floor-plan.png", size: "1.2 MB", failed: true },
 ];
 
-type Names = {
-  remove: (file: string) => string;
-  retry: (file: string) => string;
-};
-
-function Draft({ names }: { names: Names }) {
+function useDraft() {
   const [files, setFiles] = useState(start);
   const [said, setSaid] = useState("");
   // Where focus should go after the list changes: a file's bin, or the reset button.
@@ -87,6 +82,11 @@ function Draft({ names }: { names: Names }) {
     setFocusNext(`remove-${start[0].name}`);
   };
 
+  return { files, said, removed, scene, retry, remove, undo, reset };
+}
+
+function Do() {
+  const { files, said, removed, scene, retry, remove, undo, reset } = useDraft();
   return (
     <div ref={scene} className="flex w-full max-w-sm flex-col items-center gap-3">
       <NameReadout>
@@ -109,7 +109,7 @@ function Draft({ names }: { names: Names }) {
                           variant="outline"
                           size="sm"
                           className="mt-2"
-                          aria-label={names.retry(f.name)}
+                          aria-label={`Try again, upload ${f.name}`}
                           onClick={() => retry(f.name)}
                         >
                           Try again
@@ -125,7 +125,7 @@ function Draft({ names }: { names: Names }) {
                     variant="ghost"
                     size="icon"
                     data-focus={`remove-${f.name}`}
-                    aria-label={names.remove(f.name)}
+                    aria-label={`Remove attachment ${f.name}`}
                     onClick={() => remove(f.name)}
                   >
                     <TrashIcon />
@@ -153,22 +153,72 @@ function Draft({ names }: { names: Names }) {
   );
 }
 
-const named: Names = {
-  remove: (file) => `Remove attachment ${file}`,
-  retry: (file) => `Try again, upload ${file}`,
-};
-
-const misnamed: Names = {
-  remove: () => "Bin",
-  retry: () => "Resend file",
-};
-
-function Do() {
-  return <Draft names={named} />;
-}
-
 function Dont() {
-  return <Draft names={misnamed} />;
+  const { files, said, removed, scene, retry, remove, undo, reset } = useDraft();
+  return (
+    <div ref={scene} className="flex w-full max-w-sm flex-col items-center gap-3">
+      <NameReadout>
+        <div className="rounded-lg border border-border bg-background p-4">
+          <h4 className="m-0 text-sm font-semibold">Attachments</h4>
+          {files.length > 0 ? (
+            <ul className="m-0 mt-3 flex list-none flex-col gap-3 p-0">
+              {files.map((f) => (
+                <li key={f.name} className="flex items-start gap-2">
+                  <div className="min-w-0 flex-1 pt-2.5 text-sm">
+                    {f.failed ? (
+                      <>
+                        <p className="m-0 flex items-start gap-1.5 font-medium text-destructive">
+                          <AlertIcon className="mt-0.5 size-4 shrink-0" />
+                          <span className="min-w-0 break-words">
+                            {f.name} could not be uploaded. The connection dropped. Try again.
+                          </span>
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mt-2"
+                          aria-label="Resend file"
+                          onClick={() => retry(f.name)}
+                        >
+                          Try again
+                        </Button>
+                      </>
+                    ) : (
+                      <p className="m-0 break-words">
+                        {f.name}, <span className="text-muted-foreground">{f.size}</span>
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    data-focus={`remove-${f.name}`}
+                    aria-label="Bin"
+                    onClick={() => remove(f.name)}
+                  >
+                    <TrashIcon />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm">
+              <p className="m-0 text-muted-foreground">No files attached.</p>
+              <Button variant="outline" size="sm" data-focus="reset" onClick={reset}>
+                Reset example
+              </Button>
+            </div>
+          )}
+        </div>
+      </NameReadout>
+      <Outcome>{said}</Outcome>
+      {removed && (
+        <Button variant="outline" size="sm" aria-label={`Undo removing ${removed.file.name}`} onClick={undo}>
+          Undo
+        </Button>
+      )}
+    </div>
+  );
 }
 
 export const ACT001b: RuleExamples = {

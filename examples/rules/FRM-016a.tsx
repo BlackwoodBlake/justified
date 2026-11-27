@@ -5,7 +5,7 @@ import { RadioGroup, RadioGroupItem } from "@blackwoodblake/justified-shadcn/rad
 import { useId, useState } from "react";
 
 import type { RuleExamples } from "./frame";
-import { DeadWords, Scene, Tally, useTally } from "./label-target";
+import { Scene, Tally, useTally } from "./label-target";
 
 /*
  * FRM-016a: a press on the text of a checkbox or radio button does what a
@@ -59,7 +59,13 @@ function CabinDont() {
   const t = useTally();
   return (
     <Scene title="Night crossing">
-      <div className="flex items-start gap-3">
+      <div
+        className="flex items-start gap-3"
+        // Only the tally: counts presses on the words, so the count can rise while nothing changes.
+        onClick={(e) => {
+          if ((e.target as HTMLElement).id === id) t.pressedWords();
+        }}
+      >
         <div className="flex h-5 items-center">
           <Checkbox
             aria-labelledby={id}
@@ -70,9 +76,9 @@ function CabinDont() {
             }}
           />
         </div>
-        <DeadWords id={id} onPress={t.pressedWords}>
-          {CABIN}
-        </DeadWords>
+        <span id={id} className="text-sm font-medium text-foreground select-none">
+          Add a cabin for the night crossing
+        </span>
       </div>
       <Tally
         summary={<>Cabin: <strong>{on ? "added" : "not added"}</strong></>}

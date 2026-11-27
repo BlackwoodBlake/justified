@@ -15,6 +15,10 @@
  *     reaches alone fails too, since that code is shared with Do examples.
  *   - A report in code only Don'ts reach is a catch. The test prints, per
  *     lint rule, how many of its own rule's Don't examples it catches.
+ *   - Every Don't in a file whose rule has a lint rule must be caught by
+ *     it, unless the example gives `notLinted` a reason (the real code
+ *     would change the page it is shown on, for example). A caught Don't
+ *     must not keep a reason.
  */
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
@@ -57,7 +61,9 @@ const idOf = (ruleId) => /** @type {any} */ (plugin.rules[ruleId.replace(/^justi
 it("reports nothing in Do examples or shared code, and prints the Don't hit rate", () => {
   const problems = [];
   /** Per Justified id: Don't examples in its own file, and how many its lint rules catch. */
-  const rate = new Map(Object.values(plugin.rules).map((r) => [/** @type {any} */ (r.meta.docs).justifiedId, { donts: 0, caught: 0, other: [] }]));
+  const rate = new Map(Object.values(plugin.rules).map((r) => [/** @type {any} */ (r.meta.docs).justifiedId, { donts: 0, caught: 0, notLinted: 0, other: [] }]));
+  /** Don'ts their own lint rule misses with no reason given, and reasons left on caught ones. */
+  const missed = [];
 
   for (const path of files) {
     const code = readFileSync(path, "utf8");
@@ -82,9 +88,17 @@ it("reports nothing in Do examples or shared code, and prints the Don't hit rate
       else if (idOf(m.ruleId) !== fileId) rate.get(idOf(m.ruleId))?.other.push(`${fileId} "${inDont.title}"`);
     }
     const entry = rate.get(fileId);
+    for (const e of examples)
+      if (e.notLinted && (e.kind === "do" || !entry)) missed.push(`${filename}: "${e.title}" has notLinted, which only a Don't of a rule with a lint rule may have`);
     if (entry) {
+      const caught = (e) => messages.some((m) => idOf(m.ruleId) === fileId && inside(m.line, e.ranges));
       entry.donts += donts.length;
-      entry.caught += donts.filter((e) => messages.some((m) => idOf(m.ruleId) === fileId && inside(m.line, e.ranges))).length;
+      entry.caught += donts.filter(caught).length;
+      entry.notLinted += donts.filter((e) => e.notLinted).length;
+      for (const e of donts) {
+        if (!caught(e) && !e.notLinted) missed.push(`${filename}: the Don't "${e.title}" is not caught by its own lint rule; write the code out, or give notLinted a reason`);
+        if (caught(e) && e.notLinted) missed.push(`${filename}: the Don't "${e.title}" is caught, so drop its notLinted`);
+      }
     }
   }
 
@@ -92,8 +106,10 @@ it("reports nothing in Do examples or shared code, and prints the Don't hit rate
   for (const [name, rule] of Object.entries(plugin.rules)) {
     const id = /** @type {any} */ (rule.meta.docs).justifiedId;
     const r = rate.get(id);
-    out.push(`  justified/${name} (${id}): ${r.caught} of ${r.donts}${r.other.length ? `; also in ${r.other.join(", ")}` : ""}`);
+    const reasons = r.notLinted ? ` (${r.notLinted} not lintable)` : "";
+    out.push(`  justified/${name} (${id}): ${r.caught} of ${r.donts}${reasons}${r.other.length ? `; also in ${r.other.join(", ")}` : ""}`);
   }
   console.log(out.join("\n"));
   assert.deepEqual(problems, []);
+  assert.deepEqual(missed, []);
 });

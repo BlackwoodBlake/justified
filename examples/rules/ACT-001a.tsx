@@ -23,7 +23,7 @@ function useOutcome() {
   return [said, say] as const;
 }
 
-function Booking({ back, go }: { back: string; go: string }) {
+function Do() {
   const [said, say] = useOutcome();
   return (
     <div className="flex w-full flex-col items-center gap-3">
@@ -32,9 +32,9 @@ function Booking({ back, go }: { back: string; go: string }) {
         footer={
           <>
             <Button variant="outline" onClick={say("Not booked. Nothing has changed.")}>
-              {back}
+              Cancel
             </Button>
-            <Button onClick={say("Booked for Tuesday 16 March at 9:30.")}>{go}</Button>
+            <Button onClick={say("Booked for Tuesday 16 March at 9:30.")}>Book appointment</Button>
           </>
         }
       >
@@ -45,12 +45,26 @@ function Booking({ back, go }: { back: string; go: string }) {
   );
 }
 
-function Do() {
-  return <Booking back="Cancel" go="Book appointment" />;
-}
-
 function Dont() {
-  return <Booking back="No" go="Yes" />;
+  const [said, say] = useOutcome();
+  return (
+    <div className="flex w-full flex-col items-center gap-3">
+      <DialogPicture
+        title={title}
+        footer={
+          <>
+            <Button variant="outline" onClick={say("Not booked. Nothing has changed.")}>
+              No
+            </Button>
+            <Button onClick={say("Booked for Tuesday 16 March at 9:30.")}>Yes</Button>
+          </>
+        }
+      >
+        A check-up with Dr Orla Venn at Millbrook Dental, about 30 minutes.
+      </DialogPicture>
+      <Outcome>{said}</Outcome>
+    </div>
+  );
 }
 
 export const ACT001a: RuleExamples = {

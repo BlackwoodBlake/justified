@@ -1,5 +1,7 @@
 import { Button } from "@blackwoodblake/justified-shadcn/button";
-import { useState } from "react";
+import { DialogFooter } from "@blackwoodblake/justified-shadcn/dialog";
+import { dialogSurface } from "@blackwoodblake/justified-shadcn/styles";
+import { useId, useState } from "react";
 
 import { DialogPicture, Outcome } from "./dialog";
 import type { RuleExamples } from "./frame";
@@ -66,23 +68,21 @@ function FillsWidth() {
 
 function Reversed() {
   const [said, say] = useOutcome();
+  const id = useId();
   return (
     <div className="flex w-full flex-col items-center gap-3">
-      <DialogPicture
-        title="Join the waitlist for the pottery course?"
-        // A row at every width: this rule is about buttons side by side.
-        footerClassName="flex-row flex-wrap justify-end"
-        footer={
-          <>
-            <Button onClick={say("Joined. Did you mean to?")}>Join waitlist</Button>
-            <Button variant="outline" onClick={say("Cancelled.")}>
-              Cancel
-            </Button>
-          </>
-        }
-      >
-        We will email you when a place opens up.
-      </DialogPicture>
+      <div role="group" aria-labelledby={id} className={dialogSurface}>
+        <h4 id={id} className="m-0 text-base font-semibold leading-snug">
+          Join the waitlist for the pottery course?
+        </h4>
+        <div className="mt-2 text-sm text-muted-foreground">We will email you when a place opens up.</div>
+        <DialogFooter className="flex-row flex-wrap justify-end">
+          <Button onClick={say("Joined. Did you mean to?")}>Join waitlist</Button>
+          <Button variant="outline" onClick={say("Cancelled.")}>
+            Cancel
+          </Button>
+        </DialogFooter>
+      </div>
       <Outcome>{said}</Outcome>
     </div>
   );

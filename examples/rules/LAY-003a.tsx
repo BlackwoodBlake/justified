@@ -19,20 +19,19 @@ import { CodeLine, SceneButton, ZoomDemo, ZoomScene } from "./zoom";
 
 const DESCRIPTION = "South-facing, raised bed, water tap within ten metres. Tools are kept in the shed by the gate.";
 
-function Plots({ fixed }: { fixed: boolean }) {
-  const cards = [
-    { name: "Plot 14", text: DESCRIPTION },
-    { name: "Herb bed", text: "Shady corner, rich soil, close to the compost bins. Good for mint and chives." },
-  ];
+const cards = [
+  { name: "Plot 14", text: DESCRIPTION },
+  { name: "Herb bed", text: "Shady corner, rich soil, close to the compost bins. Good for mint and chives." },
+];
+
+function Plots() {
   return (
     <ul className="m-0 grid list-none gap-[0.75em] p-0">
       {cards.map((c) => (
         <li
           key={c.name}
           data-testid="plot-card"
-          className={`flex flex-col gap-[0.25em] rounded-lg border border-border bg-card p-[0.75em] ${
-            fixed ? "h-[7.5em] overflow-hidden" : "min-h-[6em]"
-          }`}
+          className="flex min-h-[6em] flex-col gap-[0.25em] rounded-lg border border-border bg-card p-[0.75em]"
         >
           <h4 className="m-0 text-[1.1em] font-semibold">{c.name}</h4>
           <p className="m-0 text-muted-foreground">{c.text}</p>
@@ -42,14 +41,31 @@ function Plots({ fixed }: { fixed: boolean }) {
   );
 }
 
-function Hero({ fixed }: { fixed: boolean }) {
+function PlotsFixed() {
+  return (
+    <ul className="m-0 grid list-none gap-[0.75em] p-0">
+      {cards.map((c) => (
+        <li
+          key={c.name}
+          data-testid="plot-card"
+          className="flex h-[7.5em] flex-col gap-[0.25em] overflow-hidden rounded-lg border border-border bg-card p-[0.75em]"
+        >
+          <h4 className="m-0 text-[1.1em] font-semibold">{c.name}</h4>
+          <p className="m-0 text-muted-foreground">{c.text}</p>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Hero() {
   const [said, say] = useSay();
   return (
     <div className="flex w-full flex-col items-center gap-3">
       <ZoomDemo mode="size" narrow>
         <section
           data-testid="hero"
-          className={`flex flex-col items-start gap-[0.5em] rounded-lg bg-muted p-[1em] ${fixed ? "h-[9.5em]" : "min-h-[9.5em]"}`}
+          className="flex min-h-[9.5em] flex-col items-start gap-[0.5em] rounded-lg bg-muted p-[1em]"
         >
           <h4 className="m-0 text-[1.4em] leading-tight font-semibold">Book a plot for the spring season</h4>
           <SceneButton onClick={() => say("Booking started.")}>Book a plot</SceneButton>
@@ -63,28 +79,62 @@ function Hero({ fixed }: { fixed: boolean }) {
   );
 }
 
-function Pinch({ blocked }: { blocked: boolean }) {
-  const [out, setOut] = useState(false);
+function HeroFixed() {
   const [said, say] = useSay();
-  const pinch = () => {
-    if (blocked) {
-      say("Nothing happens. The page has switched zoom off.");
-      return;
-    }
-    setOut(!out);
-    say(out ? "Back to 100 percent." : "Zoomed to 200 percent.");
-  };
   return (
     <div className="flex w-full flex-col items-center gap-3">
-      <CodeLine>
-        {blocked
-          ? 'export const viewport = { maximumScale: 1, userScalable: false };'
-          : 'export const viewport = { width: "device-width", initialScale: 1 };'}
-      </CodeLine>
-      <Button variant="outline" onClick={pinch}>
+      <ZoomDemo mode="size" narrow>
+        <section
+          data-testid="hero"
+          className="flex h-[9.5em] flex-col items-start gap-[0.5em] rounded-lg bg-muted p-[1em]"
+        >
+          <h4 className="m-0 text-[1.4em] leading-tight font-semibold">Book a plot for the spring season</h4>
+          <SceneButton onClick={() => say("Booking started.")}>Book a plot</SceneButton>
+        </section>
+        <p className="m-0 mt-[0.75em] rounded-md border border-border p-[0.5em]" data-testid="below-hero">
+          Below the banner: opening hours and the garden map.
+        </p>
+      </ZoomDemo>
+      <Outcome>{said}</Outcome>
+    </div>
+  );
+}
+
+function Pinch() {
+  const [out, setOut] = useState(false);
+  const [said, say] = useSay();
+  return (
+    <div className="flex w-full flex-col items-center gap-3">
+      <CodeLine>{'export const viewport = { width: "device-width", initialScale: 1 };'}</CodeLine>
+      <Button
+        variant="outline"
+        onClick={() => {
+          setOut(!out);
+          say(out ? "Back to 100 percent." : "Zoomed to 200 percent.");
+        }}
+      >
         {out ? "Pinch in" : "Pinch out"}
       </Button>
       <ZoomScene size={out ? 2 : 1}>
+        <p className="m-0">Your plot is booked for the first Saturday in April.</p>
+      </ZoomScene>
+      <Outcome>{said}</Outcome>
+    </div>
+  );
+}
+
+const viewport = { maximumScale: 1, userScalable: false };
+
+/** The pinch never zooms: the viewport above switches zoom off. */
+function PinchBlocked() {
+  const [said, say] = useSay();
+  return (
+    <div className="flex w-full flex-col items-center gap-3">
+      <CodeLine>{`export const viewport = { maximumScale: ${viewport.maximumScale}, userScalable: ${viewport.userScalable} };`}</CodeLine>
+      <Button variant="outline" onClick={() => say("Nothing happens. The page has switched zoom off.")}>
+        Pinch out
+      </Button>
+      <ZoomScene size={1}>
         <p className="m-0">Your plot is booked for the first Saturday in April.</p>
       </ZoomScene>
       <Outcome>{said}</Outcome>
@@ -107,7 +157,7 @@ export const LAY003a: RuleExamples = {
       ),
       Demo: () => (
         <ZoomDemo mode="size">
-          <Plots fixed={false} />
+          <Plots />
         </ZoomDemo>
       ),
     },
@@ -122,9 +172,10 @@ export const LAY003a: RuleExamples = {
       ),
       Demo: () => (
         <ZoomDemo mode="size">
-          <Plots fixed />
+          <PlotsFixed />
         </ZoomDemo>
       ),
+      notLinted: "Lint gap: the lint rule checks only the viewport setting, not a fixed height on a box of text.",
     },
     {
       kind: "do",
@@ -135,7 +186,7 @@ export const LAY003a: RuleExamples = {
           stays inside it, above the text that follows.
         </>
       ),
-      Demo: () => <Hero fixed={false} />,
+      Demo: () => <Hero />,
     },
     {
       kind: "dont",
@@ -146,7 +197,8 @@ export const LAY003a: RuleExamples = {
           over the text below it.
         </>
       ),
-      Demo: () => <Hero fixed />,
+      Demo: () => <HeroFixed />,
+      notLinted: "Lint gap: the lint rule checks only the viewport setting, not a fixed height on a box of text.",
     },
     {
       kind: "do",
@@ -157,7 +209,7 @@ export const LAY003a: RuleExamples = {
           Press <em>Pinch out</em> and the text in the frame doubles, as a pinch would show it larger.
         </>
       ),
-      Demo: () => <Pinch blocked={false} />,
+      Demo: () => <Pinch />,
     },
     {
       kind: "dont",
@@ -169,7 +221,7 @@ export const LAY003a: RuleExamples = {
           least 16 px avoid the focus zoom without this.
         </>
       ),
-      Demo: () => <Pinch blocked />,
+      Demo: () => <PinchBlocked />,
     },
   ],
 };

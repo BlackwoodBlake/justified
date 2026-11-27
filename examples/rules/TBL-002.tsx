@@ -42,7 +42,6 @@ import {
 
 type Key = "club" | "time";
 type Dir = "asc" | "desc";
-type Mode = "do" | "pointer" | "arrow" | "label";
 
 const RUNNERS = [
   { name: "Amira Haddad", club: "Harbour Harriers", time: "38:12", age: "30 to 39" },
@@ -63,21 +62,17 @@ const WORDS: Record<Key, { name: string; asc: string; desc: string }> = {
   time: { name: "finish time", asc: "fastest first", desc: "slowest first" },
 };
 
-type HeadProps = { text: string; icon: ReactNode; ariaSort?: "ascending" | "descending"; onPress: () => void };
+/** What the table hands to the two sortable headings each example writes out. */
+type Controls = {
+  sort: { key: Key; dir: Dir };
+  press: (key: Key) => void;
+  /** The arrow for a column: it follows the state, and is hidden from assistive technology. */
+  arrow: (key: Key) => ReactNode;
+  /** The sorted column's order as aria-sort. */
+  order: (key: Key) => "ascending" | "descending" | undefined;
+};
 
-// Only the pointer Don't renders this header, so lint reports on it land on that Don't alone.
-function PointerHead({ text, icon, ariaSort, onPress }: HeadProps) {
-  return (
-    <TableHead scope="col" aria-sort={ariaSort} onClick={onPress} className="cursor-pointer">
-      <span className="inline-flex items-center gap-2">
-        {text}
-        {icon}
-      </span>
-    </TableHead>
-  );
-}
-
-function Results({ mode, Head }: { mode: Mode; Head?: (props: HeadProps) => ReactNode }) {
+function Results({ announce, heads }: { announce?: boolean; heads: (controls: Controls) => ReactNode }) {
   const id = useId();
   const [sort, setSort] = useState<{ key: Key; dir: Dir }>({ key: "time", dir: "asc" });
   const [said, say] = useSay();
@@ -93,31 +88,12 @@ function Results({ mode, Head }: { mode: Mode; Head?: (props: HeadProps) => Reac
   const press = (key: Key) => {
     const dir: Dir = sort.key === key && sort.dir === "asc" ? "desc" : "asc";
     setSort({ key, dir });
-    if (mode === "do") say(`Sorted by ${WORDS[key].name}, ${WORDS[key][dir]}.`);
+    if (announce) say(`Sorted by ${WORDS[key].name}, ${WORDS[key][dir]}.`);
   };
 
-  const heading = (key: Key, text: string) => {
-    const active = sort.key === key;
-    const icon = !active ? <ArrowUpDownIcon /> : sort.dir === "asc" ? <ArrowUpIcon /> : <ArrowDownIcon />;
-    // aria-sort belongs on the header cell, and only the Don't about arrows leaves it out.
-    const ariaSort = active && mode !== "arrow" ? (sort.dir === "asc" ? "ascending" : "descending") : undefined;
-
-    if (Head) return <Head key={key} text={text} icon={icon} ariaSort={ariaSort} onPress={() => press(key)} />;
-    return (
-      <TableHead key={key} scope="col" aria-sort={ariaSort}>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="-ml-3"
-          aria-label={mode === "label" ? `Sort by ${WORDS[key].name}` : undefined}
-          onClick={() => press(key)}
-        >
-          {text}
-          {icon}
-        </Button>
-      </TableHead>
-    );
-  };
+  const arrow = (key: Key) =>
+    sort.key !== key ? <ArrowUpDownIcon /> : sort.dir === "asc" ? <ArrowUpIcon /> : <ArrowDownIcon />;
+  const order = (key: Key) => (sort.key !== key ? undefined : sort.dir === "asc" ? "ascending" : "descending");
 
   return (
     <div ref={scope} className="flex w-full min-w-0 flex-col gap-3">
@@ -128,8 +104,7 @@ function Results({ mode, Head }: { mode: Mode; Head?: (props: HeadProps) => Reac
         <TableHeader>
           <TableRow>
             <TableHead scope="col">Runner</TableHead>
-            {heading("club", "Club")}
-            {heading("time", "Finish time")}
+            {heads({ sort, press, arrow, order })}
             <TableHead scope="col">Age group</TableHead>
           </TableRow>
         </TableHeader>
@@ -150,6 +125,99 @@ function Results({ mode, Head }: { mode: Mode; Head?: (props: HeadProps) => Reac
   );
 }
 
+function SortButtons() {
+  return (
+    <Results
+      announce
+      heads={(c) => (
+        <>
+          <TableHead scope="col" aria-sort={c.order("club")}>
+            <Button variant="ghost" size="sm" className="-ml-3" onClick={() => c.press("club")}>
+              Club
+              {c.arrow("club")}
+            </Button>
+          </TableHead>
+          <TableHead scope="col" aria-sort={c.order("time")}>
+            <Button variant="ghost" size="sm" className="-ml-3" onClick={() => c.press("time")}>
+              Finish time
+              {c.arrow("time")}
+            </Button>
+          </TableHead>
+        </>
+      )}
+    />
+  );
+}
+
+function ClickOnCell() {
+  return (
+    <Results
+      heads={(c) => (
+        <>
+          <TableHead scope="col" aria-sort={c.order("club")} onClick={() => c.press("club")} className="cursor-pointer">
+            <span className="inline-flex items-center gap-2">
+              Club
+              {c.arrow("club")}
+            </span>
+          </TableHead>
+          <TableHead scope="col" aria-sort={c.order("time")} onClick={() => c.press("time")} className="cursor-pointer">
+            <span className="inline-flex items-center gap-2">
+              Finish time
+              {c.arrow("time")}
+            </span>
+          </TableHead>
+        </>
+      )}
+    />
+  );
+}
+
+function ArrowOnly() {
+  return (
+    <Results
+      heads={(c) => (
+        <>
+          <TableHead scope="col">
+            <Button variant="ghost" size="sm" className="-ml-3" onClick={() => c.press("club")}>
+              Club
+              {c.arrow("club")}
+            </Button>
+          </TableHead>
+          <TableHead scope="col">
+            <Button variant="ghost" size="sm" className="-ml-3" onClick={() => c.press("time")}>
+              Finish time
+              {c.arrow("time")}
+            </Button>
+          </TableHead>
+        </>
+      )}
+    />
+  );
+}
+
+function SortByLabel() {
+  return (
+    <Results
+      heads={(c) => (
+        <>
+          <TableHead scope="col" aria-sort={c.order("club")}>
+            <Button variant="ghost" size="sm" className="-ml-3" aria-label="Sort by club" onClick={() => c.press("club")}>
+              Club
+              {c.arrow("club")}
+            </Button>
+          </TableHead>
+          <TableHead scope="col" aria-sort={c.order("time")}>
+            <Button variant="ghost" size="sm" className="-ml-3" aria-label="Sort by finish time" onClick={() => c.press("time")}>
+              Finish time
+              {c.arrow("time")}
+            </Button>
+          </TableHead>
+        </>
+      )}
+    />
+  );
+}
+
 export const TBL002: RuleExamples = {
   id: "TBL-002",
   examples: [
@@ -164,7 +232,7 @@ export const TBL002: RuleExamples = {
           code and in the status line.
         </>
       ),
-      Demo: () => <Results mode="do" />,
+      Demo: SortButtons,
     },
     {
       kind: "dont",
@@ -175,7 +243,7 @@ export const TBL002: RuleExamples = {
           handler sits on the cell and there is no button inside it. A keyboard user cannot sort at all.
         </>
       ),
-      Demo: () => <Results mode="pointer" Head={PointerHead} />,
+      Demo: ClickOnCell,
     },
     {
       kind: "dont",
@@ -187,7 +255,9 @@ export const TBL002: RuleExamples = {
           whether the fastest runner is at the top or at the bottom.
         </>
       ),
-      Demo: () => <Results mode="arrow" />,
+      notLinted:
+        "Lint gap: a plain sort button with no aria-sort anywhere in the table is only reported when it sorts with TanStack Table.",
+      Demo: ArrowOnly,
     },
     {
       kind: "dont",
@@ -200,7 +270,8 @@ export const TBL002: RuleExamples = {
           visible words, so this is our own advice and not a failure of the law: keep the name to the heading.
         </>
       ),
-      Demo: () => <Results mode="label" />,
+      notLinted: "Lint gap: the sort rule does not look at what a sort button is named.",
+      Demo: SortByLabel,
     },
   ],
 };

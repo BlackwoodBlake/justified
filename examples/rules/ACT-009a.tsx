@@ -4,6 +4,7 @@ import { cn } from "@blackwoodblake/justified-shadcn/utils";
 
 import type { RuleExamples } from "./frame";
 import { Scene, useSceneSay } from "./links-buttons";
+import { useSceneRouter, useSceneWindow } from "./scene-router";
 
 /*
  * ACT-009a: a control that only takes people to another address is a link
@@ -18,37 +19,41 @@ import { Scene, useSceneSay } from "./links-buttons";
  * about the role and what the browser gives every link.
  */
 
-function Dashboard({ scripted }: { scripted: boolean }) {
+function DoDashboard() {
   const say = useSceneSay();
   return (
     <div className="grid gap-3">
       <h4 className="m-0 text-base font-semibold">Bella&rsquo;s dashboard</h4>
       <p className="m-0 text-sm text-muted-foreground">Next visit: vaccination, 14 December.</p>
       <div className="flex flex-wrap gap-2">
-        {scripted ? (
-          <>
-            <Button onClick={() => say("Would go to /appointments")}>View appointments</Button>
-            <Button
-              variant="outline"
-              onClick={() => say("Would go to https://pharmacy.example.com (window.open)")}
-            >
-              Open pharmacy site
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button asChild>
-              <a href="/appointments">View appointments</a>
-            </Button>
-            <Button variant="outline" asChild>
-              <a href="https://pharmacy.example.com">Open pharmacy site</a>
-            </Button>
-            {/* Its job is the booking, so it stays a button, and the page that follows is the result. */}
-            <Button variant="outline" onClick={() => say("Booking saved. Showing your booking now.")}>
-              Book appointment
-            </Button>
-          </>
-        )}
+        <Button asChild>
+          <a href="/appointments">View appointments</a>
+        </Button>
+        <Button variant="outline" asChild>
+          <a href="https://pharmacy.example.com">Open pharmacy site</a>
+        </Button>
+        {/* Its job is the booking, so it stays a button, and the page that follows is the result. */}
+        <Button variant="outline" onClick={() => say("Booking saved. Showing your booking now.")}>
+          Book appointment
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function DontDashboard() {
+  const say = useSceneSay();
+  const router = useSceneRouter(say);
+  const site = useSceneWindow(say);
+  return (
+    <div className="grid gap-3">
+      <h4 className="m-0 text-base font-semibold">Bella&rsquo;s dashboard</h4>
+      <p className="m-0 text-sm text-muted-foreground">Next visit: vaccination, 14 December.</p>
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={() => router.push("/appointments")}>View appointments</Button>
+        <Button variant="outline" onClick={() => site.open("https://pharmacy.example.com")}>
+          Open pharmacy site
+        </Button>
       </div>
     </div>
   );
@@ -57,14 +62,15 @@ function Dashboard({ scripted }: { scripted: boolean }) {
 const page = (current: boolean) =>
   cn(
     "inline-flex size-10 items-center justify-center rounded-md border text-sm font-medium",
-    current ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background text-foreground hover:bg-accent",
+    current
+      ? "border-primary bg-primary text-primary-foreground"
+      : "border-input bg-background text-foreground hover:bg-accent",
     focusRing,
   );
 
 const VISITS = ["Vaccination, 14 June", "Dental check, 2 May", "Booster, 19 March"];
 
-function Pages({ scripted }: { scripted: boolean }) {
-  const say = useSceneSay();
+function DoPages() {
   return (
     <div className="grid gap-3">
       <h4 className="m-0 text-base font-semibold">Past visits</h4>
@@ -73,25 +79,50 @@ function Pages({ scripted }: { scripted: boolean }) {
           <li key={v}>{v}</li>
         ))}
       </ul>
-      <nav aria-label={scripted ? "Past visits, page buttons" : "Past visits, page links"}>
+      <nav aria-label="Past visits, page links">
         <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
           {[1, 2, 3, 4].map((n) => (
             <li key={n}>
-              {scripted ? (
-                <button
-                  type="button"
-                  aria-current={n === 1 ? "page" : undefined}
-                  aria-label={`Page ${n}`}
-                  className={cn(page(n === 1), "cursor-pointer")}
-                  onClick={() => say(`Would go to ?page=${n}`)}
-                >
-                  {n}
-                </button>
-              ) : (
-                <a href={`?page=${n}`} aria-current={n === 1 ? "page" : undefined} aria-label={`Page ${n}`} className={page(n === 1)}>
-                  {n}
-                </a>
-              )}
+              <a
+                href={`?page=${n}`}
+                aria-current={n === 1 ? "page" : undefined}
+                aria-label={`Page ${n}`}
+                className={page(n === 1)}
+              >
+                {n}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  );
+}
+
+function DontPages() {
+  const say = useSceneSay();
+  const router = useSceneRouter(say);
+  return (
+    <div className="grid gap-3">
+      <h4 className="m-0 text-base font-semibold">Past visits</h4>
+      <ul className="m-0 grid list-none gap-1 p-0 text-sm text-muted-foreground">
+        {VISITS.map((v) => (
+          <li key={v}>{v}</li>
+        ))}
+      </ul>
+      <nav aria-label="Past visits, page buttons">
+        <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
+          {[1, 2, 3, 4].map((n) => (
+            <li key={n}>
+              <button
+                type="button"
+                aria-current={n === 1 ? "page" : undefined}
+                aria-label={`Page ${n}`}
+                className={cn(page(n === 1), "cursor-pointer")}
+                onClick={() => router.push(`?page=${n}`)}
+              >
+                {n}
+              </button>
             </li>
           ))}
         </ul>
@@ -111,14 +142,15 @@ export const ACT009a: RuleExamples = {
       caption: (
         <>
           <em>View appointments</em> and <em>Open pharmacy site</em> are <code>Button asChild</code> around an{" "}
-          <code>&lt;a href&gt;</code>: button looks, link behaviour. <em>Book appointment</em> saves the booking and then
-          shows it, so it stays a button. A plain click reports where a link would go, so Storybook stays put; the
-          real <code>href</code> is there, so Ctrl or Cmd click, a middle click and Copy link address work (Storybook has no such page to open).
+          <code>&lt;a href&gt;</code>: button looks, link behaviour. <em>Book appointment</em> saves the booking and
+          then shows it, so it stays a button. A plain click reports where a link would go, so Storybook stays put; the
+          real <code>href</code> is there, so Ctrl or Cmd click, a middle click and Copy link address work (Storybook
+          has no such page to open).
         </>
       ),
       Demo: () => (
         <Scene listLabel={label}>
-          <Dashboard scripted={false} />
+          <DoDashboard />
         </Scene>
       ),
     },
@@ -135,7 +167,7 @@ export const ACT009a: RuleExamples = {
       ),
       Demo: () => (
         <Scene listLabel={label}>
-          <Dashboard scripted />
+          <DontDashboard />
         </Scene>
       ),
     },
@@ -151,7 +183,7 @@ export const ACT009a: RuleExamples = {
       ),
       Demo: () => (
         <Scene listLabel={label}>
-          <Pages scripted={false} />
+          <DoPages />
         </Scene>
       ),
     },
@@ -167,7 +199,7 @@ export const ACT009a: RuleExamples = {
       ),
       Demo: () => (
         <Scene listLabel={label}>
-          <Pages scripted />
+          <DontPages />
         </Scene>
       ),
     },

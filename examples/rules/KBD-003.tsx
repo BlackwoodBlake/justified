@@ -24,22 +24,84 @@ import { hasModifier, isTyping, Kbd, KeyRow, PageFrame } from "./shortcuts";
 
 type Ticket = { id: string; title: string };
 
-function Desk({ withSwitch }: { withSwitch: boolean }) {
+function Desk() {
   const [on, setOn] = useState(false);
   const [closed, setClosed] = useState(false);
   const [listOpen, setListOpen] = useState(false);
   const [said, say] = useSay();
   const search = useRef<HTMLInputElement>(null);
-  const frame = useRef<HTMLDivElement>(null);
-  const heard = !withSwitch || on;
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (hasModifier(e) || isTyping(e.target)) return;
     if (!["/", "e", "?"].includes(e.key)) return;
-    if (!heard) {
+    if (!on) {
       say(`"${e.key}" ignored: single-key shortcuts are off.`);
       return;
     }
+    e.preventDefault();
+    if (e.key === "/") {
+      search.current?.focus();
+      say("/ moved focus to Search tickets.");
+    } else if (e.key === "e") {
+      setClosed(true);
+      say("e closed ticket #482.");
+    } else {
+      setListOpen((v) => !v);
+      say("? toggled the list of shortcuts.");
+    }
+  };
+
+  return (
+    <div className="flex w-full max-w-sm flex-col items-center gap-3">
+      <PageFrame label="Ticket desk, example page" onKeyDown={onKeyDown}>
+        <Field label="Search tickets">
+          <Input ref={search} placeholder="Customer or subject" />
+        </Field>
+        <div className="grid gap-2 rounded-md border border-border p-3">
+          <p className="m-0">
+            <span className="font-medium">#482 Printer offline</span> <span className="text-muted-foreground">({closed ? "Closed" : "Open"})</span>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setClosed((v) => !v);
+                say(closed ? "Ticket #482 reopened." : "Ticket #482 closed.");
+              }}
+            >
+              {closed ? "Reopen ticket" : "Close ticket"}
+            </Button>
+            <Button variant="outline" onClick={() => setListOpen((v) => !v)} aria-expanded={listOpen}>
+              Shortcuts
+            </Button>
+          </div>
+        </div>
+        {listOpen && (
+          <ul className="m-0 grid list-none gap-1 p-0 text-sm">
+            <li><Kbd>/</Kbd> Search tickets</li>
+            <li><Kbd>e</Kbd> Close ticket</li>
+            <li><Kbd>?</Kbd> This list</li>
+          </ul>
+        )}
+        <Field label="Single-key shortcuts" layout="inline">
+          <Switch checked={on} onCheckedChange={(v) => { setOn(v); say(v ? "Single-key shortcuts are on." : "Single-key shortcuts are off."); }} />
+        </Field>
+      </PageFrame>
+      <Outcome>{said}</Outcome>
+    </div>
+  );
+}
+
+function DeskNoSwitch() {
+  const [closed, setClosed] = useState(false);
+  const [listOpen, setListOpen] = useState(false);
+  const [said, say] = useSay();
+  const search = useRef<HTMLInputElement>(null);
+  const frame = useRef<HTMLDivElement>(null);
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (hasModifier(e) || isTyping(e.target)) return;
+    if (!["/", "e", "?"].includes(e.key)) return;
     e.preventDefault();
     if (e.key === "/") {
       search.current?.focus();
@@ -90,23 +152,15 @@ function Desk({ withSwitch }: { withSwitch: boolean }) {
             <li><Kbd>?</Kbd> This list</li>
           </ul>
         )}
-        {withSwitch ? (
-          <Field label="Single-key shortcuts" layout="inline">
-            <Switch checked={on} onCheckedChange={(v) => { setOn(v); say(v ? "Single-key shortcuts are on." : "Single-key shortcuts are off."); }} />
-          </Field>
-        ) : (
-          <KeyRow>
-            <span><Kbd>/</Kbd> search</span>
-            <span><Kbd>e</Kbd> close</span>
-            <span><Kbd>?</Kbd> list</span>
-          </KeyRow>
-        )}
+        <KeyRow>
+          <span><Kbd>/</Kbd> search</span>
+          <span><Kbd>e</Kbd> close</span>
+          <span><Kbd>?</Kbd> list</span>
+        </KeyRow>
       </PageFrame>
-      {!withSwitch && (
-        <Button variant="outline" onClick={() => speak("edit")}>
-          Simulate speaking “edit”
-        </Button>
-      )}
+      <Button variant="outline" onClick={() => speak("edit")}>
+        Simulate speaking “edit”
+      </Button>
       <Outcome>{said}</Outcome>
     </div>
   );
@@ -244,7 +298,7 @@ export const KBD003: RuleExamples = {
           they stop. Typing in <em>Search tickets</em> never fires anything, and <em>Close ticket</em> stays a button.
         </>
       ),
-      Demo: () => <Desk withSwitch />,
+      Demo: Desk,
     },
     {
       kind: "do",
@@ -270,7 +324,9 @@ export const KBD003: RuleExamples = {
           closes the ticket, and nothing in the page lets anyone turn that off.
         </>
       ),
-      Demo: () => <Desk withSwitch={false} />,
+      Demo: DeskNoSwitch,
+      notLinted:
+        "The page-wide listener is drawn as a handler on the example frame; a real document listener would take keys on this page.",
     },
     {
       kind: "dont",
@@ -284,6 +340,8 @@ export const KBD003: RuleExamples = {
         </>
       ),
       Demo: Drafts,
+      notLinted:
+        "The page-wide listener is drawn as a handler on the example frame; a real document listener would take keys on this page.",
     },
   ],
 };

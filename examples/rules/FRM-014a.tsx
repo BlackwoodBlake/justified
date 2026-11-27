@@ -1,5 +1,8 @@
-import { Probe, probeBox } from "./input-type";
+import { Field } from "@blackwoodblake/justified-shadcn/field";
+import { Input } from "@blackwoodblake/justified-shadcn/input";
+
 import type { RuleExamples } from "./frame";
+import { Probe, probeBox, Watch } from "./input-type";
 
 /*
  * FRM-014a: a text field that takes only digits shows the digit keypad
@@ -65,8 +68,16 @@ export const FRM014a: RuleExamples = {
       Demo: () =>
         form(
           <>
-            <Probe label="Card number" type="tel" autoComplete="cc-number" defaultValue="4111 1111 1111 1111" />
-            <Probe label="Membership number" pattern="[0-9]*" defaultValue="0471826390" />
+            <Watch>
+              <Field label="Card number">
+                <Input type="tel" autoComplete="cc-number" defaultValue="4111 1111 1111 1111" />
+              </Field>
+            </Watch>
+            <Watch>
+              <Field label="Membership number">
+                <Input pattern="[0-9]*" defaultValue="0471826390" />
+              </Field>
+            </Watch>
           </>,
         ),
     },
@@ -79,7 +90,15 @@ export const FRM014a: RuleExamples = {
           keys the keypad lacks for this value. Edit the field to see it follow what you type.
         </>
       ),
-      Demo: () => form(<Probe label="Order reference" inputMode="numeric" defaultValue="RX-20931" also="keys" />),
+      notLinted: "Lint gap: a digit keypad on a field with letters is only caught when a pattern or Zod regex allows letters; the value alone is not read.",
+      Demo: () =>
+        form(
+          <Watch also="keys">
+            <Field label="Order reference">
+              <Input inputMode="numeric" defaultValue="RX-20931" />
+            </Field>
+          </Watch>,
+        ),
     },
   ],
 };

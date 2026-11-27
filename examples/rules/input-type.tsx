@@ -1,6 +1,6 @@
 import { Field } from "@blackwoodblake/justified-shadcn/field";
 import { Input } from "@blackwoodblake/justified-shadcn/input";
-import { useLayoutEffect, useRef, useState, type ComponentProps } from "react";
+import { useLayoutEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
 
 /*
  * For FRM-014, FRM-014a and FRM-014b. The keyboard a phone shows cannot be
@@ -12,6 +12,10 @@ import { useLayoutEffect, useRef, useState, type ComponentProps } from "react";
  * "Value" modes make the harm of a number input tryable with the keyboard:
  * press the arrow keys, or scroll over the focused field, and the readout
  * shows what the form would receive.
+ *
+ * Watch is the readout around a field. A Don't writes its field out itself
+ * inside Watch, so the mistake stays in the example file; Probe is Watch
+ * around a field the Do examples configure with props.
  *
  * For the examples only. It is not a component of the system.
  */
@@ -52,50 +56,35 @@ function read(el: HTMLInputElement): Facts {
   };
 }
 
-export type ProbeProps = Omit<ComponentProps<"input">, "ref"> & {
-  label: string;
-  /**
-   * What the readout adds under the attributes:
-   * "number" the value as typed and as a number, "text" the value and whether
-   * it is exactly digits, "check" whether the browser's own check accepts it,
-   * "keys" the characters the keypad has no key for, "scheme" the address
-   * as it would be sent once the scheme is added.
-   */
+/** A field (as children) with a readout of its attributes. What the readout adds is set by `also`, as for Probe. */
+export function Watch({
+  children,
+  also,
+  digits,
+}: {
+  children: ReactNode;
   also?: "number" | "text" | "check" | "keys" | "scheme";
-  /** For "text": the length the digits must have. */
   digits?: number;
-};
-
-/** A labelled field with a readout of its attributes. The field is uncontrolled, so the page's own state stays out of the way. */
-export function Probe({ label, also, digits, className, ...input }: ProbeProps) {
-  const ref = useRef<HTMLInputElement>(null);
+}) {
+  const box = useRef<HTMLDivElement>(null);
   const [f, setF] = useState<Facts | null>(null);
   const update = () => {
-    if (ref.current) setF(read(ref.current));
+    const el = box.current?.querySelector("input");
+    if (el) setF(read(el));
   };
 
   useLayoutEffect(update, []);
 
   const absent = (v: string | null | undefined) => (v ? `"${v}"` : "not set");
   return (
-    <div>
-      <Field label={label}>
-        <Input
-          ref={ref}
-          className={className}
-          onInput={update}
-          onKeyUp={update}
-          onWheel={update}
-          onFocus={update}
-          {...input}
-        />
-      </Field>
+    <div ref={box} onInput={update} onKeyUp={update} onWheel={update} onFocus={update}>
+      {children}
       <div
         aria-hidden="true"
         className="mt-1 grid gap-0.5 rounded-md border border-dashed border-border px-2 py-1.5 font-mono text-xs text-muted-foreground"
       >
         <span>
-          type=<b className="font-semibold text-foreground">&quot;{f?.type ?? input.type ?? "text"}&quot;</b> inputmode=
+          type=<b className="font-semibold text-foreground">&quot;{f?.type ?? "text"}&quot;</b> inputmode=
           <b className="font-semibold text-foreground">{absent(f?.inputMode)}</b> autocomplete=
           <b className="font-semibold text-foreground">{absent(f?.autoComplete)}</b>
           {f?.pattern ? (
@@ -148,6 +137,31 @@ export function Probe({ label, also, digits, className, ...input }: ProbeProps) 
         {also === "keys" && f && <MissingKeys value={f.value} inputMode={f.inputMode} />}
       </div>
     </div>
+  );
+}
+
+export type ProbeProps = Omit<ComponentProps<"input">, "ref"> & {
+  label: string;
+  /**
+   * What the readout adds under the attributes:
+   * "number" the value as typed and as a number, "text" the value and whether
+   * it is exactly digits, "check" whether the browser's own check accepts it,
+   * "keys" the characters the keypad has no key for, "scheme" the address
+   * as it would be sent once the scheme is added.
+   */
+  also?: "number" | "text" | "check" | "keys" | "scheme";
+  /** For "text": the length the digits must have. */
+  digits?: number;
+};
+
+/** A labelled field with a readout of its attributes. */
+export function Probe({ label, also, digits, className, ...input }: ProbeProps) {
+  return (
+    <Watch also={also} digits={digits}>
+      <Field label={label}>
+        <Input className={className} {...input} />
+      </Field>
+    </Watch>
   );
 }
 

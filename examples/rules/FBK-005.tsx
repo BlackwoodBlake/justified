@@ -1,5 +1,5 @@
 import { Button } from "@blackwoodblake/justified-shadcn/button";
-import { useEffect, useId, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 
 import { Outcome } from "./dialog";
 import type { RuleExamples } from "./frame";
@@ -31,7 +31,10 @@ const splitWords = "Contacts split. Anna Brooks and A. Brooks are separate again
 
 const focusable = "rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
-function Contacts({ crowded }: { crowded: boolean }) {
+/** What the list hands to the toast each example writes out. */
+type ToastControls = { undo: () => void; nothing: () => void; close: () => void };
+
+function Contacts({ crowded, toastBody }: { crowded: boolean; toastBody: (c: ToastControls) => ReactNode }) {
   const [merged, setMerged] = useState(true);
   const [toast, setToast] = useState(1);
   const [history, setHistory] = useState(false);
@@ -139,36 +142,7 @@ function Contacts({ crowded }: { crowded: boolean }) {
       <ToastRegion>
         {toast > 0 && (
           <div ref={toastRef} key={toast}>
-            {crowded ? (
-              <Toast
-                action={
-                  <div className="flex flex-wrap justify-end gap-1">
-                    <Button variant="outline" size="sm" onClick={() => split(undoWords)}>
-                      Undo
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={nothing}>
-                      View
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={nothing}>
-                      Share
-                    </Button>
-                  </div>
-                }
-              >
-                {message}
-              </Toast>
-            ) : (
-              <Toast
-                action={
-                  <Button variant="outline" size="sm" onClick={() => split(undoWords)}>
-                    Undo
-                  </Button>
-                }
-                onClose={close}
-              >
-                {message}
-              </Toast>
-            )}
+            {toastBody({ undo: () => split(undoWords), nothing, close })}
           </div>
         )}
       </ToastRegion>
@@ -185,6 +159,53 @@ function Contacts({ crowded }: { crowded: boolean }) {
 
 type RefObject = { current: HTMLElement | null };
 
+function OneAction() {
+  return (
+    <Contacts
+      crowded={false}
+      toastBody={(c) => (
+        <Toast
+          action={
+            <Button variant="outline" size="sm" onClick={c.undo}>
+              Undo
+            </Button>
+          }
+          onClose={c.close}
+        >
+          {message}
+        </Toast>
+      )}
+    />
+  );
+}
+
+function ThreeActions() {
+  return (
+    <Contacts
+      crowded
+      toastBody={(c) => (
+        <Toast
+          action={
+            <div className="flex flex-wrap justify-end gap-1">
+              <Button variant="outline" size="sm" onClick={c.undo}>
+                Undo
+              </Button>
+              <Button variant="outline" size="sm" onClick={c.nothing}>
+                View
+              </Button>
+              <Button variant="outline" size="sm" onClick={c.nothing}>
+                Share
+              </Button>
+            </div>
+          }
+        >
+          {message}
+        </Toast>
+      )}
+    />
+  );
+}
+
 export const FBK005: RuleExamples = {
   id: "FBK-005",
   examples: [
@@ -198,7 +219,7 @@ export const FBK005: RuleExamples = {
           <em>Split contacts</em>, to do the same. <em>Reset example</em> merges them again.
         </>
       ),
-      Demo: () => <Contacts crowded={false} />,
+      Demo: OneAction,
     },
     {
       kind: "dont",
@@ -209,7 +230,9 @@ export const FBK005: RuleExamples = {
           once it has gone, nothing on the page can split the contacts again.
         </>
       ),
-      Demo: () => <Contacts crowded />,
+      notLinted:
+        "The toast is the example's own, drawn in the stage; sonner's Toaster would float over this page, and the rule reads only sonner's toast().",
+      Demo: ThreeActions,
     },
   ],
 };

@@ -1,4 +1,5 @@
-import { useRef, useState, type ReactNode } from "react";
+import { CheckIcon } from "@blackwoodblake/justified-shadcn/icons";
+import { useId, useRef, useState, type ReactNode } from "react";
 
 import type { RuleExamples } from "./frame";
 import { ACTIVE_SHADOW, ChoiceCards, CodeReadout, COLOUR_TRANSITION, FOCUS, MicGlyph, StarGlyph } from "./states";
@@ -87,18 +88,48 @@ const DELIVERY = [
   { id: "next-day", title: "Next day", detail: "Order by 4 pm", price: "£7.90" },
 ];
 
-function DeliveryScene({ radio }: { radio: boolean }) {
+function DeliveryScene() {
   const ref = useRef<HTMLDivElement>(null);
   return (
     <div className="flex w-full max-w-md flex-col gap-3">
       <div ref={ref}>
-        <ChoiceCards
-          legend="Delivery"
-          items={DELIVERY}
-          control={radio ? "radio" : "button"}
-          mark={radio ? "radio-and-text" : "border-and-check"}
-          defaultValue="standard"
-        />
+        <ChoiceCards legend="Delivery" items={DELIVERY} control="radio" mark="radio-and-text" defaultValue="standard" />
+      </div>
+      <CodeReadout scope={ref} />
+    </div>
+  );
+}
+
+function DeliveryButtons() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [chosen, setChosen] = useState("standard");
+  const legendId = useId();
+  return (
+    <div className="flex w-full max-w-md flex-col gap-3">
+      <div ref={ref}>
+        <div role="group" aria-labelledby={legendId} className="grid w-full gap-2">
+          <p id={legendId} className="m-0 text-sm font-medium">
+            Delivery
+          </p>
+          {DELIVERY.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              data-look-name={item.title}
+              onClick={() => setChosen(item.id)}
+              className={`relative flex w-full cursor-pointer items-start gap-3 rounded-lg border bg-card p-3 text-card-foreground ${COLOUR_TRANSITION} ${chosen === item.id ? "border-primary" : "border-border"} hover:bg-accent hover:text-accent-foreground active:bg-accent ${ACTIVE_SHADOW} ${FOCUS}`}
+            >
+              <span className="flex min-w-0 flex-1 flex-col text-left">
+                <span className="text-sm font-medium">{item.title}</span>
+                <span className="text-sm text-muted-foreground">{item.detail}</span>
+              </span>
+              <span className="flex flex-col items-end gap-1 text-sm font-medium">
+                {item.price}
+                {chosen === item.id && <CheckIcon aria-hidden="true" className="size-4 text-primary" />}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
       <CodeReadout scope={ref} />
     </div>
@@ -141,7 +172,7 @@ export const VIS008a: RuleExamples = {
           code follow.
         </>
       ),
-      Demo: () => <DeliveryScene radio />,
+      Demo: DeliveryScene,
     },
     {
       kind: "dont",
@@ -153,7 +184,9 @@ export const VIS008a: RuleExamples = {
           chosen.
         </>
       ),
-      Demo: () => <DeliveryScene radio={false} />,
+      Demo: DeliveryButtons,
+      notLinted:
+        "Lint gap: the check mark that follows the chosen state is read as text that follows it, so the missing aria-checked is not reported.",
     },
   ],
 };

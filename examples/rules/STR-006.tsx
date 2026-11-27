@@ -115,18 +115,21 @@ export const STR006: RuleExamples = {
       title: "Every string changes, lang stays en",
       caption: <>Switch the language: the text turns Polish, Portuguese or Korean, but the code line still says English, so a screen reader keeps reading with English sounds.</>,
       Demo: StaysEnglishDemo,
+      notLinted: "The html element is drawn as a line of code, and a switch that never updates lang needs the whole project to see.",
     },
     {
       kind: "dont",
       title: "The language sits on a div around the app",
       caption: <>The view&apos;s div says <code>pl</code>, but <code>html</code> still says <code>en</code>. The head and a toast in a portal fall back to English; so would a dialog or a menu.</>,
       Demo: WrapperDemo,
+      notLinted: "The html element is drawn as a line of code, since a real one cannot be rendered inside the page.",
     },
     {
       kind: "dont",
       title: "A wrong or missing value",
       caption: <>Try each value on a Polish page. A template&apos;s <code>en</code>, <code>en_US</code>, <code>english</code>, <code>cn</code>, an empty value and no attribute all fail.</>,
       Demo: BadTagsDemo,
+      notLinted: "The html element is drawn as a line of code, since a real one cannot be rendered inside the page.",
     },
   ],
 };
