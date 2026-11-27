@@ -1,6 +1,6 @@
 {
   "name": "@blackwoodblake/justified-agents",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "The behaviour rules of Justified by Blackwood & Blake as instructions for coding agents: a Claude Code skill, a review skill and an AGENTS.md.",
   "keywords": [
     "agents-md",
