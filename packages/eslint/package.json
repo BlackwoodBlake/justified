@@ -1,6 +1,6 @@
 {
   "name": "@blackwoodblake/justified-eslint",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ESLint rules for shadcn and React apps that flag code that may break the behaviour rules of Justified by Blackwood & Blake.",
   "keywords": [
     "eslint",
@@ -42,6 +42,7 @@
   ],
   "scripts": {
     "index": "node scripts/build-index.js",
+    "corpus": "node --import ./test/setup.js scripts/shadcn-corpus.js",
     "test": "node --import ./test/setup.js --test --test-reporter=spec \"test/**/*.test.js\""
   },
   "peerDependencies": {

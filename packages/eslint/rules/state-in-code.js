@@ -12,7 +12,8 @@
  *      neither it nor anything inside it carries `aria-pressed`,
  *      `aria-selected`, `aria-checked`, `aria-expanded`, `aria-current`,
  *      `aria-sort` or `data-state`, and no text inside it follows the same
- *      state.
+ *      state. An element marked `aria-hidden`, such as a check icon shown
+ *      under the state, is not text: a screen reader hears nothing of it.
  *   2. `opacity-50`, `pointer-events-none` or `cursor-not-allowed` added by
  *      a condition to a button, link or field that acts (`onClick`, `href`
  *      or `type="submit"`) and has neither `disabled` nor `aria-disabled`.
@@ -29,7 +30,10 @@
  *   - shadcn and Radix components that set their own state (`Toggle`,
  *     `TabsTrigger`, `Checkbox`, `RadioGroupItem`, menu items …), and links,
  *     whose current page is NAV-002a (`active-link-aria-current`), and
- *     header cells, whose sort is TBL-002.
+ *     the sort control of a header cell, whose sort state is `aria-sort`
+ *     on the cell (TBL-002), not `aria-pressed`: the cell or the button
+ *     carries `aria-sort`, or the button's handler or `aria-label` speaks of
+ *     sorting. Other buttons in a header cell are read as usual.
  *   - Elements that spread props, which may bring the state.
  *   - Whether a `disabled` or `aria-disabled` follows the same condition as
  *     the faded look: any such attribute quiets check 2.
@@ -174,10 +178,66 @@ export default defineRule({
       if (label?.value?.type === "JSXExpressionContainer" && readsName(label.value.expression, keys, isStateName)) return true;
       walk({ type: "Wrapper", children: element.children }, { ...keys, Wrapper: ["children"] }, (n) => {
         if (found) return false;
-        if (n.type === "JSXExpressionContainer" && readsName(n.expression, keys, isStateName)) found = true;
+        if (n.type === "JSXExpressionContainer" && readsName(n.expression, keys, isStateName) && mayGiveText(n.expression))
+          found = true;
         return undefined;
       });
       return found;
+    };
+
+    /**
+     * Whether what an expression renders may be words. An element marked
+     * `aria-hidden`, such as a check icon, and `null` or `false` are not:
+     * a screen reader hears nothing from them.
+     * @param {any} node
+     * @returns {boolean}
+     */
+    const mayGiveText = (node) => {
+      const n = unwrap(node);
+      if (!n) return false;
+      switch (n.type) {
+        case "ConditionalExpression":
+          return mayGiveText(n.consequent) || mayGiveText(n.alternate);
+        case "LogicalExpression":
+          return n.operator === "&&" ? mayGiveText(n.right) : mayGiveText(n.left) || mayGiveText(n.right);
+        case "Literal":
+          return typeof n.value === "string" ? n.value.trim() !== "" : typeof n.value === "number";
+        case "JSXElement": {
+          const hidden = attributeValue(getAttribute(n.openingElement, "aria-hidden"));
+          return !(hidden === true || hidden === "true");
+        }
+        case "JSXFragment":
+          return n.children.some(
+            (/** @type {any} */ c) =>
+              (c.type === "JSXText" && c.value.trim() !== "") ||
+              (c.type === "JSXExpressionContainer" && mayGiveText(c.expression)) ||
+              (c.type === "JSXElement" && mayGiveText(c)),
+          );
+        default:
+          // A name, a call or a template may hold words.
+          return n.type !== "JSXEmptyExpression";
+      }
+    };
+
+    /**
+     * Whether an element is the sort control of a table header cell, whose
+     * sort state is TBL-002 (`aria-sort` on the cell): the cell or the
+     * element carries `aria-sort`, or its handler or name speaks of sorting.
+     * Any other button in a header cell, such as Pin column, is read as usual.
+     * @param {any} element
+     */
+    const sortInHeaderCell = (element) => {
+      const opening = element.openingElement;
+      for (let el = element.parent; el; el = el.parent) {
+        if (FUNCTIONS.has(el.type)) return false;
+        if (el.type !== "JSXElement" || !["th", "TableHead"].includes(elementName(el.openingElement) ?? "")) continue;
+        if (getAttribute(el.openingElement, "aria-sort") || getAttribute(opening, "aria-sort")) return true;
+        const onClick = getAttribute(opening, "onClick");
+        const label = getAttribute(opening, "aria-label");
+        const words = [onClick, label].map((a) => (a ? context.sourceCode.getText(a) : "")).join(" ");
+        return /sort/i.test(words);
+      }
+      return false;
     };
 
     /**
@@ -266,7 +326,7 @@ export default defineRule({
         readSetters(onClick);
 
         // 1. A look switched by a state, with no state in code.
-        if (TARGETS.has(name) && onClick && !carriesState(element) && !textFollowsState(element)) {
+        if (TARGETS.has(name) && onClick && !carriesState(element) && !textFollowsState(element) && !sortInHeaderCell(element)) {
           const className = getAttribute(opening, "className");
           let state =
             className?.value?.type === "JSXExpressionContainer" ? switchedBy(className.value.expression) : undefined;

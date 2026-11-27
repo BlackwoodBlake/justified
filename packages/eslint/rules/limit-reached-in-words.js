@@ -18,9 +18,9 @@
  * text from a code, and codes are FRM-017a; a `Textarea` from any other
  * module, which may count by itself; a count that only changes colour, and
  * whether the words that are there say the right thing, which need the
- * running page or the review skill. A field with no count at all may also
- * be reported by the lint rule for FRM-017b, which asks for
- * the limit and the count before people get there.
+ * running page or the review skill. Whether the limit and a count show
+ * before people get there is FRM-017b, which has no lint rule: the review
+ * skill checks it.
  */
 import { defineRule } from "../lib/define-rule.js";
 import { componentSources, FUNCTIONS, isInside, outerScope, resolveFunction } from "../lib/form-entry-helpers.js";

@@ -287,7 +287,7 @@ function FilledCancel() {
               <AlertDialogDescription>It is erased for good, and its number cannot be used again.</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className={filledCancel} />
+              <AlertDialogCancel className="border-transparent bg-primary text-primary-foreground not-disabled:not-aria-disabled:hover:bg-primary/90 not-disabled:not-aria-disabled:hover:text-primary-foreground not-disabled:not-aria-disabled:active:bg-[color-mix(in_oklab,var(--primary),var(--foreground)_20%)] not-disabled:not-aria-disabled:active:text-primary-foreground" />
               <AlertDialogAction
                 variant="destructive"
                 onClick={(e) => {
@@ -341,7 +341,7 @@ export const DLG005: RuleExamples = {
         </>
       ),
       notLinted:
-        "Lint gap: a filled Cancel beside a red Delete invoice is not reported, since the rule only looks for a filled Cancel beside a quiet destructive button.",
+        "Lint gap: the rule sentence asks only that the destructive button has the danger style; a filled Cancel beside it is our own advice in Don't.",
       Demo: FilledCancel,
     },
   ],

@@ -18,13 +18,13 @@ const STOCK = /(^|\/)ui\/([a-z-]+)$/;
 
 /**
  * Where each imported name comes from: "justified" or "stock" for a shadcn
- * component (with its module, such as "button"), "icon" for an icon, and
- * nothing for any other module.
+ * component (with its module, such as "button", and for a stock one the
+ * whole import path), "icon" for an icon, and nothing for any other module.
  * @param {any} program
- * @returns {Map<string, { from: "justified" | "stock" | "icon", module?: string }>}
+ * @returns {Map<string, { from: "justified" | "stock" | "icon", module?: string, path?: string }>}
  */
 export function componentSources(program) {
-  /** @type {Map<string, { from: "justified" | "stock" | "icon", module?: string }>} */
+  /** @type {Map<string, { from: "justified" | "stock" | "icon", module?: string, path?: string }>} */
   const map = new Map();
   for (const name of iconImports(program)) map.set(name, { from: "icon" });
   for (const node of program.body) {
@@ -34,7 +34,7 @@ export function componentSources(program) {
     const s = source.match(STOCK);
     if (!j && !s) continue;
     for (const spec of node.specifiers)
-      map.set(spec.local.name, j ? { from: "justified", module: j[1] } : { from: "stock", module: s?.[2] });
+      map.set(spec.local.name, j ? { from: "justified", module: j[1] } : { from: "stock", module: s?.[2], path: source });
   }
   return map;
 }

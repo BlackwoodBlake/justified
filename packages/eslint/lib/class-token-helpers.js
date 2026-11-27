@@ -1,7 +1,8 @@
 /**
  * class-token-helpers.js: reads Tailwind class lists from `className`, for
- * `focus-stays-visible`, `hover-controls-on-focus` and
- * `colour-tokens-by-role`.
+ * `focus-stays-visible`, `hover-controls-on-focus`, `hover-and-press-looks`
+ * and `colour-tokens-by-role`, and tells a Tailwind utility from a class
+ * of the project's own stylesheet.
  *
  * A class list is read into parts. A part is a list of class tokens and a
  * group: `null` for tokens that are always there, or a number for tokens
@@ -214,6 +215,34 @@ export function readClassList(context, opening, attributeName = "className") {
   list.certain = [...new Set(list.certain)];
   list.complete = unknown === 0;
   return list;
+}
+
+/**
+ * Tailwind utilities by their first part. A class with no variant that is
+ * not one of them, such as `focus-ring` or `btn`, comes from a stylesheet
+ * the rule cannot read, which may draw a focus style.
+ */
+const TAILWIND =
+  /^-?(\[.+\]|\(.+\)|@container(\/\S+)?|(sr-only|not-sr-only|not-prose|peer|group|container|block|inline|inline-block|inline-flex|inline-grid|flex|grid|hidden|contents|table|flow-root|list-item|static|fixed|absolute|relative|sticky|visible|invisible|collapse|isolate|truncate|italic|not-italic|underline|overline|line-through|no-underline|uppercase|lowercase|capitalize|normal-case|antialiased|subpixel-antialiased|ordinal|slashed-zero|tabular-nums|proportional-nums|lining-nums|oldstyle-nums|diagonal-fractions|stacked-fractions|normal-nums|grow|shrink|transform|filter|border|rounded|shadow|ring|outline|blur|transition|resize|prose|dark)(\/\S+)?$|(p|px|py|pt|pr|pb|pl|ps|pe|m|mx|my|mt|mr|mb|ml|ms|me|w|h|size|min-w|min-h|max-w|max-h|inset|inset-x|inset-y|top|right|bottom|left|start|end|z|gap|gap-x|gap-y|space-x|space-y|text|font|leading|tracking|bg|from|via|to|border|divide|outline|ring|ring-offset|shadow|inset-shadow|inset-ring|rounded|opacity|cursor|select|pointer-events|items|justify|content|self|place|order|col|row|grid-cols|grid-rows|auto-cols|auto-rows|grid-flow|flex|basis|grow|shrink|overflow|overscroll|object|aspect|columns|break|box|float|clear|decoration|underline-offset|indent|align|whitespace|wrap|hyphens|list|line-clamp|fill|stroke|transition|duration|delay|ease|animate|scale|rotate|translate|skew|origin|perspective|backface|transform|blur|brightness|contrast|drop-shadow|grayscale|hue-rotate|invert|saturate|sepia|backdrop|mix-blend|bg-blend|appearance|resize|user|fade|zoom|slide|spin|caret|accent|scroll|snap|touch|will-change|forced-color-adjust|field-sizing|color-scheme|table|border-collapse|border-spacing|caption|tab|mask|text-shadow|stroke|outline-offset|font-stretch|inline|block|shadow|display)-\S+)$/;
+
+/**
+ * Class names that only mark a state or give a script a hook, such as
+ * `active` on the current link or `js-open`. They are taken to carry no
+ * look of their own. Kept short on purpose: any other name may be styled.
+ */
+const STATE_HOOK = /^(active|open|selected|js-[\w-]+)$/;
+
+/**
+ * Whether a token is a class from the project's own stylesheet: no
+ * variant, not a Tailwind utility, and not a pure state or hook name. Such
+ * a class may draw what a rule looks for, so rules stay quiet.
+ * @param {string} token
+ */
+export function fromOwnStylesheet(token) {
+  const { variants, utility } = parseToken(token);
+  if (variants.length) return false;
+  const bare = utility.replace(/^!|!$/g, "");
+  return !TAILWIND.test(bare) && !STATE_HOOK.test(bare);
 }
 
 /** Every token in a class list. @param {ClassList} list */

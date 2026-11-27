@@ -427,19 +427,21 @@ function SettingsWithSwitch() {
   return (
     <Frame said={said} onReset={reset}>
       <Screen label="Settings">
-        <Field label="Email me a weekly summary" layout="inline">
-          <Switch checked={draft} onCheckedChange={setDraft} />
-        </Field>
-        <div>
-          <Button
-            onClick={() => {
-              setSaved(draft);
-              setSaid("Settings saved.");
-            }}
-          >
-            Save settings
-          </Button>
-        </div>
+        <form
+          className="contents"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setSaved(draft);
+            setSaid("Settings saved.");
+          }}
+        >
+          <Field label="Email me a weekly summary" layout="inline">
+            <Switch checked={draft} onCheckedChange={setDraft} />
+          </Field>
+          <div>
+            <Button type="submit">Save settings</Button>
+          </div>
+        </form>
         <p className="m-0">
           Saved setting: <strong>{saved ? "On" : "Off"}</strong>
         </p>
@@ -508,7 +510,6 @@ export const FRM012b: RuleExamples = {
           wrong control for starting a task.
         </>
       ),
-      notLinted: "Lint gap: a switch that opens a dialog is not read; only a value change that navigates or sends a form is.",
       Demo: AutoPayWithSwitch,
     },
     {
@@ -531,7 +532,8 @@ export const FRM012b: RuleExamples = {
           pressed.
         </>
       ),
-      notLinted: "Lint gap: a switch whose state is only read by a separate Save button's handler is not traced.",
+      notLinted:
+        "Lint gap: the rule sentence does not say a switch must apply its setting at once; that is our own advice in Do.",
       Demo: SettingsWithSwitch,
     },
   ],

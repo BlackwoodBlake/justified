@@ -18,7 +18,10 @@
  *   - A `<form>` with a single-line field and no submit button, whose main
  *     button is a plain button: one whose `onClick` calls `handleSubmit` or
  *     `requestSubmit`, or a Justified `Button` with no type in the default
- *     variant.
+ *     variant. With two or more single-line fields Enter does nothing. With
+ *     exactly one, the browser still sends the form on Enter (implicit
+ *     submission), so such a form is reported only when it has no
+ *     `onSubmit` or `action` to catch the send.
  *   - An `onKeyDown` on a `<form>`, or on a single-line field inside one,
  *     that does nothing on Enter but `preventDefault()`.
  *   - A `button`, or a shadcn `Button`, with no type inside a `<form>` and
@@ -38,7 +41,10 @@
  * the worst case; forms with an `id`, which a button elsewhere may point
  * to; forms that hold a component or a value this file does not show,
  * since it may hold the submit button; a button whose type is computed or
- * set by a spread or a wrapper such as `DialogClose asChild`; and two
+ * set by a spread or a wrapper such as `DialogClose asChild` or
+ * `DialogTrigger render={<Button />}`; a `Button` from shadcn's react-aria
+ * or Base UI base (`aria/ui/button`, `base-nova/ui/button`), which react-aria
+ * makes `type="button"` and Base UI may too; and two
  * buttons both marked `type="submit"`.
  */
 import { defineRule } from "../lib/define-rule.js";
@@ -52,7 +58,17 @@ import {
   outerScope,
   resolveFunction,
 } from "../lib/form-entry-helpers.js";
-import { attributeValue, elementName, getAttribute, hasSpread, parentElement, staticValue, unwrap, walk } from "../lib/jsx.js";
+import {
+  attributeValue,
+  elementName,
+  getAttribute,
+  hasSpread,
+  isPropValue,
+  parentElement,
+  staticValue,
+  unwrap,
+  walk,
+} from "../lib/jsx.js";
 
 const SENDS = (/** @type {string} */ name) => name === "handleSubmit" || name === "requestSubmit";
 const FOOTERS = new Set(["DialogFooter", "SheetFooter"]);
@@ -110,6 +126,14 @@ function buttonKind(element, sources) {
     return "unknown";
   }
   if (source === "justified") return "none";
+  // shadcn's react-aria base wraps react-aria's Button, which is type="button" by default; the Base UI base is
+  // left unknown.
+  const path = name === "Button" ? (sources.get("Button")?.path ?? "") : "";
+  if (/(^|\/)aria(-[a-z]+)?\/ui(-[a-z]+)?\/button$/.test(path)) return "none";
+  if (/(^|\/)base(-[a-z]+)?\/ui(-[a-z]+)?\/button$/.test(path)) return "unknown";
+  // A button given as the `render` of a trigger, which draws it with type="button", as asChild does.
+  const holder = isPropValue(element) ? element.parent.parent : undefined;
+  if (holder?.name?.name === "render") return TYPED_WRAPPERS.has(elementName(holder.parent) ?? "") ? "none" : "unknown";
   // No type: a submit button, unless a wrapper with asChild gives it one.
   const parent = parentElement(element);
   if (parent && getAttribute(parent.openingElement, "asChild")) {
@@ -167,6 +191,9 @@ function readForm(form, sources, keys) {
   const items = [];
   const buttons = new Set();
   let singleLine = false;
+  /** How many single-line fields the form holds, or undefined when the code does not say, as for fields in a `.map()`. */
+  /** @type {number | undefined} */
+  let fieldCount = 0;
   let destructive = false;
   const insideButton = (/** @type {any} */ node) => {
     for (let el = parentElement(node); el && el !== form; el = parentElement(el)) if (buttons.has(el)) return true;
@@ -186,7 +213,10 @@ function readForm(form, sources, keys) {
         if (!insideButton(n)) items.push({ element: n, kind });
         return undefined;
       }
-      if (isSingleLine(opening) === true && (name === "input" || sources.has(name))) singleLine = true;
+      if (isSingleLine(opening) === true && (name === "input" || sources.has(name))) {
+        singleLine = true;
+        if (fieldCount !== undefined) fieldCount = inFunction(n, form) ? undefined : fieldCount + 1;
+      } else if (isSingleLine(opening) === undefined && (name === "input" || sources.has(name))) fieldCount = undefined;
       const first = name.split(".")[0];
       const known = /^[a-z]/.test(name) || name === "Fragment" || name === "React.Fragment" || sources.has(first);
       if (!known && !insideButton(n)) items.push({ element: n, kind: "opaque" });
@@ -198,7 +228,13 @@ function readForm(form, sources, keys) {
     }
     return undefined;
   });
-  return { items, singleLine, destructive };
+  return { items, singleLine, fieldCount, destructive };
+}
+
+/** Whether a node lies in a function inside the form, such as a `.map()` callback. @param {any} node @param {any} form */
+function inFunction(node, form) {
+  for (let n = node.parent; n && n !== form; n = n.parent) if (FUNCTIONS.has(n.type)) return true;
+  return false;
 }
 
 /** Whether a button's onClick sends the form through a handler. @param {any} opening @param {any} context */
@@ -280,6 +316,8 @@ export default defineRule({
       'this button sends the fields with handleSubmit in onClick, but there is no <form>, so Enter in a field does nothing. Put the fields and the button in <form onSubmit={form.handleSubmit(onSubmit)}> and make the button type="submit".',
     mainNotSubmit:
       'this form has no submit button, so Enter in a field does not do what this button does. Make the main button type="submit" and send from the form\'s onSubmit. Justified\'s Button is type="button" unless you write the type.',
+    mainNotSubmitOneField:
+      'this form has no submit button and one single-line field, so Enter in the field sends the form, but the form has no onSubmit: the page reloads instead of doing what this button does. Make the main button type="submit" and send from the form\'s onSubmit.',
     enterBlocked:
       "this key handler cancels Enter, so Enter cannot send the form. Remove it; if people send too early, check the fields when they send instead.",
     strayButton:
@@ -309,7 +347,7 @@ export default defineRule({
 
         if (name === "form") {
           if (inAlertDialog(node)) return;
-          const { items, singleLine, destructive } = readForm(node, sources, keys);
+          const { items, singleLine, fieldCount, destructive } = readForm(node, sources, keys);
           const firstSubmit = items.findIndex((i) => i.kind === "submit");
           // A stray submit button before the main one.
           if (firstSubmit > 0) {
@@ -318,7 +356,11 @@ export default defineRule({
           }
           // No submit button at all, and a main button that is a plain one.
           const open = items.some((i) => i.kind === "submit" || i.kind === "implicit" || i.kind === "unknown" || i.kind === "opaque");
-          if (!open && singleLine && !destructive && !getAttribute(opening, "id") && !hasSpread(opening)) {
+          // With no submit button and exactly one single-line field, Enter still sends the form (implicit
+          // submission in the HTML standard), so a form whose onSubmit or action handles it is left alone.
+          const handled = getAttribute(opening, "onSubmit") || getAttribute(opening, "action");
+          const oneField = fieldCount === 1;
+          if (!open && singleLine && !(oneField && handled) && !destructive && !getAttribute(opening, "id") && !hasSpread(opening)) {
             const main = items.find(({ element }) => {
               const o = element.openingElement;
               if (getAttribute(o, "form")) return false;
@@ -329,7 +371,7 @@ export default defineRule({
               const size = attributeValue(getAttribute(o, "size"));
               return (!variant || attributeValue(variant) === "default") && size !== "icon";
             });
-            if (main) report(main.element.openingElement, "mainNotSubmit");
+            if (main) report(main.element.openingElement, oneField ? "mainNotSubmitOneField" : "mainNotSubmit");
           }
           return;
         }

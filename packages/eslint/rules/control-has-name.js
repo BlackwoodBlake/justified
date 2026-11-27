@@ -19,7 +19,11 @@
  *     `FormLabel` in the same `FormItem`, a `label` or `Label` that wraps
  *     the control, or a `Label htmlFor` in the same file that matches the
  *     control's `id`. Text in parentheses, such as "(optional)", is left
- *     out of the comparison: that marker is FRM-005, not this rule.
+ *     out of the comparison: that marker is FRM-005, not this rule. A
+ *     label around two or more controls, such as "Date of birth" over Day,
+ *     Month and Year, names the group, which the rule's exception leaves
+ *     out of each control's name, so it is not compared. A `legend` or a
+ *     group's `aria-labelledby` is never read as a control's label.
  *   - A `Switch` or `Checkbox` whose `aria-label` switches between two
  *     written-out texts on the same value as its `checked` prop.
  *
@@ -29,7 +33,14 @@
  * control a component returns with nothing around it (its caller may wrap
  * it in a label), a control passed as a prop such as `render={<Input />}`
  * (the component that takes it may add the name), labels whose text is
- * computed, and visible text that spells no word.
+ * computed, and visible text that spells no word. Also a `SelectTrigger`
+ * from react-aria (`react-aria-components`, or a shadcn aria base such as
+ * `aria/ui/select`) whose `Select` has `aria-label`, `aria-labelledby`, a
+ * `label`, a `Label` child or spread props, or that has no `Select` around
+ * it in the file, since react-aria names the trigger from its `Select`;
+ * and a control with a `slot` in a file that uses react-aria, or with
+ * `slot="selection"`, such as react-aria's selection checkbox, whose slot
+ * gives it its name.
  */
 import { defineRule } from "../lib/define-rule.js";
 import {
@@ -102,6 +113,10 @@ export default defineRule({
     const sourceCode = context.sourceCode;
     /** @type {Set<string>} */
     let icons = new Set();
+    /** Whether `SelectTrigger` comes from react-aria, which names it from its `Select`. */
+    let ariaSelect = false;
+    /** Whether the file imports react-aria or a shadcn aria base, whose slots give controls their props. */
+    let ariaFile = false;
     /** Visible text of labels with a written-out htmlFor, by that id. @type {Map<string, string | undefined>} */
     const labelsFor = new Map();
     /** Controls with an id and an aria-label, checked against labelsFor at the end. @type {{ node: any, id: string, label: string }[]} */
@@ -119,32 +134,93 @@ export default defineRule({
       });
     };
 
+    /**
+     * Whether an element holds more than one control. Its label then names
+     * the group, such as "Date of birth" over Day, Month and Year, and FRM-010
+     * does not ask for a group label in each control's name.
+     * @param {any} holder
+     */
+    function holdsGroup(holder) {
+      let count = 0;
+      const visit = (/** @type {any} */ node) => {
+        for (const c of node.children ?? []) {
+          if (count > 1) return;
+          if (c.type === "JSXExpressionContainer") {
+            // Controls made in a .map() or a condition may be many.
+            if (c.expression.type !== "JSXEmptyExpression" && /<[A-Za-z]/.test(context.sourceCode.getText(c.expression))) count = 2;
+            continue;
+          }
+          if (c.type !== "JSXElement" && c.type !== "JSXFragment") continue;
+          if (c.type === "JSXElement") {
+            const n = elementName(c.openingElement) ?? "";
+            const t = attributeValue(getAttribute(c.openingElement, "type"));
+            const control =
+              (CONTROLS.has(n) && !((n === "input" || n === "Input") && typeof t === "string" && NOT_CONTROLS.has(t))) ||
+              attributeValue(getAttribute(c.openingElement, "role")) === "combobox";
+            if (control) count++;
+          }
+          visit(c);
+        }
+      };
+      visit(holder);
+      return count > 1;
+    }
+
     /** The visible label around a control, or `undefined`. @param {any} element */
     function surroundingLabel(element) {
       const parent = parentElement(element);
       if (parent && baseName(parent.openingElement) === "Field") {
         const label = stringAttribute(parent.openingElement, "label");
-        if (label !== undefined) return label;
+        if (label !== undefined) return holdsGroup(parent) ? undefined : label;
       }
       let insideControl = false;
       for (let el = parent; el; el = parentElement(el)) {
         const name = elementName(el.openingElement) ?? "";
         if (name === "FormControl") insideControl = true;
-        if (name === "label" || name === "Label") return visibleText(el, icons, (e) => e === element);
+        if (name === "label" || name === "Label")
+          return holdsGroup(el) ? undefined : visibleText(el, icons, (e) => e === element);
         if (name === "FormItem") {
           if (!insideControl) return undefined;
           const formLabel = el.children.find(
             (c) => c.type === "JSXElement" && elementName(c.openingElement) === "FormLabel",
           );
-          return formLabel ? visibleText(formLabel, icons) : undefined;
+          return formLabel && !holdsGroup(el) ? visibleText(formLabel, icons) : undefined;
         }
       }
       return undefined;
     }
 
+    /**
+     * Whether a react-aria `SelectTrigger` may get a name from its `Select`:
+     * the nearest `Select` has `aria-label`, `aria-labelledby`, a `label`
+     * prop, a `Label` child or spread props, or there is no `Select` around
+     * it in this file (a caller may give one).
+     * @param {any} element
+     */
+    const ariaSelectNamed = (element) => {
+      for (let el = parentElement(element); el; el = parentElement(el)) {
+        if (baseName(el.openingElement) !== "Select") continue;
+        const o = el.openingElement;
+        if (hasSpread(o) || ["aria-label", "aria-labelledby", "label"].some((a) => getAttribute(o, a))) return true;
+        return el.children.some(
+          (/** @type {any} */ c) => c.type === "JSXElement" && /Label$/.test(elementName(c.openingElement) ?? ""),
+        );
+      }
+      return true;
+    };
+
     return {
       Program(node) {
         icons = iconImports(node);
+        const aria = node.body.filter(
+          (/** @type {any} */ s) =>
+            s.type === "ImportDeclaration" &&
+            /^react-aria-components$|\/aria(-[a-z]+)?\/ui(-[a-z]+)?\//.test(String(s.source.value)),
+        );
+        ariaFile = aria.length > 0;
+        ariaSelect = aria.some((/** @type {any} */ s) =>
+          s.specifiers.some((/** @type {any} */ x) => x.local.name === "SelectTrigger"),
+        );
       },
       JSXElement(element) {
         const opening = element.openingElement;
@@ -166,6 +242,9 @@ export default defineRule({
         const type = attributeValue(getAttribute(opening, "type"));
         if ((name === "input" || name === "Input") && typeof type === "string" && NOT_CONTROLS.has(type)) return;
         if (hasSpread(opening) || isAriaHidden(opening) || isPropValue(element)) return;
+        const slot = getAttribute(opening, "slot");
+        if (slot && (ariaFile || attributeValue(slot) === "selection")) return;
+        if (name === "SelectTrigger" && ariaSelect && ariaSelectNamed(element)) return;
 
         const ariaLabel = getAttribute(opening, "aria-label");
         const labelledBy = getAttribute(opening, "aria-labelledby");
