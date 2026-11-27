@@ -256,7 +256,7 @@ export function IconButton({
   onPress?: () => void;
   describedBy?: string;
 }) {
-  const base = `inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-md text-foreground ${COLOUR_TRANSITION} ${FOCUS}`;
+  const base = `inline-flex size-10 shrink-0 items-center justify-center rounded-md text-foreground ${COLOUR_TRANSITION} ${FOCUS}`;
   const lights = off ? !scoped : mode === "do";
   const still = force === "hover" ? HOVER_STILL : force === "pressed" ? PRESSED_STILL : "";
   const look = force
@@ -281,7 +281,7 @@ export function IconButton({
         if (off) return;
         onPress?.();
       }}
-      className={`${base} ${look} ${off ? "cursor-not-allowed text-muted-foreground" : ""}`}
+      className={`${base} ${look} ${off ? "cursor-not-allowed text-muted-foreground" : "cursor-pointer"}`}
     >
       {icon}
     </button>

@@ -120,7 +120,7 @@ type MenuProps = {
   label: string;
 };
 
-function itemClass(cue: Cue, isCurrent: boolean, isHover: boolean, collapsed: boolean) {
+export function itemClass(cue: Cue, isCurrent: boolean, isHover: boolean, collapsed: boolean) {
   const barOn = cue === "full" && isCurrent;
   const base = cn(
     "flex w-full min-h-9 items-center gap-2.5 text-left text-sm",
@@ -205,7 +205,7 @@ export function Menu({
 }
 
 /** A small drawn pointer, so the hovered item can be shown without a real pointer. */
-function PointerGlyph() {
+export function PointerGlyph() {
   return (
     <svg viewBox="0 0 16 16" aria-hidden="true" className="ml-auto size-3.5 shrink-0 text-foreground" fill="currentColor">
       <path d="M3 1.5v11l3-2.8 2 4.3 2-.9-2-4.2h4.2z" />
@@ -290,6 +290,9 @@ function CurrentReadout({ info }: { info: ReturnType<typeof useCurrentReadout> }
   );
 }
 
+/** What Tallowbrook hands a menu drawn by the example: the current item and the pointer, with the ways to change them. */
+export type SceneMenu = { current: string; hovered: string | null; hover: (id: string | null) => void; select: (id: string) => void };
+
 /**
  * The drawn Tallowbrook app: a sidebar and a content area. Clicking an item
  * simulates going to that page. The highlighted item follows the route.
@@ -301,6 +304,7 @@ export function Tallowbrook({
   readout = true,
   initial = { item: "invoices" },
   initialHover = null,
+  menu,
 }: {
   cue?: Cue;
   mark?: "item" | "li" | "none";
@@ -309,6 +313,8 @@ export function Tallowbrook({
   initial?: Route;
   /** An item drawn as if the pointer were over it, until the real pointer moves. */
   initialHover?: string | null;
+  /** Draws the menu itself, for a Don't whose markup is written out in the rule file. */
+  menu?: (m: SceneMenu) => ReactNode;
 }) {
   const [route, setRoute] = useState<Route>(initial);
   const [hovered, setHovered] = useState<string | null>(initialHover);
@@ -322,17 +328,21 @@ export function Tallowbrook({
       >
         <div className="border-r border-border p-2">
           <p className="m-0 mb-2 px-2 text-sm font-semibold">Tallowbrook</p>
-          <Menu
-            label="Tallowbrook sidebar (drawn example)"
-            items={NAV_ITEMS}
-            current={route.item}
-            cue={cue}
-            mark={mark}
-            markValue={route.detail ? "true" : "page"}
-            hovered={hovered}
-            onHover={setHovered}
-            onSelect={(id) => setRoute({ item: id })}
-          />
+          {menu ? (
+            menu({ current: route.item, hovered, hover: setHovered, select: (id) => setRoute({ item: id }) })
+          ) : (
+            <Menu
+              label="Tallowbrook sidebar (drawn example)"
+              items={NAV_ITEMS}
+              current={route.item}
+              cue={cue}
+              mark={mark}
+              markValue={route.detail ? "true" : "page"}
+              hovered={hovered}
+              onHover={setHovered}
+              onSelect={(id) => setRoute({ item: id })}
+            />
+          )}
         </div>
         <Content route={route} setRoute={setRoute} withDetail={withDetail} />
       </div>
