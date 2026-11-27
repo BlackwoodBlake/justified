@@ -168,7 +168,8 @@ function FileScene() {
   );
 }
 
-const ICON_BUTTON = `inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-md text-foreground ${COLOUR_TRANSITION} ${FOCUS}`;
+const ICON_BUTTON_SHAPE = `inline-flex size-10 shrink-0 items-center justify-center rounded-md ${COLOUR_TRANSITION} ${FOCUS}`;
+const ICON_BUTTON = `${ICON_BUTTON_SHAPE} cursor-pointer text-foreground`;
 
 function FileSceneDont() {
   const [said, setSaid] = useState("");
@@ -196,7 +197,7 @@ function FileSceneDont() {
                 data-look-name="Rename"
                 aria-label="Rename"
                 aria-disabled="true"
-                className={`${ICON_BUTTON} bg-accent text-accent-foreground cursor-not-allowed text-muted-foreground`}
+                className={`${ICON_BUTTON_SHAPE} cursor-not-allowed bg-accent text-muted-foreground`}
               >
                 <RenameGlyph />
               </button>
@@ -224,7 +225,7 @@ function FileSceneDont() {
               aria-label="Rename"
               aria-disabled="true"
               aria-describedby={lockedId}
-              className="hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground active:shadow-[inset_0_2px_4px_color-mix(in_oklab,var(--foreground)_25%,transparent)] inline-flex size-10 shrink-0 cursor-pointer cursor-not-allowed items-center justify-center rounded-md text-foreground text-muted-foreground transition-colors duration-(--motion-duration-fast) ease-standard outline-none focus-visible:outline-hidden focus-visible:ring-(length:--focus-ring-width) focus-visible:ring-ring focus-visible:ring-offset-[length:var(--focus-ring-offset)] focus-visible:ring-offset-background"
+              className={`${ICON_BUTTON_SHAPE} cursor-not-allowed text-muted-foreground hover:bg-accent hover:text-accent-foreground active:bg-accent active:text-accent-foreground active:shadow-[inset_0_2px_4px_color-mix(in_oklab,var(--foreground)_25%,transparent)]`}
             >
               <RenameGlyph />
             </button>

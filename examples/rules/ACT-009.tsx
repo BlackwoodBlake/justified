@@ -21,7 +21,26 @@ const TITLE = "The Dispossessed";
 
 const linkText = `text-primary underline underline-offset-4 hover:decoration-2 rounded-sm ${focusRing}`;
 
-function StarIcon({ className, onClick }: { className?: string; onClick?: () => void }) {
+function StarIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      className={className ?? "size-4"}
+    >
+      <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.2 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z" />
+    </svg>
+  );
+}
+
+/** The Don't's star: the same drawing as StarIcon, with the click on the icon itself. */
+function ClickableStarIcon({ className, onClick }: { className: string; onClick: () => void }) {
   return (
     <svg
       onClick={onClick}
@@ -33,7 +52,7 @@ function StarIcon({ className, onClick }: { className?: string; onClick?: () => 
       strokeLinejoin="round"
       aria-hidden="true"
       focusable="false"
-      className={className ?? "size-4"}
+      className={className}
     >
       <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.2 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z" />
     </svg>
@@ -156,7 +175,7 @@ function NoRole() {
             </span>
           </p>
         </div>
-        <StarIcon className="size-6 shrink-0 cursor-pointer" onClick={() => say(`${TITLE} added to your wish list.`)} />
+        <ClickableStarIcon className="size-6 shrink-0 cursor-pointer" onClick={() => say(`${TITLE} added to your wish list.`)} />
       </div>
       <div>
         <a

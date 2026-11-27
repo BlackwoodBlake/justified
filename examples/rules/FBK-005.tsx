@@ -31,10 +31,11 @@ const splitWords = "Contacts split. Anna Brooks and A. Brooks are separate again
 
 const focusable = "rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
-/** What the list hands to the toast each example writes out. */
+/** What the list hands to the toast. */
 type ToastControls = { undo: () => void; nothing: () => void; close: () => void };
 
-function Contacts({ crowded, toastBody }: { crowded: boolean; toastBody: (c: ToastControls) => ReactNode }) {
+/** The list with its toast: crowded is the Don't, whose toast holds three buttons and goes by itself. */
+function Contacts({ crowded }: { crowded: boolean }) {
   const [merged, setMerged] = useState(true);
   const [toast, setToast] = useState(1);
   const [history, setHistory] = useState(false);
@@ -142,7 +143,7 @@ function Contacts({ crowded, toastBody }: { crowded: boolean; toastBody: (c: Toa
       <ToastRegion>
         {toast > 0 && (
           <div ref={toastRef} key={toast}>
-            {toastBody({ undo: () => split(undoWords), nothing, close })}
+            {(crowded ? threeActions : oneAction)({ undo: () => split(undoWords), nothing, close })}
           </div>
         )}
       </ToastRegion>
@@ -159,50 +160,40 @@ function Contacts({ crowded, toastBody }: { crowded: boolean; toastBody: (c: Toa
 
 type RefObject = { current: HTMLElement | null };
 
-function OneAction() {
+function oneAction(c: ToastControls) {
   return (
-    <Contacts
-      crowded={false}
-      toastBody={(c) => (
-        <Toast
-          action={
-            <Button variant="outline" size="sm" onClick={c.undo}>
-              Undo
-            </Button>
-          }
-          onClose={c.close}
-        >
-          {message}
-        </Toast>
-      )}
-    />
+    <Toast
+      action={
+        <Button variant="outline" size="sm" onClick={c.undo}>
+          Undo
+        </Button>
+      }
+      onClose={c.close}
+    >
+      {message}
+    </Toast>
   );
 }
 
-function ThreeActions() {
+function threeActions(c: ToastControls) {
   return (
-    <Contacts
-      crowded
-      toastBody={(c) => (
-        <Toast
-          action={
-            <div className="flex flex-wrap justify-end gap-1">
-              <Button variant="outline" size="sm" onClick={c.undo}>
-                Undo
-              </Button>
-              <Button variant="outline" size="sm" onClick={c.nothing}>
-                View
-              </Button>
-              <Button variant="outline" size="sm" onClick={c.nothing}>
-                Share
-              </Button>
-            </div>
-          }
-        >
-          {message}
-        </Toast>
-      )}
-    />
+    <Toast
+      action={
+        <div className="flex flex-wrap justify-end gap-1">
+          <Button variant="outline" size="sm" onClick={c.undo}>
+            Undo
+          </Button>
+          <Button variant="outline" size="sm" onClick={c.nothing}>
+            View
+          </Button>
+          <Button variant="outline" size="sm" onClick={c.nothing}>
+            Share
+          </Button>
+        </div>
+      }
+    >
+      {message}
+    </Toast>
   );
 }
 
@@ -219,7 +210,7 @@ export const FBK005: RuleExamples = {
           <em>Split contacts</em>, to do the same. <em>Reset example</em> merges them again.
         </>
       ),
-      Demo: OneAction,
+      Demo: () => <Contacts crowded={false} />,
     },
     {
       kind: "dont",
@@ -232,7 +223,7 @@ export const FBK005: RuleExamples = {
       ),
       notLinted:
         "The toast is the example's own, drawn in the stage; sonner's Toaster would float over this page, and the rule reads only sonner's toast().",
-      Demo: ThreeActions,
+      Demo: () => <Contacts crowded />,
     },
   ],
 };

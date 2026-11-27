@@ -16,6 +16,8 @@ import {
   type RefObject,
 } from "react";
 
+import { pasteLastText, type PasteLast } from "./paste-log";
+
 /*
  * For FRM-017, FRM-017a, FRM-017b and FRM-017c.
  *
@@ -136,8 +138,6 @@ export const box = "grid w-full max-w-sm gap-3 rounded-lg border border-border b
 /* One-line and multi-line fields for FRM-017 and FRM-017a            */
 /* ------------------------------------------------------------------ */
 
-type Last = { len: number; kept?: number; blocked?: boolean };
-
 export type PasteFieldProps = {
   label: string;
   hint?: string;
@@ -170,7 +170,7 @@ const separator = /[\s\-().]/;
 
 export function PasteField(p: PasteFieldProps) {
   const [value, setValue] = useState(p.initial ?? "");
-  const [last, setLast] = useState<Last | null>(null);
+  const [last, setLast] = useState<PasteLast | null>(null);
   const [refused, setRefused] = useState<string | null>(null);
   const [shown, setShown] = useState(false);
   const [changed, setChanged] = useState(false);
@@ -299,18 +299,7 @@ export function PasteField(p: PasteFieldProps) {
     ["The form gets", q(cleaned)],
   ];
   if (p.check) rows.push(["Check", !cleaned ? "(nothing yet)" : problem ? "refused" : "accepted"]);
-  rows.push([
-    "Last paste",
-    last === null
-      ? "(none yet)"
-      : last.blocked
-        ? `${last.len} characters, cancelled: nothing was added`
-        : last.kept === undefined
-          ? `${last.len} characters in`
-          : last.kept >= last.len
-            ? `${last.len} characters in, all kept`
-            : (last.kept <= 0 ? `${last.len} characters pasted, none kept` : `${last.len} characters in, ${last.kept} kept`),
-  ]);
+  rows.push(["Last paste", pasteLastText(last)]);
   if (p.refuseKey) rows.push(["Last key refused", refused ? q(refused) : "(none yet)"]);
 
   const control = p.multiline ? (
@@ -411,7 +400,7 @@ export function Counted(p: CountedProps) {
   const [sentOk, setSentOk] = useState(false);
   const [changed, setChanged] = useState(false);
   const [round, setRound] = useState(false);
-  const [last, setLast] = useState<Last | null>(null);
+  const [last, setLast] = useState<PasteLast | null>(null);
   const ref = useRef<HTMLTextAreaElement>(null);
   const pending = useRef<{ before: number; len: number; cut: number } | null>(null);
   const first = useRef(true);
@@ -560,14 +549,7 @@ export function Counted(p: CountedProps) {
           ? `${q(announced)}, ${p.say === "assertive" ? "assertive: it interrupts" : "polite: it waits its turn"}`
           : "(nothing yet: type, then pause)",
     ],
-    [
-      "Last paste",
-      last === null
-        ? "(none yet)"
-        : last.kept === undefined || last.kept >= last.len
-          ? `${last.len} characters in, all kept`
-          : (last.kept <= 0 ? `${last.len} characters pasted, none kept` : `${last.len} characters in, ${last.kept} kept`),
-    ],
+    ["Last paste", pasteLastText(last)],
   ];
 
   return (
