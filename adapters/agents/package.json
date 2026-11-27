@@ -28,7 +28,8 @@
     "LICENSE-docs"
   ],
   "scripts": {
-    "build": "tsx scripts/build.ts"
+    "build": "tsx scripts/build.ts",
+    "build:compact": "tsx scripts/build.ts --compact"
   },
   "publishConfig": {
     "access": "public"
