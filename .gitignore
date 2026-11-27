@@ -6,6 +6,10 @@ node_modules/
 dist/
 .astro/
 
+# Playwright output from the runtime tests
+test-results/
+playwright-report/
+
 # macOS
 .DS_Store
 

@@ -6,6 +6,7 @@
     "packages/tokens",
     "packages/patterns",
     "packages/eslint",
+    "packages/test",
     "adapters/shadcn",
     "adapters/agents",
     "examples"
@@ -17,6 +18,7 @@
     "build": "npm run build --workspace packages/patterns && npm run build --workspace adapters/shadcn && npm run build --workspace adapters/agents",
     "test": "npm run test --workspaces --if-present && npm run test-scripts",
     "test-scripts": "tsx --test \"scripts/test/*.test.ts\"",
+    "test:runtime": "npm run test:runtime --workspace packages/test",
     "typecheck": "tsc --noEmit -p .",
     "storybook": "npm run dev --workspace examples",
     "build-storybook": "npm run build --workspace examples"

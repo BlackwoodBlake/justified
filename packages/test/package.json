@@ -1,0 +1,55 @@
+{
+  "name": "@blackwoodblake/justified-test",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Playwright helpers that check, in the running app, behaviour that may break the rules of Justified by Blackwood & Blake.",
+  "keywords": [
+    "playwright",
+    "testing",
+    "shadcn",
+    "react",
+    "accessibility",
+    "wcag",
+    "design-system"
+  ],
+  "homepage": "https://blackwoodblake.com/design-system/",
+  "bugs": {
+    "url": "https://github.com/BlackwoodBlake/justified/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BlackwoodBlake/justified.git",
+    "directory": "packages/test"
+  },
+  "license": "MIT",
+  "author": "Carl Magnus Swahn",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "types": "./index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test --test-reporter=spec test/rules.test.js",
+    "test:runtime": "npm run build --prefix ../../examples && playwright test --config test/playwright.config.js"
+  },
+  "peerDependencies": {
+    "@playwright/test": ">=1.51"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -65,6 +65,7 @@ Justified is open source, but it does not accept pull requests. Issues are welco
 | `packages/patterns` | `@blackwoodblake/justified-patterns`: the rules as data |
 | `packages/tokens` | `@blackwoodblake/justified-tokens`: colour and radius tokens, checked for contrast |
 | `packages/eslint` | `@blackwoodblake/justified-eslint`: ESLint rules that flag code that may break a rule |
+| `packages/test` | `@blackwoodblake/justified-test`: Playwright helpers that check, in the running app, behaviour that may break a rule. Not on npm yet |
 | `adapters/shadcn` | `@blackwoodblake/justified-shadcn`: reference components for shadcn apps |
 | `adapters/agents` | `@blackwoodblake/justified-agents`: the rules as a Claude Code skill and an AGENTS.md |
 | `examples` | Storybook with Do and Don't stories, and the live examples on the rule pages |
@@ -81,6 +82,7 @@ You need Node.js 22.22 or later.
 npm ci
 npm run check            # source register, rule frontmatter and nothing private in tracked files
 npm test                 # token contrast in light and dark themes, and the ESLint rules
+npm run test:runtime     # the Playwright helpers against the live examples (needs Chromium)
 npm run build            # rules to packages/patterns/dist/rules.json
 npm run storybook        # the workshop on http://localhost:6006
 ```
