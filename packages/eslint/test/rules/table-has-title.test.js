@@ -82,6 +82,12 @@ run("table-has-title", rule, {
     `export const A = () => <figure><Table><TableHeader><TableRow><TableHead>Invoice</TableHead></TableRow></TableHeader><TableBody>{rows}</TableBody></Table><TableCaption>Recent invoices</TableCaption></figure>;`,
   ],
   invalid: [
+    {
+      // A figure with two tables: its caption is no single table's title
+      code: `
+      export const A = () => <figure><figcaption>Sales</figcaption><Table><TableHeader><TableRow><TableHead>Q1</TableHead></TableRow></TableHeader></Table><Table><TableHeader><TableRow><TableHead>Q2</TableHead></TableRow></TableHeader></Table></figure>`,
+      errors: [{ messageId: "noTitle" }, { messageId: "noTitle" }],
+    },
     { code: dataTable(), errors: [{ messageId: "noTitle" }] },
     {
       // The untied Don't: a heading above, nothing tying it.

@@ -84,6 +84,7 @@ examples/aria/button-group-input-group.tsx:40 colour-tokens-by-role/rawPalette
 examples/aria/button-group-nested.tsx:17 button-has-name/noName
 examples/aria/button-group-orientation.tsx:13 button-has-name/noName
 examples/aria/button-group-orientation.tsx:16 button-has-name/noName
+examples/aria/button-group-select.tsx:33 control-has-name/noName
 examples/aria/button-group-size.tsx:19 button-has-name/noName
 examples/aria/button-group-size.tsx:27 button-has-name/noName
 examples/aria/button-group-size.tsx:41 button-has-name/noName
@@ -101,6 +102,12 @@ examples/aria/input-group-in-card.tsx:75 no-generic-button-label/generic
 examples/aria/input-group-with-kbd.tsx:71 colour-tokens-by-role/rawPalette
 examples/aria/item-group.tsx:55 button-has-name/noName
 examples/aria/prompt-input-demo.tsx:105 control-has-name/noName
+examples/aria/select-autocomplete.tsx:74 control-has-name/noName
+examples/aria/select-demo.tsx:22 control-has-name/noName
+examples/aria/select-disabled.tsx:20 control-has-name/noName
+examples/aria/select-groups.tsx:26 control-has-name/noName
+examples/aria/select-rtl.tsx:100 control-has-name/noName
+examples/aria/select-scrollable.tsx:64 control-has-name/noName
 examples/aria/sonner-demo.tsx:14 toast-action-stays/closesWithAction
 examples/aria/tooltip-keyboard.tsx:10 button-has-name/tooltipOnly
 examples/aria/typography-demo.tsx:69 table-has-title/noTitle
@@ -217,6 +224,7 @@ registry/bases/aria/blocks/preview/cards/bar-visualizer.tsx:496 state-in-code/lo
 registry/bases/aria/blocks/preview/cards/bar-visualizer.tsx:503 state-in-code/lookOnly
 registry/bases/aria/blocks/preview/cards/feedback-form.tsx:60 no-generic-button-label/generic
 registry/bases/aria/blocks/preview/cards/invite-team.tsx:45 control-has-name/noName
+registry/bases/aria/blocks/preview/cards/invite-team.tsx:47 control-has-name/noName
 registry/bases/aria/blocks/preview/cards/invoice.tsx:55 table-has-title/noTitle
 registry/bases/aria/blocks/preview/cards/typography-specimen.tsx:120 no-generic-button-label/generic
 registry/bases/aria/blocks/preview/cards/ui-elements.tsx:125 control-has-name/noName
@@ -249,6 +257,7 @@ registry/bases/aria/examples/badge-example.tsx:333 colour-tokens-by-role/rawPale
 registry/bases/aria/examples/button-group-example.tsx:443 control-has-name/noName
 registry/bases/aria/examples/checkbox-example.tsx:151 table-has-title/noTitle
 registry/bases/aria/examples/combobox-example.tsx:831 no-generic-button-label/generic
+registry/bases/aria/examples/combobox-example.tsx:1254 control-has-name/noName
 registry/bases/aria/examples/component-example.tsx:623 no-generic-button-label/generic
 registry/bases/aria/examples/demo.tsx:333 control-has-name/noName
 registry/bases/aria/examples/demo.tsx:334 control-has-name/noName
@@ -260,6 +269,7 @@ registry/bases/aria/examples/drawer-example.tsx:89 no-generic-button-label/gener
 registry/bases/aria/examples/drawer-example.tsx:112 no-generic-button-label/generic
 registry/bases/aria/examples/drawer-example.tsx:302 no-generic-button-label/generic
 registry/bases/aria/examples/drawer-example.tsx:344 no-generic-button-label/generic
+registry/bases/aria/examples/input-example.tsx:167 control-has-name/noName
 registry/bases/aria/examples/input-example.tsx:199 control-has-name/noName
 registry/bases/aria/examples/input-example.tsx:262 no-generic-button-label/generic
 registry/bases/aria/examples/input-group-example.tsx:566 colour-tokens-by-role/rawPalette
@@ -273,6 +283,7 @@ registry/bases/aria/examples/native-select-example.tsx:121 control-has-name/noNa
 registry/bases/aria/examples/select-example.tsx:383 no-generic-button-label/generic
 registry/bases/aria/examples/select-example.tsx:402 no-generic-button-label/generic
 registry/bases/aria/examples/select-example.tsx:547 control-has-name/noName
+registry/bases/aria/examples/select-example.tsx:771 control-has-name/noName
 registry/bases/aria/examples/table-example.tsx:167 table-has-title/noTitle
 registry/bases/aria/examples/table-example.tsx:198 table-has-title/noTitle
 registry/bases/aria/examples/table-example.tsx:208 colour-tokens-by-role/rawPalette
@@ -283,10 +294,12 @@ registry/bases/aria/examples/table-example.tsx:234 colour-tokens-by-role/rawPale
 registry/bases/aria/examples/table-example.tsx:239 colour-tokens-by-role/rawPalette
 registry/bases/aria/examples/table-example.tsx:253 table-has-title/noTitle
 registry/bases/aria/examples/table-example.tsx:372 table-has-title/noTitle
+registry/bases/aria/examples/table-example.tsx:384 control-has-name/noName
 registry/bases/aria/examples/table-example.tsx:410 table-has-title/noTitle
 registry/bases/aria/examples/table-example.tsx:420 control-has-name/noName
 registry/bases/aria/examples/table-example.tsx:432 control-has-name/noName
 registry/bases/aria/examples/table-example.tsx:444 control-has-name/noName
+registry/bases/aria/examples/toggle-group-example.tsx:349 control-has-name/noName
 registry/bases/base/blocks/dashboard-01/components/data-table.tsx:139 hover-and-press-looks/stripped
 registry/bases/base/blocks/dashboard-01/components/data-table.tsx:539 dnd-announcements/noAnnouncements
 registry/bases/base/blocks/dashboard-01/components/data-table.tsx:546 table-has-title/noTitle

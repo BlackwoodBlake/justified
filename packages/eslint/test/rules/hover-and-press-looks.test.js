@@ -96,6 +96,12 @@ run("hover-and-press-looks", rule, {
   ],
   invalid: [
     {
+      // A menu item wrapper that takes the caller's className still strips its highlight
+      code: `
+      export function MenuRow({ className, children }) { return <DropdownMenuItem className={cn("hover:bg-transparent focus:bg-transparent", className)}>{children}</DropdownMenuItem> }`,
+      errors: [{ messageId: "stripped" }],
+    },
+    {
       // A native button with a fill and no look
       code: `
       export const A = () => (<button type="button" className="rounded bg-blue-600 px-3 py-2 text-white" onClick={go}>Book</button>)`,

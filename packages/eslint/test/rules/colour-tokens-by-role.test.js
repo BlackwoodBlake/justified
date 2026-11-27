@@ -105,8 +105,50 @@ run("colour-tokens-by-role", rule, {
     // A foreground beside a fill on a box that holds only an icon colours no text.
     `import { IconCheck } from "@tabler/icons-react";
     export const A = () => <div className="bg-primary text-foreground"><IconCheck className="size-3" /></div>;`,
+    // An icon alone in a coloured span: whether the icon carries meaning takes judgement
+    `
+    import { CheckIcon } from "lucide-react"
+    export const A = () => <span className="text-green-600"><CheckIcon className="size-4" /></span>`,
   ],
   invalid: [
+    {
+      // Markup from a string that may be text, such as rendered markdown
+      code: `
+      export const A = ({ html }) => <div className="prose text-gray-500" dangerouslySetInnerHTML={{ __html: html }} />`,
+      errors: [{ messageId: "rawPalette" }],
+    },
+    {
+      // An error message set with dangerouslySetInnerHTML
+      code: `
+      export const A = ({ message }) => <p className="text-sm text-red-600" dangerouslySetInnerHTML={{ __html: message }} />`,
+      errors: [{ messageId: "rawPalette" }],
+    },
+    {
+      // A field shows text of its own
+      code: `
+      export const A = () => <textarea className="text-gray-900 placeholder:text-gray-400" name="note"></textarea>`,
+      errors: [{ messageId: "rawPalette" }],
+    },
+    {
+      // A control shows words of its own, whatever its children
+      code: `
+      import { PlusIcon } from "lucide-react"
+      export const A = () => <button aria-label="Add" className="bg-primary text-white"><PlusIcon /></button>`,
+      errors: [{ messageId: "rawPalette" }],
+    },
+    {
+      // Children given as a prop are text
+      code: `
+      export const A = ({ label }) => <Badge className="text-emerald-700" children={label}></Badge>`,
+      errors: [{ messageId: "rawPalette" }],
+    },
+    {
+      // A component beside the icon may render text
+      code: `
+      import { AlertCircle } from "lucide-react"
+      export const A = () => <div className="text-red-600"><AlertCircle /><div><Trans id="failed" /></div></div>`,
+      errors: [{ messageId: "rawPalette" }],
+    },
     {
       // A box with text beside the icon still colours that text.
       code: `<div className="text-neutral-400"><Icons.logo /> Acme Inc</div>`,

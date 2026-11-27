@@ -30,8 +30,10 @@
  *     among them: illustrations and photos are the rule's exception, and
  *     whether an icon carries meaning takes judgement.
  *   - A text colour, and the pair check, on an element that holds no text:
- *     only icons and pictures, or markup set with `dangerouslySetInnerHTML`,
- *     such as a logo.
+ *     only icons and pictures, or markup set with `dangerouslySetInnerHTML`
+ *     that is clearly a picture (its source speaks of a logo, an icon or an
+ *     svg, or the element is sized like an icon). Never on a control, a
+ *     field, editable text or an element given `children` as a prop.
  *   - A palette `bg-` on a plain layout element, which may be decoration.
  *   - Classes only a branch adds (`cond && "…"`, or one side of `?:`): the
  *     branch may never be taken for the code at hand. Classes both sides add
@@ -206,7 +208,19 @@ export default defineRule({
     const holdsNoText = (node) => {
       const element = node.parent;
       if (element?.type !== "JSXElement") return false;
-      if (getAttribute(node, "dangerouslySetInnerHTML")) return element.children.length === 0;
+      // A control, a field or editable text shows words of its own, whatever its children.
+      const name = elementName(node) ?? "";
+      const role = attributeValue(getAttribute(node, "role"));
+      if (/^(button|a|input|textarea|select|Link)$|Button$/.test(name) || role === "button" || role === "link")
+        return false;
+      if (getAttribute(node, "contentEditable") || getAttribute(node, "children")) return false;
+      const html = getAttribute(node, "dangerouslySetInnerHTML");
+      if (html) {
+        // Only markup that is clearly a picture, such as a logo or an icon set as a string.
+        const classes = readClassList(context, node)?.certain ?? [];
+        const iconSized = classes.some((t) => /^size-|^\[&_svg\]:/.test(t));
+        return element.children.length === 0 && (/logo|icon|svg/i.test(sourceCode.getText(html)) || iconSized);
+      }
       if (node.selfClosing) return false;
       let text = false;
       walk(element, sourceCode.visitorKeys, (n) => {

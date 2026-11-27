@@ -181,6 +181,8 @@ function handlerReader(context, fn) {
   /** Names destructured from the event: key, code, ctrlKey … */
   const eventProps = new Map();
   if (param?.type === "Identifier") eventNames.add(param.name);
+  // react-hotkeys-hook passes the pressed keys as a second argument: reading it is reading the event.
+  if (fn.params[1]?.type === "Identifier") eventNames.add(fn.params[1].name);
   else if (param?.type === "ObjectPattern")
     for (const p of param.properties)
       if (p.type === "Property" && p.key.type === "Identifier" && p.value.type === "Identifier")
@@ -499,12 +501,25 @@ function readKeydownHandler(context, fn) {
   };
 
   /**
+   * Whether a call only logs or records, such as `console.log()`,
+   * `track("key")` or `analytics.capture()`, which is not the shortcut's action.
+   * @param {any} callee
+   */
+  const bookkeeping = (callee) => {
+    const c = unwrap(callee);
+    if (c?.type === "Identifier") return /^track/i.test(c.name);
+    if (c?.type !== "MemberExpression") return false;
+    const root = rootObject(c);
+    return (root?.type === "Identifier" && root.name === "console") || /^(track|capture)/i.test(c.property?.name ?? "");
+  };
+
+  /**
    * Whether the code that runs on the key acts only while Ctrl, Alt or Cmd
    * is held, as in `if (e.key === "k") { if (e.metaKey || e.ctrlKey) open(); }`.
    * Such a shortcut takes a modifier, which KBD-003 leaves alone. Every
    * call and assignment in the code must sit under a condition that holds
    * only with the modifier, apart from calls on the event itself such as
-   * `e.preventDefault()`. Code that returns when a modifier is held, or
+   * `e.preventDefault()`, logging and tracking calls, and writes to a ref. Code that returns when a modifier is held, or
    * picks one action with the modifier and another without, still acts on
    * the plain key.
    * @param {any[]} statements The code that runs on the key.
@@ -518,7 +533,9 @@ function readKeydownHandler(context, fn) {
       walkOwn(statement, keys, (n) => {
         if (unguarded) return;
         if (n.type !== "CallExpression" && n.type !== "AssignmentExpression") return;
-        if (n.type === "CallExpression" && reader.isEvent(rootObject(n.callee))) return;
+        if (n.type === "CallExpression" && (reader.isEvent(rootObject(n.callee)) || bookkeeping(n.callee))) return;
+        // Keeping a value in a ref, such as the last key, changes nothing on the page.
+        if (n.type === "AssignmentExpression" && unwrap(n.left)?.property?.name === "current") return;
         actions++;
         const guarded = conditionsOf(n, stop).some(([test, positive]) => reader.facts(test, positive).modifier);
         if (!guarded) unguarded = true;

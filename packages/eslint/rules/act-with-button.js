@@ -16,8 +16,9 @@
  *
  * Left alone:
  *   - `href="#section"` and `href="#top"`, which jump on the same page, and
- *     an `href="#"` handler that only scrolls, or only cancels the address,
- *     as on a placeholder link that does nothing in place.
+ *     an `href="#"` handler that only scrolls, or only cancels the address
+ *     on a link with no other handler, as on a placeholder link that does
+ *     nothing in place.
  *   - A handler that navigates anywhere (`router.push(href)` and the like),
  *     reads a modifier key or the mouse button, scrolls, calls
  *     `preventDefault()` only under a condition, or calls anything the
@@ -127,7 +128,12 @@ export default defineRule({
 
         if (goesNowhere(href)) {
           // A placeholder link that only cancels its address does nothing in place: it is not an action.
-          if (handler?.onlyScrolls || handler?.doesNothing) return;
+          // Any other handler on the link, such as onMouseDown, may be the action.
+          const otherHandler = opening.attributes.some(
+            (/** @type {any} */ a) =>
+              a.type === "JSXAttribute" && /^on[A-Z]/.test(String(a.name.name)) && a.name.name !== "onClick",
+          );
+          if (handler?.onlyScrolls || (handler?.doesNothing && !otherHandler)) return;
           if (!handler) {
             // A handler passed in by name may be the scroll to the top the rule allows.
             const n = unwrap(onClick.value.expression);

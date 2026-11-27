@@ -65,6 +65,18 @@ run("act-with-button", rule, {
   ],
   invalid: [
     {
+      // Another handler on the link does the action
+      code: `
+      export const A = () => <a href="#" onMouseDown={() => setOpen(true)} onClick={(e) => e.preventDefault()}>Open filters</a>`,
+      errors: [{ messageId: "fakeHref" }],
+    },
+    {
+      // The same with onPointerUp
+      code: `
+      export const A = () => <a href="#" onClick={(e) => e.preventDefault()} onPointerUp={toggle}>Show details</a>`,
+      errors: [{ messageId: "fakeHref" }],
+    },
+    {
       code: `export const A = () => <a href="#" onClick={(e) => { e.preventDefault(); setShareOpen(true); }}>Share</a>;`,
       errors: [{ messageId: "fakeHref" }],
     },

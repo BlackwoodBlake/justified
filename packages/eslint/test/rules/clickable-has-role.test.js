@@ -89,6 +89,12 @@ run("clickable-has-role", rule, {
   ],
   invalid: [
     {
+      // A link of its own inside the trigger's div does not pass clicks on
+      code: `
+      export const A = () => <PopoverTrigger asChild><div className="flex gap-2"><Avatar /><span>Ana</span><Link href="/u/ana">Profile</Link></div></PopoverTrigger>`,
+      errors: [{ messageId: "triggerChild" }],
+    },
+    {
       code: `export const A = () => <PopoverTrigger asChild><span className="underline">Details</span></PopoverTrigger>;`,
       errors: [{ messageId: "triggerChild" }],
     },

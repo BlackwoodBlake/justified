@@ -103,15 +103,39 @@ run("control-has-name", rule, {
       </div>
     );`,
     // Since the shadcn apps/v4 corpus: react-aria selects and slotted controls.
-    // react-aria's SelectTrigger takes its name from the Select's label or its shown value.
+    // react-aria's SelectTrigger takes its name from the Select's label.
     `import { Select, SelectTrigger, SelectValue } from "@/registry/bases/aria/ui/select";
     export function F() { return <div><Select aria-label="Fruits"><SelectTrigger><SelectValue /></SelectTrigger></Select></div>; }`,
-    `import { Select, SelectTrigger, SelectValue } from "@/styles/aria-nova/ui/select";
-    export function F() { return <div><Select placeholder="Select a fruit"><SelectTrigger><SelectValue /></SelectTrigger></Select></div>; }`,
+    `import { Select, SelectTrigger, SelectValue, Label } from "@/registry/bases/aria/ui/select";
+    export const A = () => (<div><Select><Label>Venue</Label><SelectTrigger><SelectValue /></SelectTrigger></Select></div>);`,
+    `import { Select, SelectTrigger, SelectValue } from "@/registry/bases/aria/ui/select";
+    export function Picker(props) { return <div><Select {...props}><SelectTrigger><SelectValue /></SelectTrigger></Select></div>; }`,
     // A control in a slot, such as react-aria's selection checkbox, is named by the slot.
     `export function F() { return <Table><TableHeader><TableHead><Checkbox slot="selection" /></TableHead></TableHeader></Table>; }`,
   ],
   invalid: [
+    {
+      // A react-aria Select with no label anywhere: the shown value is not a name the code gives.
+      code: `import { Select, SelectTrigger, SelectValue, SelectPopover } from "@/registry/bases/aria/ui/select";
+      export const A = () => (<div><Select placeholder="Pick a venue"><SelectTrigger><SelectValue /></SelectTrigger><SelectPopover /></Select></div>);`,
+      errors: [{ messageId: "noName" }],
+    },
+    {
+      code: `import { Select, SelectValue, Button as SelectTrigger, Popover } from "react-aria-components";
+      export const A = () => (<div><Select><SelectTrigger><SelectValue /></SelectTrigger><Popover /></Select></div>);`,
+      errors: [{ messageId: "noName" }],
+    },
+    {
+      // A slot outside react-aria gives no name.
+      code: `export const A = () => (<my-row><input type="checkbox" slot="start" /></my-row>);`,
+      errors: [{ messageId: "noName" }],
+    },
+    {
+      code: `import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
+      import { announce } from "@/lib/aria/live";
+      export const A = () => (<div><Select><SelectTrigger><SelectValue placeholder="Pick a venue" /></SelectTrigger></Select></div>);`,
+      errors: [{ messageId: "noName" }],
+    },
     {
       // A Radix SelectTrigger gets no name from its Select.
       code: `import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";

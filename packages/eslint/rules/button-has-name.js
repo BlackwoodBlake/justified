@@ -27,9 +27,10 @@
  * Left alone: buttons with `asChild` or spread props (the name may come
  * from the child or the spread), buttons passed as a prop such as
  * `render={<Button />}` or as a prop's default (the component that takes
- * it adds the children and may add the name), a base-ui `TooltipTrigger`
- * drawn as something other than a button, a base-ui `Button` drawn as a
- * plain `span` or `div` with `nativeButton={false}`, names and children
+ * it adds the children and may add the name; a default with children of
+ * its own is read), a base-ui `TooltipTrigger` drawn as a box that is no
+ * button or link, a base-ui `Button` drawn as a plain `span` or `div` with
+ * `nativeButton={false}` inside another control, names and children
  * computed in
  * expressions, children that are other components (they may render text),
  * visible text that spells no word, such as "A+" or "@" (the rule's
@@ -134,11 +135,16 @@ export default defineRule({
         if (render && renderValue?.type !== "JSXElement") return;
         const rendered = renderValue?.openingElement;
         if (rendered && hasSpread(rendered)) return;
-        // A trigger drawn as something other than a button, such as an addon box, may not be a button at all.
-        if (isTrigger && rendered && !/^(button|.*Button)$/.test(baseName(rendered) ?? "")) return;
-        // base-ui's Button drawn as a plain span or div, inside another control, is left to review.
+        // A trigger drawn as a box that is no control, such as an addon, may not be a button at all. One drawn as a
+        // button or a link is read as usual.
+        if (isTrigger && rendered && !/^(button|a)$|Button$|Link$/.test(baseName(rendered) ?? "")) return;
+        // base-ui's Button drawn as a plain span or div inside another control, such as a logo tile in a menu
+        // button, is left to review.
         const plain = rendered && /^(span|div)$/.test(elementName(rendered) ?? "");
-        if (plain && attributeValue(getAttribute(opening, "nativeButton")) === false) return;
+        if (plain && attributeValue(getAttribute(opening, "nativeButton")) === false) {
+          for (let el = parentElement(element); el; el = parentElement(el))
+            if (/^(button|a|Link)$|Button$|Trigger$|Item$/.test(baseName(el.openingElement) ?? "")) return;
+        }
         const holders = rendered ? [opening, rendered] : [opening];
 
         const named = holders.some((o) => NAME_ATTRIBUTES.some((a) => getAttribute(o, a)));

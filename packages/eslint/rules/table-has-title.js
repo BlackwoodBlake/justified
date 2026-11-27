@@ -15,8 +15,8 @@
  *     caption, so the table is left alone.
  *
  * Left alone: a table named by an expression, such as `aria-label={label}`,
- * even if the value may be empty, and a table in a `figure` beside its
- * `figcaption` or `TableCaption`. Whether a name matches the visible title
+ * even if the value may be empty, and the one table in a `figure` beside
+ * its `figcaption` or `TableCaption`. Whether a name matches the visible title
  * above the table, and whether a title says what the rows have in common,
  * need the page and a judgement. The review skill covers them.
  */
@@ -131,6 +131,9 @@ export default defineRule({
         if (
           parent?.type === "JSXElement" &&
           elementName(parent.openingElement) === "figure" &&
+          parent.children.filter(
+            (/** @type {any} */ c) => c.type === "JSXElement" && TABLES.has(elementName(c.openingElement) ?? ""),
+          ).length === 1 &&
           parent.children.some(
             (/** @type {any} */ c) =>
               c.type === "JSXElement" && /^(figcaption|TableCaption)$/.test(elementName(c.openingElement) ?? ""),

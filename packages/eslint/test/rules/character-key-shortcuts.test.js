@@ -79,8 +79,30 @@ run("character-key-shortcuts", rule, {
     // The action runs only with the modifier, after an early exit for every other key.
     `useEffect(() => { const on = (e: KeyboardEvent) => { if (e.key !== "k") return; if (e.metaKey || e.ctrlKey) { e.preventDefault(); toggle(); } }; document.addEventListener("keydown", on); return () => document.removeEventListener("keydown", on) }, [])`,
     `useEffect(() => { const on = (e: KeyboardEvent) => { if (e.key === "b" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); toggleSidebar(); } }; window.addEventListener("keydown", on); return () => window.removeEventListener("keydown", on) }, [])`,
+    // A tracking call before a Cmd shortcut is not its action
+    `
+    export function A() {
+      useEffect(() => {
+        const h = (e: KeyboardEvent) => { if (e.key === "k") { track("key"); if (e.metaKey) open() } }
+        window.addEventListener("keydown", h)
+        return () => window.removeEventListener("keydown", h)
+      }, [])
+    }`,
+    // Keeping the last key in a ref is not the action
+    `
+    export function A() { const last = useRef(""); useEffect(() => { const h = (e: KeyboardEvent) => { if (e.key === "k") { last.current = e.key; if (e.metaKey) open() } }; window.addEventListener("keydown", h); return () => window.removeEventListener("keydown", h) }, []) }`,
+    // A console.log before a Cmd shortcut is not its action
+    `
+    export function A() { useEffect(() => { const h = (e: KeyboardEvent) => { if (e.key === "k") { console.log("k"); if (e.metaKey) open() } }; window.addEventListener("keydown", h); return () => window.removeEventListener("keydown", h) }, []) }`,
   ],
   invalid: [
+    {
+      // useHotkeys with a list of single keys whose callback reads the pressed keys
+      code: `
+      import { useHotkeys } from "react-hotkeys-hook"
+      export function A() { useHotkeys(["j", "k"], (e, h) => (h.keys?.[0] === "j" ? next() : prev())) }`,
+      errors: [{ messageId: "plain" }],
+    },
     {
       // A branch that returns when a modifier is held still acts on the plain key
       code: `

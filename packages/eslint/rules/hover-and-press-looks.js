@@ -29,7 +29,9 @@
  *      draw the look, and so is a button laid over the page or a box
  *      (`fixed`, or `absolute inset-0`), such as a backdrop.
  *   2. `hover:bg-transparent` on a `Button`, a menu, command or select item
- *      with no other `hover:` look, and `focus:bg-transparent` or
+ *      with no other `hover:` look (a ghost or outline `Button` that takes
+ *      the caller's `className` is left alone, since it keeps its hover
+ *      text colour and the caller may add more), and `focus:bg-transparent` or
  *      `data-[highlighted]:bg-transparent` on a menu item with no other
  *      `focus:` or `data-[highlighted]:` look in its place.
  *   3. `hover:` or `active:` looks on an element that carries
@@ -71,6 +73,19 @@ const isLook = (token) => {
 /** Whether a token is scoped away from an off control. @param {string} token */
 const scopedOff = (token) =>
   parseToken(token).variants.some((v) => /^not-(aria-disabled|aria-\[disabled(=true)?\]|\[\[aria-disabled(=true)?\]\])$/.test(v) || /not\(\[aria-disabled/.test(v));
+
+/**
+ * Whether a component that takes the caller's `className` still keeps a
+ * hover look of its own when its fill is taken away: a shadcn `Button`
+ * with `variant="ghost"` or `"outline"` also changes its text colour on
+ * hover. A menu item's highlight is its fill alone.
+ * @param {any} node @param {string} base @param {{ passThrough: boolean }} list
+ */
+function keepsOwnLook(node, base, list) {
+  if (!list.passThrough || base !== "Button") return false;
+  const variant = attributeValue(getAttribute(node, "variant"));
+  return variant === "ghost" || variant === "outline";
+}
 
 /** Whether `onClick` only stops or prevents the event. @param {any} attribute */
 function onlyStops(attribute) {
@@ -271,7 +286,7 @@ export default defineRule({
 
         // 2. A highlight taken away with nothing in its place.
         const base = name.split(".").pop() ?? "";
-        if (HOVER_ITEMS.test(base) && list.complete && !list.passThrough && !(base === "Button" && attributeValue(getAttribute(node, "variant")) === "link")) {
+        if (HOVER_ITEMS.test(base) && list.complete && !keepsOwnLook(node, base, list) && !(base === "Button" && attributeValue(getAttribute(node, "variant")) === "link")) {
           const all = list.parts.flatMap((p) => p.tokens);
           const stripped = (/** @type {RegExp} */ variant) =>
             tokens.find((t) => {

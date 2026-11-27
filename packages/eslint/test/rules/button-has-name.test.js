@@ -72,6 +72,39 @@ run("button-has-name", rule, {
   ],
   invalid: [
     {
+      // A prop default with children of its own is rendered as it is
+      code: `
+      import { Button } from "@/components/ui/button"
+      import { MoreHorizontal } from "lucide-react"
+      export function RowActions({ trigger = <Button size="icon" variant="ghost"><MoreHorizontal /></Button> }) { return <div>{trigger}</div> }`,
+      errors: [{ messageId: "noName" }],
+    },
+    {
+      // A base-ui Button drawn as a span on its own is still a nameless control
+      code: `
+      import { Button } from "@/registry/bases/base/ui/button"
+      import { Trash2 } from "lucide-react"
+      export const A = () => <Button nativeButton={false} render={<span />}><Trash2 /></Button>`,
+      errors: [{ messageId: "noName" }],
+    },
+    {
+      // A tooltip trigger drawn as a link
+      code: `
+      import { TooltipTrigger, Tooltip } from "@/registry/bases/base/ui/tooltip"
+      import { HelpCircle } from "lucide-react"
+      export const A = () => <Tooltip><TooltipTrigger render={<a href="/help" />}><HelpCircle /></TooltipTrigger></Tooltip>`,
+      errors: [{ messageId: "tooltipOnly" }],
+    },
+    {
+      // A tooltip trigger drawn as a router Link
+      code: `
+      import { TooltipTrigger, Tooltip } from "@/registry/bases/base/ui/tooltip"
+      import { HelpCircle } from "lucide-react"
+      import Link from "next/link"
+      export const A = () => <Tooltip><TooltipTrigger render={<Link href="/help" />}><HelpCircle /></TooltipTrigger></Tooltip>`,
+      errors: [{ messageId: "tooltipOnly" }],
+    },
+    {
       code: `export const A = () => <Tooltip><TooltipTrigger render={<InputGroupButton size="icon-xs" />}><CopyIcon /></TooltipTrigger><TooltipContent>Copy</TooltipContent></Tooltip>;`,
       errors: [{ messageId: "tooltipOnly" }],
     },

@@ -35,9 +35,12 @@
  * (the component that takes it may add the name), labels whose text is
  * computed, and visible text that spells no word. Also a `SelectTrigger`
  * from react-aria (`react-aria-components`, or a shadcn aria base such as
- * `aria/ui/select`), which takes its name from the root `Select`'s label
- * or its shown value, and a control with a `slot`, such as react-aria's
- * `<Checkbox slot="selection" />`, whose slot gives it its name.
+ * `aria/ui/select`) whose `Select` has `aria-label`, `aria-labelledby`, a
+ * `label`, a `Label` child or spread props, or that has no `Select` around
+ * it in the file, since react-aria names the trigger from its `Select`;
+ * and a control with a `slot` in a file that uses react-aria, or with
+ * `slot="selection"`, such as react-aria's selection checkbox, whose slot
+ * gives it its name.
  */
 import { defineRule } from "../lib/define-rule.js";
 import {
@@ -110,8 +113,10 @@ export default defineRule({
     const sourceCode = context.sourceCode;
     /** @type {Set<string>} */
     let icons = new Set();
-    /** Whether `SelectTrigger` comes from react-aria, which names it from its `Select` or value. */
+    /** Whether `SelectTrigger` comes from react-aria, which names it from its `Select`. */
     let ariaSelect = false;
+    /** Whether the file imports react-aria or a shadcn aria base, whose slots give controls their props. */
+    let ariaFile = false;
     /** Visible text of labels with a written-out htmlFor, by that id. @type {Map<string, string | undefined>} */
     const labelsFor = new Map();
     /** Controls with an id and an aria-label, checked against labelsFor at the end. @type {{ node: any, id: string, label: string }[]} */
@@ -185,14 +190,36 @@ export default defineRule({
       return undefined;
     }
 
+    /**
+     * Whether a react-aria `SelectTrigger` may get a name from its `Select`:
+     * the nearest `Select` has `aria-label`, `aria-labelledby`, a `label`
+     * prop, a `Label` child or spread props, or there is no `Select` around
+     * it in this file (a caller may give one).
+     * @param {any} element
+     */
+    const ariaSelectNamed = (element) => {
+      for (let el = parentElement(element); el; el = parentElement(el)) {
+        if (baseName(el.openingElement) !== "Select") continue;
+        const o = el.openingElement;
+        if (hasSpread(o) || ["aria-label", "aria-labelledby", "label"].some((a) => getAttribute(o, a))) return true;
+        return el.children.some(
+          (/** @type {any} */ c) => c.type === "JSXElement" && /Label$/.test(elementName(c.openingElement) ?? ""),
+        );
+      }
+      return true;
+    };
+
     return {
       Program(node) {
         icons = iconImports(node);
-        ariaSelect = node.body.some(
+        const aria = node.body.filter(
           (/** @type {any} */ s) =>
             s.type === "ImportDeclaration" &&
-            /^react-aria-components$|\/aria(-[a-z]+)?\/ui(-[a-z]+)?\//.test(String(s.source.value)) &&
-            s.specifiers.some((/** @type {any} */ x) => x.local.name === "SelectTrigger"),
+            /^react-aria-components$|\/aria(-[a-z]+)?\/ui(-[a-z]+)?\//.test(String(s.source.value)),
+        );
+        ariaFile = aria.length > 0;
+        ariaSelect = aria.some((/** @type {any} */ s) =>
+          s.specifiers.some((/** @type {any} */ x) => x.local.name === "SelectTrigger"),
         );
       },
       JSXElement(element) {
@@ -215,7 +242,9 @@ export default defineRule({
         const type = attributeValue(getAttribute(opening, "type"));
         if ((name === "input" || name === "Input") && typeof type === "string" && NOT_CONTROLS.has(type)) return;
         if (hasSpread(opening) || isAriaHidden(opening) || isPropValue(element)) return;
-        if (getAttribute(opening, "slot") || (name === "SelectTrigger" && ariaSelect)) return;
+        const slot = getAttribute(opening, "slot");
+        if (slot && (ariaFile || attributeValue(slot) === "selection")) return;
+        if (name === "SelectTrigger" && ariaSelect && ariaSelectNamed(element)) return;
 
         const ariaLabel = getAttribute(opening, "aria-label");
         const labelledBy = getAttribute(opening, "aria-labelledby");
