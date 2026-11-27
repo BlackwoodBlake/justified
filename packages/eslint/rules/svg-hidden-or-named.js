@@ -19,6 +19,11 @@
  *     sheet that holds only `defs` or `symbol`.
  *   - An `svg` inside a link, a button, a menu item or another control:
  *     the exceptions send those icons to ACT-001b and TXT-003.
+ *   - An `svg` kept in a `const` (also in an object or an array read with
+ *     `.map()`) whose every use in the file sits in a control or a hidden
+ *     element, or that the file never renders, or whose uses the rule
+ *     cannot follow; and one drawn into a picture by `ImageResponse`
+ *     (next/og).
  *   - Icon components from libraries. Whether a library hides its icons
  *     depends on the library and its version.
  *   - An `aria-hidden` icon that is the only sign of a status: whether
@@ -119,7 +124,7 @@ export default defineRule({
         if (/(^|\s)(\S+:)*hidden(\s|$)/.test(staticClass(node) ?? "") || displayNone(node)) return;
         const element = node.parent;
         if (childrenNameOrHide(element)) return;
-        if (hasCoveringAncestor(element)) return;
+        if (hasCoveringAncestor(element) || notRenderedHere(element, context.sourceCode)) return;
         context.report({ node, messageId: "unnamed" });
       },
     };
@@ -130,4 +135,115 @@ export default defineRule({
 function hasCoveringAncestor(element) {
   for (let n = element.parent; n; n = n.parent) if (n.type === "JSXElement" && coversSvg(n)) return true;
   return false;
+}
+
+/** Nodes JSX passes through on its way to where it is kept. */
+const WRAPS = /^(JSXElement|JSXFragment|JSXExpressionContainer|ConditionalExpression|LogicalExpression)$/;
+const FUNCTION_TYPES = /^(ArrowFunctionExpression|FunctionExpression|FunctionDeclaration)$/;
+
+/**
+ * Where JSX kept in a `const` is put: the variable, the object key it sits
+ * under (`{ icon: <svg /> }`), and whether it sits in an array whose items
+ * are read through `.map()`. Undefined when the code keeps it some other way.
+ * @param {any} root The outermost JSX node.
+ * @returns {{ declarator: any, key: string | null, inArray: boolean } | undefined}
+ */
+function storedAt(root) {
+  let n = root.parent;
+  /** @type {string | null} */
+  let key = null;
+  let inArray = false;
+  if (n?.type === "Property" && !n.computed && n.value === root) {
+    key = n.key.type === "Identifier" ? n.key.name : String(n.key.value);
+    n = n.parent?.parent;
+  }
+  if (n?.type === "ArrayExpression") {
+    inArray = true;
+    n = n.parent;
+  }
+  if (n?.type !== "VariableDeclarator" || n.id.type !== "Identifier" || n.parent?.kind !== "const") return undefined;
+  return { declarator: n, key, inArray };
+}
+
+/**
+ * The places in the file where a stored svg is read, or undefined when one
+ * of them cannot be followed.
+ * @param {any} sourceCode @param {{ declarator: any, key: string | null, inArray: boolean }} at
+ * @returns {any[] | undefined}
+ */
+function usesOf(sourceCode, at) {
+  const variable = sourceCode.getDeclaredVariables(at.declarator)[0];
+  if (!variable) return undefined;
+  /** @type {any[]} */
+  const uses = [];
+  /** Reads `<x>.<key>`, or `<x>` itself with no key. @param {any} id @returns {boolean} */
+  const keyOf = (id) => {
+    if (!at.key) return uses.push(id) > 0;
+    const m = id.parent;
+    if (m?.type !== "MemberExpression" || m.object !== id) return false;
+    if (m.computed || (m.property.type === "Identifier" && m.property.name === at.key)) uses.push(m);
+    return true;
+  };
+  for (const ref of variable.references) {
+    if (ref.isValueReference === false || !ref.isRead()) continue;
+    const id = ref.identifier;
+    if (!at.inArray) {
+      if (!keyOf(id)) return undefined;
+      continue;
+    }
+    // items.map((item) => ... item.icon ...)
+    const m = id.parent;
+    const call = m?.type === "MemberExpression" && m.object === id ? m.parent : undefined;
+    const fn = call?.type === "CallExpression" && call.callee === m ? unwrap(call.arguments[0]) : undefined;
+    if (!fn || !FUNCTION_TYPES.test(fn.type)) return undefined;
+    const param = fn.params[0];
+    if (!param) continue;
+    if (param.type === "Identifier") {
+      const item = sourceCode.getDeclaredVariables(fn).find((/** @type {any} */ v) => v.name === param.name);
+      for (const r of item?.references ?? []) if (!keyOf(r.identifier)) return undefined;
+    } else if (param.type === "ObjectPattern" && at.key) {
+      const prop = param.properties.find(
+        (/** @type {any} */ p) => p.type === "Property" && !p.computed && p.key.name === at.key,
+      );
+      if (!prop) continue;
+      if (prop.value.type !== "Identifier") return undefined;
+      const item = sourceCode.getDeclaredVariables(fn).find((/** @type {any} */ v) => v.name === prop.value.name);
+      for (const r of item?.references ?? []) uses.push(r.identifier);
+    } else return undefined;
+  }
+  return uses;
+}
+
+/**
+ * Whether the svg is not rendered where it is written in a way this rule
+ * can read: JSX kept in a `const` (also in an object or array) whose every
+ * use in the file sits in a control or a hidden element, or that the file
+ * never renders, and JSX drawn into a picture by `ImageResponse` (next/og),
+ * which never reaches a screen reader. Kept JSX whose uses cannot be
+ * followed is left alone.
+ * @param {any} element @param {any} sourceCode
+ */
+function notRenderedHere(element, sourceCode) {
+  for (let a = element.parent; a; a = a.parent) {
+    if (a.type !== "NewExpression" && a.type !== "CallExpression") continue;
+    const callee = unwrap(a.callee);
+    if (callee?.type === "Identifier" && callee.name === "ImageResponse") return true;
+  }
+  let n = element;
+  while (n.parent && WRAPS.test(n.parent.type)) n = n.parent;
+  // Rendered where it is written.
+  if (!/^(Property|VariableDeclarator|ArrayExpression|AssignmentExpression)$/.test(n.parent?.type ?? "")) return false;
+  const at = storedAt(n);
+  if (!at) return true;
+  const uses = usesOf(sourceCode, at);
+  if (!uses) return true;
+  for (const use of uses) {
+    let c = use.parent;
+    while (c && c.type !== "JSXExpressionContainer" && !FUNCTION_TYPES.test(c.type) && c.type !== "Program")
+      c = c.parent;
+    // Read outside JSX, or given as a prop: where it ends up cannot be followed.
+    if (c?.type !== "JSXExpressionContainer" || c.parent?.type === "JSXAttribute") return true;
+    if (!hasCoveringAncestor(c)) return false;
+  }
+  return true;
 }

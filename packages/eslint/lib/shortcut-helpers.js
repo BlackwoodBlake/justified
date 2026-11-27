@@ -181,6 +181,8 @@ function handlerReader(context, fn) {
   /** Names destructured from the event: key, code, ctrlKey … */
   const eventProps = new Map();
   if (param?.type === "Identifier") eventNames.add(param.name);
+  // react-hotkeys-hook passes the pressed keys as a second argument: reading it is reading the event.
+  if (fn.params[1]?.type === "Identifier") eventNames.add(fn.params[1].name);
   else if (param?.type === "ObjectPattern")
     for (const p of param.properties)
       if (p.type === "Property" && p.key.type === "Identifier" && p.value.type === "Identifier")
@@ -490,6 +492,58 @@ function readKeydownHandler(context, fn) {
     if (!found || (found.kind === "shift" && k === "plain")) found = { kind: k, node: at };
   };
 
+  /** The object a call or member chain starts from, as `e` in `e.key.toLowerCase()`. @param {any} node */
+  const rootObject = (node) => {
+    let n = unwrap(node);
+    while (n?.type === "MemberExpression" || n?.type === "CallExpression")
+      n = unwrap(n.type === "MemberExpression" ? n.object : n.callee);
+    return n;
+  };
+
+  /**
+   * Whether a call only logs or records, such as `console.log()`,
+   * `track("key")` or `analytics.capture()`, which is not the shortcut's action.
+   * @param {any} callee
+   */
+  const bookkeeping = (callee) => {
+    const c = unwrap(callee);
+    if (c?.type === "Identifier") return /^track/i.test(c.name);
+    if (c?.type !== "MemberExpression") return false;
+    const root = rootObject(c);
+    return (root?.type === "Identifier" && root.name === "console") || /^(track|capture)/i.test(c.property?.name ?? "");
+  };
+
+  /**
+   * Whether the code that runs on the key acts only while Ctrl, Alt or Cmd
+   * is held, as in `if (e.key === "k") { if (e.metaKey || e.ctrlKey) open(); }`.
+   * Such a shortcut takes a modifier, which KBD-003 leaves alone. Every
+   * call and assignment in the code must sit under a condition that holds
+   * only with the modifier, apart from calls on the event itself such as
+   * `e.preventDefault()`, logging and tracking calls, and writes to a ref. Code that returns when a modifier is held, or
+   * picks one action with the modifier and another without, still acts on
+   * the plain key.
+   * @param {any[]} statements The code that runs on the key.
+   * @param {any} stop The node the code sits in.
+   */
+  const actsOnlyWithModifier = (statements, stop) => {
+    let actions = 0;
+    let unguarded = false;
+    for (const statement of statements) {
+      if (!statement) continue;
+      walkOwn(statement, keys, (n) => {
+        if (unguarded) return;
+        if (n.type !== "CallExpression" && n.type !== "AssignmentExpression") return;
+        if (n.type === "CallExpression" && (reader.isEvent(rootObject(n.callee)) || bookkeeping(n.callee))) return;
+        // Keeping a value in a ref, such as the last key, changes nothing on the page.
+        if (n.type === "AssignmentExpression" && unwrap(n.left)?.property?.name === "current") return;
+        actions++;
+        const guarded = conditionsOf(n, stop).some(([test, positive]) => reader.facts(test, positive).modifier);
+        if (!guarded) unguarded = true;
+      });
+    }
+    return actions > 0 && !unguarded;
+  };
+
   walkOwn(fn.body, keys, (n) => {
     if (quiet) return;
     // switch (e.key) { case "e": … }
@@ -499,7 +553,7 @@ function readKeydownHandler(context, fn) {
         const lit = unwrap(c.test);
         if (lit?.type !== "Literal" || typeof lit.value !== "string") continue;
         const kind = folded && /^[a-z]$/i.test(lit.value) ? "plain" : charKey(lit.value);
-        if (kind) judge(kind, c.test, conditionsOf(n, fn));
+        if (kind && !actsOnlyWithModifier(c.consequent, c)) judge(kind, c.test, conditionsOf(n, fn));
       }
       return;
     }
@@ -520,12 +574,21 @@ function readKeydownHandler(context, fn) {
       const leaves = !holder.alternate && exits(holder.consequent);
       // `if (e.key === "a") return` skips "a"; `if (e.key !== "a") { … }` acts on every other key.
       if (leaves === matches) return;
+      // The code that runs on the key: the rest of the function after an early exit, or the branch.
+      const branch = matches ? holder.consequent : holder.alternate;
+      if (!leaves && actsOnlyWithModifier([branch], holder)) return;
+      if (leaves) {
+        const list = holder.parent?.type === "BlockStatement" ? holder.parent.body : [];
+        if (actsOnlyWithModifier(list.slice(list.indexOf(holder) + 1), holder.parent)) return;
+      }
       judge(kind, n, [[holder.test, !leaves], ...conditionsOf(holder, fn)]);
     } else if (holder?.type === "ConditionalExpression" && holder.test === at) {
-      if (matches) judge(kind, n, [[holder.test, true], ...conditionsOf(holder, fn)]);
+      if (matches && !actsOnlyWithModifier([holder.consequent], holder))
+        judge(kind, n, [[holder.test, true], ...conditionsOf(holder, fn)]);
     } else if (holder?.type === "ExpressionStatement" && at.type === "LogicalExpression" && at !== n) {
       // e.key === "/" && search()
-      if (matches && at.operator === "&&") judge(kind, n, [[at.left, true], ...conditionsOf(holder, fn)]);
+      if (matches && at.operator === "&&" && !actsOnlyWithModifier([at.right], at))
+        judge(kind, n, [[at.left, true], ...conditionsOf(holder, fn)]);
     }
   });
   return quiet ? undefined : found;

@@ -65,6 +65,11 @@ run("clickable-has-role", rule, {
     next(`<Button variant="link" onClick={() => setOpen(true)}>Show details</Button>`),
     // router.back is going back in history, not to an address in code.
     next(`<Button variant="link" onClick={() => router.back()}>Back</Button>`),
+    `import { useNavigate } from "react-router-dom";
+    export function Back() {
+      const navigate = useNavigate();
+      return <Button variant="link" onClick={() => navigate(-1)}>Back</Button>;
+    }`,
     // A navigate that is not from useNavigate is not traced.
     `export function A({ navigate }) { return <Button variant="link" onClick={() => navigate("/fees")}>Late fees</Button>; }`,
     // Triggers around real buttons, and without asChild.
@@ -78,8 +83,21 @@ run("clickable-has-role", rule, {
     `export function P() { return <PaginationLink href="?page=2" onClick={track}>2</PaginationLink>; }`,
     `export function P() { return <PaginationLink href="#">2</PaginationLink>; }`,
     `export function B() { return <BreadcrumbLink asChild><Link href="/docs">Docs</Link></BreadcrumbLink>; }`,
+    // Since the shadcn apps/v4 corpus.
+    // A trigger's div that only passes on the clicks of the button inside it.
+    `export const A = () => <CollapsibleTrigger asChild><div className="flex items-center"><Button variant="ghost">Expand</Button><Separator /></div></CollapsibleTrigger>;`,
   ],
   invalid: [
+    {
+      // A link of its own inside the trigger's div does not pass clicks on
+      code: `
+      export const A = () => <PopoverTrigger asChild><div className="flex gap-2"><Avatar /><span>Ana</span><Link href="/u/ana">Profile</Link></div></PopoverTrigger>`,
+      errors: [{ messageId: "triggerChild" }],
+    },
+    {
+      code: `export const A = () => <PopoverTrigger asChild><span className="underline">Details</span></PopoverTrigger>;`,
+      errors: [{ messageId: "triggerChild" }],
+    },
     // The Don't: the card has the click and nothing inside is a link.
     {
       code: next(`<Card onClick={() => router.push("/books/" + book.id)} className="cursor-pointer">

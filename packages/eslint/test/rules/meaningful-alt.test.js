@@ -47,8 +47,15 @@ run("meaningful-alt", rule, {
     `export const A = () => <input type="text" alt="image" />;`,
     // Words that contain a kind word, and a file name in a sentence that says more.
     `export const A = () => <img src="/x.png" alt="Logo of the Tallowbrook bakery" />;`,
+    // A person's name: "profile" holds the letters of "file" but is not a file.
+    `export const A = ({ profile }) => <AvatarImage src={profile.image} alt={profile.name} />;`,
+    `export const A = ({ userProfile }) => <img src={userProfile.photo} alt={userProfile.name} />;`,
   ],
   invalid: [
+    {
+      code: `export const A = ({ selectedFile }) => <img src={selectedFile.preview} alt={selectedFile.name} />;`,
+      errors: [{ messageId: "fileExpression" }],
+    },
     // The Don't in examples/rules/STR-005.tsx, with its values.
     {
       code: `export const Row = () => <img src={clockSrc} alt="clock-red-2.svg" width={20} height={20} className="size-5" />;`,

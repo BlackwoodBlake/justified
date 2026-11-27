@@ -11,7 +11,9 @@
  *     `AlertDialogDescription`, `SheetDescription`, `DrawerDescription` or
  *     `CardDescription`;
  *   - that element holds words of its own beside the link;
- *   - no element around it has the `prose` class, which underlines links;
+ *   - no element around it underlines the links inside it: the `prose`
+ *     class, `prose-a:underline`, or a cue at rest with a variant that
+ *     reaches links, such as `[&_a]:underline` or `**:underline`;
  *   - its class list is known for certain (a string, or `cn()` and the like
  *     with only strings), and has no cue at rest beyond colour: no
  *     `underline`, `border-b` or font weight from `font-medium` up. A link
@@ -29,8 +31,10 @@
  *     cannot see. The `flagUnstyled` option reports these too.
  *   - Class lists built from expressions, such as `buttonVariants()` or a
  *     condition, and links with `style`, `role` or spread props.
- *   - Links styled as buttons, such as `<Button asChild>`, lists of links,
- *     menus and footers: their nearest element is not running text.
+ *   - Links styled as buttons, which the rule's exception leaves out: in
+ *     `<Button asChild>`, lists of links, menus and footers the nearest
+ *     element is not running text, and a link whose own classes give it a
+ *     fill or a full border with padding at the sides is drawn as a button.
  *   - `Button variant="link"`: whether it is underlined at rest depends on
  *     the installed version of the component (Justified's adapter
  *     underlines it), so it is not checked here.
@@ -130,13 +134,39 @@ function problem(classes) {
   return "colourOnly";
 }
 
-/** Whether an ancestor has the `prose` class. @param {any} element */
-function inProse(element) {
+/** An arbitrary or child variant that reaches links inside, such as `[&_a]`, `[&>a]` or `**`. */
+const LINK_TARGET = /^(\*{1,2}|\[&[^\]]*?[_>~+]a(?![\w-])[^\]]*\])$/;
+/** Pseudo-classes in an arbitrary variant that apply only in a state. */
+const STATE_SELECTOR = /:(hover|focus|focus-visible|focus-within|active|visited)\b/;
+
+/**
+ * Whether an ancestor underlines the links inside it: the `prose` class,
+ * `prose-a:underline`, or a cue such as `[&_a]:underline` at rest.
+ * @param {any} element
+ */
+function cueFromParent(element) {
   for (let el = parentElement(element); el; el = parentElement(el)) {
     const classes = anyClasses(attributeExpression(classAttribute(el.openingElement)));
-    if (tokens(classes).some((t) => t.base === "prose")) return true;
+    for (const t of tokens(classes)) {
+      if (t.base === "prose") return true;
+      if (!CUE.test(t.base) || t.variants.some((v) => STATE_VARIANTS.test(v) || STATE_SELECTOR.test(v))) continue;
+      if (t.variants.some((v) => v === "prose-a" || LINK_TARGET.test(v))) return true;
+    }
   }
   return false;
+}
+
+/**
+ * Whether a link's own classes draw it as a button at rest: a fill or a
+ * full border, with padding on the sides. VIS-003b leaves such links out.
+ * @param {string} classes
+ */
+function looksLikeButton(classes) {
+  const atRest = tokens(classes).filter((t) => t.variants.length === 0).map((t) => t.base);
+  const fill = atRest.some((b) => /^bg-/.test(b) && !/^bg-(transparent|none|inherit|clip-|origin-|fixed|local|scroll|no-repeat|repeat)/.test(b));
+  const edge = atRest.some((b) => /^border(-\d+|-\[\S+\])?$/.test(b));
+  const padding = atRest.some((b) => /^(px|p|ps|pe)-/.test(b));
+  return (fill || edge) && padding;
 }
 
 /** Whether a parent element holds words of its own. @param {any} parent */
@@ -234,7 +264,9 @@ export default defineRule({
         const parent = parentElement(element);
         if (!parent || !TEXT_PARENTS.has(elementName(parent.openingElement) ?? "")) return;
         if (!hasOwnWords(parent)) return;
-        if (inProse(element)) return;
+        if (cueFromParent(element)) return;
+        const classes = staticClasses(attributeExpression(classAttribute(node)));
+        if (classes !== undefined && looksLikeButton(classes)) return;
         const messageId = linkProblem(node);
         if (messageId) context.report({ node, messageId });
       },

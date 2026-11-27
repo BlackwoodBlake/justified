@@ -29,6 +29,11 @@
  *   - A custom red, or danger shown only by a border or icon: telling
  *     these apart takes judgement, so the review skill covers them.
  *   - The faded look of a button with a literal `disabled`.
+ *   - A filled Cancel beside a red destructive button: the rule sentence
+ *     asks only for the danger style on the destructive button, and a fill
+ *     on Cancel next to it is the Don't advice.
+ *   - An `AlertDialogAction` labelled Cancel, such as one that cancels a
+ *     booking: it is the destructive button, so red is what it needs.
  */
 import { ancestorInTree, staticClasses, visibleText } from "../lib/button-label-helpers.js";
 import { defineRule } from "../lib/define-rule.js";
@@ -89,7 +94,7 @@ export default defineRule({
   level: "guideline",
   verdict: "Split (1 of 2)",
   description:
-    "In an alert dialog: a Delete or Remove button without the danger style, the danger style on Cancel or on a safe action, a filled Cancel beside a quiet destructive button, and a faded destructive button.",
+    "In an alert dialog: a Delete or Remove button without the danger style, the danger style on Cancel or on a safe action, a Cancel filled beside a quiet destructive button, and a faded destructive button.",
   type: "suggestion",
   messages: {
     missingDanger:
@@ -126,14 +131,18 @@ export default defineRule({
         const insideCancel = parent && elementName(parent.openingElement) === "AlertDialogCancel";
         const text = visibleText(element, { ignoreSelfClosing: true });
 
-        const cancel = name === "AlertDialogCancel" || insideCancel || (text !== undefined && whole(text) === "cancel");
+        const cancel =
+          name === "AlertDialogCancel" ||
+          insideCancel ||
+          (name !== "AlertDialogAction" && text !== undefined && whole(text) === "cancel");
         if (cancel) {
           if (isRed(l)) context.report({ node: opening, messageId: "redCancel" });
           else if (footer && isFilled(insideCancel ? "Button" : name, l))
             footerEntry(footer).filledCancels.push(opening);
           return;
         }
-        if (!text) return;
+        // An action labelled Cancel, such as one that cancels a booking, is the destructive button.
+        if (!text || whole(text) === "cancel") return;
 
         if (DESTRUCTIVE.has(firstWord(text))) {
           if (!isRed(l)) {
@@ -152,9 +161,9 @@ export default defineRule({
       },
       "Program:exit"() {
         for (const { filledCancels, quiet } of footers.values()) {
-          if (!quiet.length) continue;
-          for (const node of filledCancels)
-            context.report({ node, messageId: "filledCancel", data: { text: quiet[0] } });
+          if (quiet.length)
+            for (const node of filledCancels)
+              context.report({ node, messageId: "filledCancel", data: { text: quiet[0] } });
         }
       },
     };

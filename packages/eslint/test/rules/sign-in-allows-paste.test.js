@@ -68,6 +68,20 @@ run("sign-in-allows-paste", rule, {
     `export function Puzzle({ cells }) {
       return <div className="grid">{cells.map((c) => <input key={c.id} aria-label={\`Row \${c.row}, column \${c.col}\`} maxLength={1} />)}</div>;
     }`,
+    // Codes outside sign-in, such as a gift card, are FRM-017's: InputOTP with no sign of sign-in, and boxes for a gift card.
+    `const block = (e: React.ClipboardEvent) => { e.preventDefault(); return false; };
+    export const Code = () => <InputOTP maxLength={6} onPaste={block}><InputOTPGroup><InputOTPSlot index={0} /></InputOTPGroup></InputOTP>;`,
+    `export const Gift = () => <Field label="Gift card code"><InputOTP maxLength={16} onPaste={(e) => e.preventDefault()}><InputOTPGroup><InputOTPSlot index={0} /></InputOTPGroup></InputOTP></Field>;`,
+    `export function Gift({ chars }) {
+      return (
+        <FieldSet legend="Gift card code">
+          <div className="flex gap-2">{chars.map((c, i) => <Input key={i} maxLength={1} aria-label={\`Character \${i + 1}\`} value={c} onChange={(e) => set(i, e.target.value)} />)}</div>
+        </FieldSet>
+      );
+    }`,
+    `export function Coupon({ chars }) {
+      return <div aria-label="Coupon code" className="flex gap-2">{chars.map((c, i) => <input key={i} maxLength={1} aria-label={\`Code character \${i + 1}\`} />)}</div>;
+    }`,
     // A single one-character field is not a code split into boxes.
     `export const Initial = () => <Field label="Middle initial"><Input maxLength={1} name="initial" /></Field>;`,
   ],
@@ -88,7 +102,7 @@ run("sign-in-allows-paste", rule, {
     },
     {
       code: `const block = (e: React.ClipboardEvent) => { e.preventDefault(); return false; };
-      export const Code = () => <InputOTP maxLength={6} onPaste={block}><InputOTPGroup><InputOTPSlot index={0} /></InputOTPGroup></InputOTP>;`,
+      export const Code = () => <Field label="Verification code"><InputOTP maxLength={6} onPaste={block}><InputOTPGroup><InputOTPSlot index={0} /></InputOTPGroup></InputOTP></Field>;`,
       errors: [{ messageId: "pasteBlocked" }],
     },
     {

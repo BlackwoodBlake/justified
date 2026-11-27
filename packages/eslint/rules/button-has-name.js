@@ -20,10 +20,18 @@
  * Radix icons, Tabler, react-icons, Heroicons, Phosphor, or a module path
  * ending in `/icons`), and components whose name ends in "Icon".
  *
+ * base-ui's `render={<Button />}` draws the button with that element around
+ * the children, so a name on either counts, and only the first check is
+ * made; a `render` that is not a plain element is left alone.
+ *
  * Left alone: buttons with `asChild` or spread props (the name may come
  * from the child or the spread), buttons passed as a prop such as
- * `render={<Button />}` (the component that takes it adds the children and
- * may add the name), names and children computed in
+ * `render={<Button />}` or as a prop's default (the component that takes
+ * it adds the children and may add the name; a default with children of
+ * its own is read), a base-ui `TooltipTrigger` drawn as a box that is no
+ * button or link, a base-ui `Button` drawn as a plain `span` or `div` with
+ * `nativeButton={false}` inside another control, names and children
+ * computed in
  * expressions, children that are other components (they may render text),
  * visible text that spells no word, such as "A+" or "@" (the rule's
  * exception for symbols), and names that hold the visible text without
@@ -41,6 +49,7 @@ import {
   meaningfulChildren,
   parentElement,
   staticValue,
+  unwrap,
 } from "../lib/jsx.js";
 import {
   containsWords,
@@ -119,10 +128,29 @@ export default defineRule({
         if (getAttribute(opening, "asChild") || hasSpread(opening) || isPropValue(element)) return;
         if (getAttribute(opening, "dangerouslySetInnerHTML") || getAttribute(opening, "children")) return;
 
-        const named = NAME_ATTRIBUTES.some((a) => getAttribute(opening, a));
+        // base-ui's `render` prop, like Radix's `asChild`, draws the button with the element it gets, around these
+        // children. That element's attributes count as the button's own; anything else in `render` is left alone.
+        const render = getAttribute(opening, "render");
+        const renderValue = render?.value?.type === "JSXExpressionContainer" ? unwrap(render.value.expression) : undefined;
+        if (render && renderValue?.type !== "JSXElement") return;
+        const rendered = renderValue?.openingElement;
+        if (rendered && hasSpread(rendered)) return;
+        // A trigger drawn as a box that is no control, such as an addon, may not be a button at all. One drawn as a
+        // button or a link is read as usual.
+        if (isTrigger && rendered && !/^(button|a)$|Button$|Link$/.test(baseName(rendered) ?? "")) return;
+        // base-ui's Button drawn as a plain span or div inside another control, such as a logo tile in a menu
+        // button, is left to review.
+        const plain = rendered && /^(span|div)$/.test(elementName(rendered) ?? "");
+        if (plain && attributeValue(getAttribute(opening, "nativeButton")) === false) {
+          for (let el = parentElement(element); el; el = parentElement(el))
+            if (/^(button|a|Link)$|Button$|Trigger$|Item$/.test(baseName(el.openingElement) ?? "")) return;
+        }
+        const holders = rendered ? [opening, rendered] : [opening];
+
+        const named = holders.some((o) => NAME_ATTRIBUTES.some((a) => getAttribute(o, a)));
         const children = meaningfulChildren(element);
         const iconOnly = children.length > 0 && children.every((c) => c.type === "JSXElement" && isIcon(c, icons));
-        const size = attributeValue(getAttribute(opening, "size"));
+        const size = attributeValue(getAttribute(rendered ?? opening, "size") ?? getAttribute(opening, "size"));
         const iconSize = typeof size === "string" && size.startsWith("icon");
 
         // 1. No name at all.
@@ -137,6 +165,8 @@ export default defineRule({
             return;
           }
         }
+        // The other checks read the name and the text on one element; with `render` they are split, so leave them to review.
+        if (rendered) return;
 
         const labelAttribute = getAttribute(opening, "aria-label");
         const label = stringAttribute(opening, "aria-label");

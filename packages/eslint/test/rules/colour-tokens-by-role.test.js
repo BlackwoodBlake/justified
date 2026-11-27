@@ -34,7 +34,13 @@ const upstream = [
 run("colour-tokens-by-role", rule, {
   valid: [
     ...upstream,
-    // shadcn's Spinner is an icon: its colour is left to judgement, like other icons.
+    // An arbitrary colour that only reads a token is a token.
+    `<p className="text-[hsl(var(--muted-foreground))] text-sm">Last updated today</p>`,
+    `<div className="border-[hsl(var(--border))] text-[oklch(var(--foreground)/0.8)]" />`,
+    // shadcn v4's own destructive Button and Badge: text-white on bg-destructive, with dark:bg-destructive/60.
+    `<Button className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive/60">Delete</Button>`,
+    `<Badge className="bg-destructive text-white [a&]:hover:bg-destructive/90 dark:bg-destructive/60">3 errors</Badge>`,
+        // shadcn's Spinner is an icon: its colour is left to judgement, like other icons.
     `<Spinner className="size-6 text-red-500" />`,
     // The VIS-002 Do pairs.
     `<div className="rounded-lg border border-border bg-card p-3 text-sm text-card-foreground"><p className="text-destructive">Payment failed</p></div>`,
@@ -90,8 +96,68 @@ run("colour-tokens-by-role", rule, {
     // Classes the code does not state, and partial classes.
     `<span className={\`text-\${tone}-600\`}>Status</span>`,
     `<span className={tone}>Status</span>`,
+    // Since the shadcn apps/v4 corpus: icons by other names, and boxes that hold no text.
+    // Icons, under any name: shadcn's IconPlaceholder and an Icons object.
+    `<IconPlaceholder lucide="CircleIcon" className="animate-pulse text-red-500" />`,
+    `<div className="flex size-16 items-center justify-center bg-neutral-950 text-neutral-100"><div><Icons.logo className="size-12" /></div></div>`,
+    // Markup set from a string, such as a logo: the code shows no text to colour.
+    `<span className="text-neutral-100 [&_svg]:fill-current" dangerouslySetInnerHTML={{ __html: LOGO }} />`,
+    // A foreground beside a fill on a box that holds only an icon colours no text.
+    `import { IconCheck } from "@tabler/icons-react";
+    export const A = () => <div className="bg-primary text-foreground"><IconCheck className="size-3" /></div>;`,
+    // An icon alone in a coloured span: whether the icon carries meaning takes judgement
+    `
+    import { CheckIcon } from "lucide-react"
+    export const A = () => <span className="text-green-600"><CheckIcon className="size-4" /></span>`,
   ],
   invalid: [
+    {
+      // Markup from a string that may be text, such as rendered markdown
+      code: `
+      export const A = ({ html }) => <div className="prose text-gray-500" dangerouslySetInnerHTML={{ __html: html }} />`,
+      errors: [{ messageId: "rawPalette" }],
+    },
+    {
+      // An error message set with dangerouslySetInnerHTML
+      code: `
+      export const A = ({ message }) => <p className="text-sm text-red-600" dangerouslySetInnerHTML={{ __html: message }} />`,
+      errors: [{ messageId: "rawPalette" }],
+    },
+    {
+      // A field shows text of its own
+      code: `
+      export const A = () => <textarea className="text-gray-900 placeholder:text-gray-400" name="note"></textarea>`,
+      errors: [{ messageId: "rawPalette" }],
+    },
+    {
+      // A control shows words of its own, whatever its children
+      code: `
+      import { PlusIcon } from "lucide-react"
+      export const A = () => <button aria-label="Add" className="bg-primary text-white"><PlusIcon /></button>`,
+      errors: [{ messageId: "rawPalette" }],
+    },
+    {
+      // Children given as a prop are text
+      code: `
+      export const A = ({ label }) => <Badge className="text-emerald-700" children={label}></Badge>`,
+      errors: [{ messageId: "rawPalette" }],
+    },
+    {
+      // A component beside the icon may render text
+      code: `
+      import { AlertCircle } from "lucide-react"
+      export const A = () => <div className="text-red-600"><AlertCircle /><div><Trans id="failed" /></div></div>`,
+      errors: [{ messageId: "rawPalette" }],
+    },
+    {
+      // A box with text beside the icon still colours that text.
+      code: `<div className="text-neutral-400"><Icons.logo /> Acme Inc</div>`,
+      errors: [{ messageId: "rawPalette" }],
+    },
+    {
+      code: `<div className="bg-primary text-foreground"><IconCheck /> Saved</div>`,
+      errors: [{ messageId: "wrongFill" }],
+    },
     // Raw palette on text, a control, a state or an edge.
     { code: `<p className="text-sm text-gray-500">Last updated today</p>`, errors: rawPalette },
     { code: `<div className="rounded-lg border border-gray-200 p-4" />`, errors: rawPalette },
@@ -102,6 +168,15 @@ run("colour-tokens-by-role", rule, {
       errors: rawPalette,
     },
     { code: `<button className="bg-slate-100">Filter</button>`, errors: rawPalette },
+    // A raw colour in an arbitrary value is still raw, and text-white on another fill is still reported.
+    { code: `<p className="text-[hsl(220_10%_40%)]">Updated</p>`, errors: rawPalette },
+    { code: `<Button className="bg-primary text-white">Save</Button>`, errors: rawPalette },
+    { code: `<button className="bg-destructive hover:text-white">Remove</button>`, errors: rawPalette },
+    // White on the plain red is reported: on the dark theme's red it is about 2.3:1.
+    { code: `<Button className="bg-destructive text-white hover:bg-destructive/90">Delete</Button>`, errors: rawPalette },
+    { code: `<span className="bg-destructive/90 text-white rounded-md px-2">3 errors</span>`, errors: rawPalette },
+    { code: `<button className="hover:bg-destructive hover:text-white">Remove</button>`, errors: rawPalette },
+    { code: `<p className="bg-destructive text-white dark:bg-destructive">Payment failed</p>`, errors: rawPalette },
     { code: `<div className="hover:bg-gray-50">Row</div>`, errors: rawPalette },
     {
       code: `<Checkbox className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600" />`,

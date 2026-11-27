@@ -40,8 +40,48 @@ run("svg-hidden-or-named", rule, {
     `export const N = () => <svg aria-hidden="true"><svg x="10">${path}</svg></svg>;`,
     // Library icons are not inline svg.
     `import { Check } from "lucide-react";\nexport const C = () => <span><Check className="size-4" /> Paid</span>;`,
+    // Since the shadcn apps/v4 corpus.
+    // Kept in an object to be rendered elsewhere, perhaps inside a button.
+    `const logos = { lucide: (<svg viewBox="0 0 24 24"><path d="M0 0" /></svg>) };
+    export function P() { return <button type="button">Lucide <span>{logos.lucide}</span></button>; }`,
+    `const STYLES = [{ name: "Vega", icon: <svg viewBox="0 0 24 24" role="img"><path d="M0 0" /></svg> }];`,
+    // Drawn into an Open Graph picture, never shown to a screen reader.
+    `import { ImageResponse } from "next/og";
+    export function GET() { return new ImageResponse(<div><svg viewBox="0 0 24 24"><path d="M0 0" /></svg></div>); }`,
+    // Items whose svg is rendered only inside links
+    `
+    const items = [{ href: "/", icon: <svg viewBox="0 0 24 24"><path d="M0 0h24" /></svg>, label: "Home" }]
+    export const A = () => <nav>{items.map((i) => <a key={i.href} href={i.href}>{i.icon}{i.label}</a>)}</nav>`,
+    // An svg kept in a const the file never renders, or whose use cannot be followed.
+    `export const STYLES = [{ name: "vega", icon: <svg viewBox="0 0 24 24"><path d="M0 0" /></svg> }];`,
+    `const logo = <svg viewBox="0 0 24 24"><path d="M0 0" /></svg>; export const A = () => <Header logo={logo} />;`,
+    `const logos = { lucide: <svg viewBox="0 0 24 24"><path d="M0 0" /></svg> }; export const A = ({ id }) => <PickerTrigger>{logos[id]}</PickerTrigger>;`,
   ],
   invalid: [
+    {
+      // Kept in a variable and rendered in a plain div
+      code: `
+      export const A = () => { const logo = <svg viewBox="0 0 24 24"><path d="M0 0h24" /></svg>; return <header><div>{logo}</div><h1>Acme</h1></header> }`,
+      errors: [{ messageId: "unnamed" }],
+    },
+    {
+      // Kept in an array and rendered in a list item through .map()
+      code: `
+      const features = [{ title: "Fast", icon: <svg viewBox="0 0 24 24"><path d="M0 0h24" /></svg> }]
+      export const A = () => <ul>{features.map((f) => <li key={f.title}>{f.icon}<h3>{f.title}</h3></li>)}</ul>`,
+      errors: [{ messageId: "unnamed" }],
+    },
+    {
+      // Kept in a conditional variable and rendered in a paragraph
+      code: `
+      export const A = ({ ok }) => { const mark = ok ? <svg viewBox="0 0 24 24"><path d="M0 0" /></svg> : null; return <p>{mark} Saved</p> }`,
+      errors: [{ messageId: "unnamed" }],
+    },
+    {
+      // Returned in place, an svg is still read.
+      code: `export function Logo() { return <div><svg viewBox="0 0 24 24"><path d="M0 0" /></svg> Acme Inc</div>; }`,
+      errors: [{ messageId: "unnamed" }],
+    },
     {
       code: `export const Tick = () => <svg viewBox="0 0 24 24" className="size-4">${path}</svg>;`,
       errors: [{ messageId: "unnamed" }],

@@ -9,6 +9,25 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 run("option-text-toggles", rule, {
   valid: [
+    // A row-selection checkbox has no text of its own (FRM-016a's first exception), so a row click is left alone.
+    `export function Row({ row }) {
+      const [selected, setSelected] = useState(false);
+      return (
+        <tr onClick={() => setSelected(!selected)}>
+          <td><Checkbox checked={selected} onCheckedChange={(v) => setSelected(v === true)} aria-label="Select row" /></td>
+          <td>{row.name}</td>
+        </tr>
+      );
+    }`,
+    `export function Row({ row }) {
+      const [selected, setSelected] = useState(false);
+      return (
+        <TableRow onClick={() => setSelected(!selected)}>
+          <TableCell><div onClick={() => setSelected(!selected)}><Checkbox checked={selected} onCheckedChange={(v) => setSelected(v === true)} aria-label="Select row" /></div></TableCell>
+          <TableCell>{row.name}</TableCell>
+        </TableRow>
+      );
+    }`,
     // shadcn's checkbox demo, as its docs write it.
     `${imports}
 export default function CheckboxDemo() {

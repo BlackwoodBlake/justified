@@ -33,6 +33,12 @@ export const propertyName = (node) =>
     : undefined;
 
 /** Whether a string stays on the same page: a query or a hash only. @param {unknown} value */
+/** A number of steps through the history, as in `navigate(-1)`. @param {any} node */
+const isHistoryStep = (node) => {
+  const n = unwrap(node);
+  if (n?.type === "Literal") return typeof n.value === "number";
+  return n?.type === "UnaryExpression" && n.operator === "-" && unwrap(n.argument)?.type === "Literal" && typeof unwrap(n.argument).value === "number";
+};
 const sameViewString = (value) => typeof value === "string" && /^[?#]/.test(value);
 
 /** The operands of a chain of `+`, left to right. @param {any} node @returns {any[]} */
@@ -257,7 +263,8 @@ export function handlerReader(context) {
     if (!n) return undefined;
     if (n.type === "CallExpression") {
       const kind = navigator(n.callee);
-      if (kind) return { target: n.arguments[0] };
+      // `navigate(-1)` steps through the history, as `router.back()` does: it does not go to an address.
+      if (kind && !isHistoryStep(n.arguments[0])) return { target: n.arguments[0] };
     }
     if (n.type === "AssignmentExpression" && locationAssignment(n)) return { target: n.right };
     return undefined;

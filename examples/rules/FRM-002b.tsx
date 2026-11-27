@@ -91,7 +91,6 @@ export const FRM002b: RuleExamples = {
           The error appears on the first digit, before the person could possibly be done, and stays until the fifth.
         </>
       ),
-      notLinted: "Lint gap: only react-hook-form modes are checked; a check run from an onChange handler is left to review.",
       Demo: EagerAddress,
     },
   ],

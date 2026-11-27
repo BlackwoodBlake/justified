@@ -25,6 +25,9 @@ run("focus-stays-visible", rule, {
     // Not focusable by Tab: only a script focuses it, as after a form is sent.
     `<h4 tabIndex={-1} className="m-0 text-base font-semibold outline-none">Your booking</h4>`,
     `<div className="outline-none">Panel</div>`,
+    // A class from the project's stylesheet may draw the focus style.
+    `<button className="focus-ring outline-none">Go</button>`,
+    `<button className="btn outline-none">Go</button>`,
     `<a className="outline-none">No href, no focus</a>`,
     `<input type="hidden" className="outline-none" />`,
     // Disabled controls need not take focus.
@@ -47,8 +50,58 @@ run("focus-stays-visible", rule, {
     // A style that keeps the outline.
     `<button style={{ outlineOffset: 2 }}>Save</button>`,
     `<button className="focus-visible:ring-2" style={{ outline: "none" }}>Save</button>`,
+    // Since the review of 0.1.1: classes from the project's own stylesheet still silence the rule.
+    // A class from a plugin or stylesheet, scrollbar-none, may draw the focus style
+    `
+    export const A = () => <div tabIndex={0} className="scrollbar-none overflow-auto focus:outline-none">Terms</div>`,
+    // A BEM class from the project's stylesheet may draw the focus style
+    `
+    export const A = () => <button className="card__toggle focus-visible:outline-none" onClick={go}>Show more trips</button>`,
+    // focus-ring from the project's stylesheet
+    `
+    export const A = () => <button className="focus-ring outline-none" onClick={go}>Go</button>`,
   ],
   invalid: [
+    {
+      // outline-none on a button
+      code: `
+      export const A = () => <button className="rounded px-2 outline-none" onClick={go}>Search tickets</button>`,
+      errors: [{ messageId: "outlineRemoved" }],
+    },
+    {
+      // A state class such as active carries no look of its own
+      code: `
+      export const A = ({ on }) => <a href="/t" className={cn("rounded px-2 outline-none", on && "active")}>Tickets</a>`,
+      errors: [{ messageId: "outlineRemoved" }],
+    },
+    {
+      // @container is a Tailwind utility
+      code: `
+      export const A = () => <button className="@container rounded outline-none" onClick={go}>Search</button>`,
+      errors: [{ messageId: "outlineRemoved" }],
+    },
+    {
+      // not-prose is a Tailwind utility
+      code: `
+      export const A = () => <a href="/x" className="not-prose outline-none">Docs</a>`,
+      errors: [{ messageId: "outlineRemoved" }],
+    },
+    {
+      // Tailwind v4 utilities such as bg-linear-to-r
+      code: `
+      export const A = () => <button className="bg-linear-to-r from-a to-b outline-hidden rounded-xl px-4 py-2 font-semibold shadow-lg transition-all hover:scale-105" onClick={go}>Go</button>`,
+      errors: [{ messageId: "outlineRemoved" }],
+    },
+    {
+      // A script hook such as js-open carries no look of its own
+      code: `
+      export const A = () => <button className="js-open outline-none" onClick={go}>Open</button>`,
+      errors: [{ messageId: "outlineRemoved" }],
+    },
+    {
+      code: `export const A = () => <button className="@container/card selected rounded outline-none" onClick={go}>Search</button>`,
+      errors: [{ messageId: "outlineRemoved" }],
+    },
     // The KBD-001 Don't: outline removed on all controls, nothing in its place.
     { code: `<button className="rounded-md border px-3 outline-none">Search tickets</button>`, errors: outlineRemoved },
     { code: `<a href="/help" className="text-primary underline focus:outline-none">Help</a>`, errors: outlineRemoved },
@@ -57,6 +110,8 @@ run("focus-stays-visible", rule, {
       errors: outlineRemoved,
     },
     { code: `<textarea className="outline-hidden" />`, errors: outlineRemoved },
+    // Every class here is a Tailwind utility, so no stylesheet class may hold a focus style.
+    { code: `<textarea aria-label="Notes" className="min-h-16 resize-none border-0 outline-none focus:ring-0" />`, errors: outlineRemoved },
     {
       code: `<select className={cn("h-9 rounded-md", "outline-none")}><option>UK</option></select>`,
       errors: outlineRemoved,

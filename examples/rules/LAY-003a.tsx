@@ -175,7 +175,6 @@ export const LAY003a: RuleExamples = {
           <PlotsFixed />
         </ZoomDemo>
       ),
-      notLinted: "Lint gap: the lint rule checks only the viewport setting, not a fixed height on a box of text.",
     },
     {
       kind: "do",
@@ -198,7 +197,8 @@ export const LAY003a: RuleExamples = {
         </>
       ),
       Demo: () => <HeroFixed />,
-      notLinted: "Lint gap: the lint rule checks only the viewport setting, not a fixed height on a box of text.",
+      notLinted:
+        "Lint gap: a fixed height with no overflow-hidden lets the text spill instead of cutting it, and what it spills over shows only in the browser.",
     },
     {
       kind: "do",

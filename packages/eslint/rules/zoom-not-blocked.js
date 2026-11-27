@@ -1,8 +1,8 @@
 /**
  * justified/zoom-not-blocked, for LAY-003a (a rule): text can be enlarged
  * to 200 percent. The rule is checked when the page runs; this lint rule
- * covers only the part its how_to_check names that is certain in code, the
- * viewport setting.
+ * covers only the parts its how_to_check names that are certain in code: the
+ * viewport setting, and a fixed height that cuts off a paragraph.
  *
  * Flags:
  *   - In a Next.js viewport object, `userScalable: false` or a
@@ -16,13 +16,56 @@
  *     `width=device-width` or `initial-scale=`, such as one set with
  *     `setAttribute("content", ...)`.
  *
+ *   - A box with a fixed height (`h-32`, `max-h-24`, `h-[7.5em]`,
+ *     `h-[120px]`) and `overflow-hidden` or `overflow-clip`, both stated
+ *     with no variant in a class list the code states in full, that holds
+ *     a `p` with text that can wrap. The box is an HTML element or a
+ *     `Card`, `CardContent` or `CardDescription`.
+ *
  * Left alone: everything else the rule asks, since whether text is cut off
  * or overlaps at 200 percent shows only in the browser; text in viewport
- * units and fixed heights on text boxes, which the how_to_check leaves to a
- * person to judge at 200 percent; and values that are computed.
+ * units, which the how_to_check leaves to a person to judge at 200
+ * percent; a fixed height with no `overflow-hidden`, where text spills
+ * instead of being cut, since what it spills over shows only in the
+ * browser; boxes whose text is not a paragraph, such as a one-line label
+ * or a heading in a bar; text cut on purpose with `truncate` or
+ * `line-clamp-*`, or that does not wrap; boxes that also scroll, hold a
+ * picture, video, avatar, carousel or scroll area, or fade the cut with a
+ * gradient or mask, where the crop is a choice or the exception for
+ * truncation with a way to the whole may apply; `h-0` and other heights in
+ * a branch, such as a collapsed panel; a box that a variant lets grow or
+ * scroll (`data-[state=open]:max-h-none`, `aria-expanded:h-auto`, any other
+ * height or `overflow-visible`/`-auto` under a variant), such as a panel
+ * that expands; a box that holds a component the rule cannot read, whose
+ * own height or scrolling is not known; a `flex-col` or `grid` box with a
+ * child beside the paragraph other than a heading, a frame round a layout
+ * where that child takes the rest of the height; and values that are
+ * computed.
  */
 import { defineRule } from "../lib/define-rule.js";
-import { attributeValue, elementName, getAttribute, staticValue, unwrap } from "../lib/jsx.js";
+import { parseToken, readClassList } from "../lib/class-token-helpers.js";
+import { attributeValue, elementName, getAttribute, hasSpread, staticValue, unwrap, walk } from "../lib/jsx.js";
+
+/** A height that does not grow with its text: `h-32`, `max-h-24`, `h-[7.5em]`, `h-[120px]`. */
+const FIXED_HEIGHT = /^(max-)?h-(\d+(\.\d+)?|\[\d+(\.\d+)?(px|rem|em)\])$/;
+const CLIPS = /^overflow(-y)?-(hidden|clip)$/;
+/** Text that is cut on purpose, or does not wrap. */
+const NO_WRAP = /^(truncate|line-clamp-.+|whitespace-nowrap|whitespace-pre|text-ellipsis|text-clip)$/;
+const SCROLLS = /^overflow(-[xy])?-(auto|scroll)$/;
+/** A fade over the cut, which takes judgement. */
+const FADE = /^(bg-gradient-to-|bg-linear-|from-|mask-)/;
+/** A class under a variant that lets the box grow or scroll, such as `data-[state=open]:max-h-none`. */
+const GROWS = /^((min-|max-)?h-|overflow(-y)?-(visible|auto|scroll)$)/;
+/** Components the rule reads as boxes of text. Any other component may scroll or size itself. */
+const READ_COMPONENTS = /^Card(Content|Description|Header|Title|Footer)?$/;
+const HEADING = /^h[1-6]$/;
+/** Pictures, video and scroll areas, whose crop is a choice. */
+const MEDIA = /^(img|Image|picture|video|canvas|iframe|svg|ScrollArea|Carousel.*|Avatar.*|AspectRatio)$/;
+
+/** Whether a child is text that can wrap: a word break in written text, or a value. @param {any} c */
+const isText = (c) =>
+  (c.type === "JSXText" && /\S\s+\S/.test(c.value)) ||
+  (c.type === "JSXExpressionContainer" && c.expression.type !== "JSXEmptyExpression");
 
 const VIEWPORT_STRING = /(^|[,;\s])(width\s*=\s*device-width|initial-scale\s*=)/i;
 
@@ -63,12 +106,15 @@ export default defineRule({
   id: "LAY-003a",
   level: "rule",
   verdict: "Requirement",
-  description: "A viewport setting that turns zoom off or caps it below 200 percent.",
+  description:
+    "A viewport setting that turns zoom off or caps it below 200 percent, and a fixed height with overflow hidden on a paragraph that can wrap.",
   messages: {
     noScaling:
       "this viewport setting turns zoom off, so people who need larger text cannot zoom or pinch to get it. Remove {{name}}. To stop the zoom when a field gets focus, give fields text of at least 16px instead.",
     lowMaximum:
       "this viewport setting caps zoom at {{value}} times, below twice the size. Remove {{name}}, or set it to 2 or more.",
+    clipsText:
+      "{{height}} with overflow hidden holds a paragraph that wraps onto more lines as text grows, so at 200 percent its last lines are cut off with no way to read them. Use a minimum height, such as min-h-32, and let the box grow.",
   },
   create(context) {
     const reported = new Set();
@@ -92,7 +138,69 @@ export default defineRule({
       return undefined;
     }
 
+    /** The stated class tokens with no variant, when the list is complete and nothing else adds to it. @param {any} opening */
+    const plainTokens = (opening) => {
+      if (hasSpread(opening)) return undefined;
+      const list = readClassList(context, opening);
+      if (!list) return [];
+      if (!list.complete || list.passThrough) return undefined;
+      return list.certain.filter((t) => parseToken(t).variants.length === 0).map((t) => parseToken(t).utility);
+    };
+
+    /**
+     * A paragraph inside the box whose text can wrap, or undefined when the
+     * box holds something that makes the clip a choice: a picture, a scroll
+     * area, a fade, or text that is cut with an ellipsis on purpose.
+     * @param {any} box A JSXElement.
+     */
+    const wrappingParagraph = (box) => {
+      let paragraph;
+      let excluded = false;
+      walk(box, context.sourceCode.visitorKeys, (n) => {
+        if (excluded) return false;
+        if (n.type !== "JSXOpeningElement") return undefined;
+        const name = elementName(n) ?? "";
+        if (MEDIA.test(name)) excluded = true;
+        if (/^[A-Z]/.test(name) && n.parent !== box && !READ_COMPONENTS.test(name)) excluded = true;
+        if (!name) excluded = true;
+        const all = readClassList(context, n);
+        const tokens = all ? all.parts.flatMap((p) => p.tokens).map((t) => parseToken(t).utility) : [];
+        if (tokens.some((t) => FADE.test(t) || SCROLLS.test(t))) excluded = true;
+        // The box holds the paragraph itself, or is it: a box of text, not a frame round a layout.
+        const own = n.parent === box || n.parent.parent === box;
+        if (name === "p" && own && n.parent.children.some(isText) && !tokens.some((t) => NO_WRAP.test(t))) paragraph = n;
+        return undefined;
+      });
+      return excluded ? undefined : paragraph;
+    };
+
     return {
+      JSXElement(element) {
+        const opening = element.openingElement;
+        const name = elementName(opening) ?? "";
+        if (!/^([a-z]+|Card|CardContent|CardDescription)$/.test(name) || MEDIA.test(name)) return;
+        const tokens = plainTokens(opening);
+        if (!tokens) return;
+        const height = tokens.find((t) => FIXED_HEIGHT.test(t) && !/^(max-)?h-(0|px|\[0[a-z]*\])$/.test(t));
+        if (!height || !tokens.some((t) => CLIPS.test(t))) return;
+        if (tokens.some((t) => NO_WRAP.test(t) || SCROLLS.test(t))) return;
+        // A variant that lets the box grow or scroll: a panel that expands.
+        const variantTokens = (readClassList(context, opening)?.parts ?? [])
+          .flatMap((part) => part.tokens)
+          .map((t) => parseToken(t))
+          .filter((t) => t.variants.length > 0);
+        if (variantTokens.some((t) => GROWS.test(t.utility))) return;
+        // A frame round a layout: another child beside the paragraph shares the height.
+        if (tokens.includes("grid") || (tokens.includes("flex") && tokens.includes("flex-col"))) {
+          const other = element.children.some((/** @type {any} */ c) => {
+            if (c.type !== "JSXElement") return false;
+            const child = elementName(c.openingElement) ?? "";
+            return child !== "p" && !HEADING.test(child);
+          });
+          if (other) return;
+        }
+        if (wrappingParagraph(element)) context.report({ node: opening, messageId: "clipsText", data: { height } });
+      },
       JSXOpeningElement(opening) {
         if (elementName(opening) !== "meta" || attributeValue(getAttribute(opening, "name")) !== "viewport") return;
         const content = getAttribute(opening, "content");

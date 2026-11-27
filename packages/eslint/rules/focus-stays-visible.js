@@ -29,11 +29,17 @@
  *     class such as `focus-within:ring-2` (a search box that rings its
  *     wrapper), a `group` whose children style `group-focus:`, or a `peer`,
  *     whose siblings may style `peer-focus:`.
+ *   - Elements with a class that is not a Tailwind utility, such as
+ *     `focus-ring` or `btn`: it comes from a stylesheet the rule cannot
+ *     read, which may give the focus style. A wrong report costs more than
+ *     a missed one here. Names that only mark a state or a script hook,
+ *     `active`, `open`, `selected` and `js-*`, are not counted as such a
+ *     class (see `fromOwnStylesheet` in `lib/class-token-helpers.js`).
  *   - Whether a focus style is plain enough to see, such as `focus:bg-accent`
  *     alone: that takes judgement, and the review skill covers it.
  */
 import { defineRule } from "../lib/define-rule.js";
-import { allTokens, parseToken, readClassList } from "../lib/class-token-helpers.js";
+import { allTokens, fromOwnStylesheet, parseToken, readClassList } from "../lib/class-token-helpers.js";
 import { attributeValue, elementName, getAttribute, hasSpread, parentElement, unwrap, walk } from "../lib/jsx.js";
 
 const ALWAYS_FOCUSABLE = new Set(["button", "select", "textarea", "summary", "iframe"]);
@@ -136,6 +142,8 @@ export default defineRule({
         if (list && (!list.complete || list.passThrough)) return;
         const tokens = list ? allTokens(list) : [];
         if (tokens.some(isFocusStyle)) return;
+        // A class from the project's own stylesheet, such as focus-ring, may draw the indicator: stay quiet.
+        if (tokens.some(fromOwnStylesheet)) return;
         if (focusShownElsewhere(node, tokens)) return;
 
         // Only an outline removed whatever the branches do: a branch may not be taken for this element.

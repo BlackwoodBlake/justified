@@ -185,8 +185,6 @@ export const VIS008a: RuleExamples = {
         </>
       ),
       Demo: DeliveryButtons,
-      notLinted:
-        "Lint gap: the check mark that follows the chosen state is read as text that follows it, so the missing aria-checked is not reported.",
     },
   ],
 };

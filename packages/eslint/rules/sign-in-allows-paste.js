@@ -9,13 +9,15 @@
  *     handler named by a function in the same file is followed. A sign-in
  *     field is an `Input`, `input` or `InputOTP` whose `autoComplete` is
  *     `username`, `current-password`, `one-time-code` or `webauthn`, or an
- *     `InputOTP` with no `autoComplete` (it asks for a one-time code).
+ *     `InputOTP` with no `autoComplete` that shows a sign of sign-in (see
+ *     below).
  *   - A code split into boxes: an `Input` or `input` with `maxLength={1}`
  *     made in a `.map()` or next to another such box, with no `onPaste` on
- *     it or on any element around it, and a sign that it holds a code:
- *     `autoComplete="one-time-code"`, or "code", "OTP", "digit", "PIN",
- *     "passcode" or "verification" in its `aria-label`, `name`, `id` or
- *     `placeholder`, or in the legend or label of an element around it.
+ *     it or on any element around it, and a sign that it holds a code at
+ *     sign-in: `autoComplete="one-time-code"`, or "one-time", "OTP",
+ *     "PIN", "passcode", "verification", "two-factor" or "sign in" in its
+ *     `aria-label`, `name`, `id` or `placeholder`, or in the legend or
+ *     label of an element around it.
  *
  * Left alone: `autoComplete="new-password"` and password fields with no
  * `autoComplete`, since creating an account is outside the rule; a paste
@@ -24,7 +26,9 @@
  * inside a condition; boxes with a spread or in a file that listens for
  * "paste" with `addEventListener`; shadcn `InputOTP`, which spreads a
  * paste across its slots; and one-letter boxes with no sign of a code,
- * such as puzzle cells. `autoComplete="off"`,
+ * such as puzzle cells; and codes that are not for signing in, such as a
+ * gift card, coupon or promo code, or boxes named only "code" or "digit",
+ * since pasting outside sign-in is the guideline FRM-017. `autoComplete="off"`,
  * clearing a filled value, selected characters of a password and tests
  * such as a CAPTCHA need the whole flow, so the review skill covers them.
  */
@@ -43,7 +47,11 @@ import {
 const INPUTS = new Set(["Input", "input"]);
 const SIGN_IN_TOKENS = new Set(["username", "current-password", "one-time-code", "webauthn"]);
 const FUNCTIONS = new Set(["FunctionExpression", "ArrowFunctionExpression", "FunctionDeclaration"]);
-const CODE_WORDS = /\b(codes?|otp|digits?|pins?|passcodes?|verification)\b/i;
+/** Words that tie a code to signing in. "Code" or "digit" alone may be a gift card or a coupon. */
+const SIGN_IN_WORDS =
+  /\b(otp|one[- ]time|passcodes?|pins?|verification|verify|2fa|two[- ](factor|step)|authenticat\w*|security codes?|sign[- ]?in|log[- ]?in)\b/i;
+/** Words that put a code outside sign-in, where pasting is FRM-017. */
+const OTHER_CODE_WORDS = /\b(gift|promo(tion)?|coupon|discount|voucher|referral|invite|invitation|redeem|redemption)\b/i;
 const LABELS = new Set(["legend", "FieldLegend", "Label", "FormLabel", "FieldLabel", "label"]);
 const PASTE_PROPS = new Set(["onPaste", "onPasteCapture", "onpaste"]);
 
@@ -63,8 +71,9 @@ function autocompleteTokens(opening) {
 function isSignInField(opening) {
   const name = elementName(opening);
   const tokens = autocompleteTokens(opening);
+  // InputOTP with no autoComplete may hold any code, such as a gift card's; its words around it decide.
   if (name === "InputOTP")
-    return !getAttribute(opening, "autoComplete") || (tokens?.some((t) => SIGN_IN_TOKENS.has(t)) ?? false);
+    return tokens ? tokens.some((t) => SIGN_IN_TOKENS.has(t)) : hasSignInSign(opening.parent);
   if (!name || !INPUTS.has(name)) return false;
   return tokens?.some((t) => SIGN_IN_TOKENS.has(t)) ?? false;
 }
@@ -186,25 +195,33 @@ function siblingBoxes(element) {
   return parent.children.filter((c) => c.type === "JSXElement" && isBox(c.openingElement));
 }
 
-/** Whether an element has a sign that it holds a code. @param {any} element */
-function hasCodeSign(element) {
+/**
+ * Whether an element holds a code at sign-in, for certain:
+ * `autoComplete="one-time-code"`, or words such as "one-time code",
+ * "verification", "PIN" or "sign in" in its `aria-label`, `name`, `id` or
+ * `placeholder`, or in the legend or label of an element around it, and no
+ * word such as "gift", "coupon" or "promo" there.
+ * @param {any} element
+ */
+function hasSignInSign(element) {
+  if (!element?.openingElement) return false;
   const opening = element.openingElement;
   if (autocompleteTokens(opening)?.includes("one-time-code")) return true;
+  const texts = [];
   for (const name of ["aria-label", "name", "id", "placeholder"]) {
     const a = getAttribute(opening, name);
-    if (a?.value && CODE_WORDS.test(textOf(a.value))) return true;
+    if (a?.value) texts.push(textOf(a.value));
   }
   for (let el = parentElement(element); el; el = parentElement(el)) {
     for (const name of ["legend", "label", "aria-label"]) {
       const a = getAttribute(el.openingElement, name);
-      if (a?.value && CODE_WORDS.test(textOf(a.value))) return true;
+      if (a?.value) texts.push(textOf(a.value));
     }
-    for (const c of el.children) {
-      if (c.type === "JSXElement" && LABELS.has(elementName(c.openingElement) ?? "") && CODE_WORDS.test(childText(c)))
-        return true;
-    }
+    for (const c of el.children)
+      if (c.type === "JSXElement" && LABELS.has(elementName(c.openingElement) ?? "")) texts.push(childText(c));
   }
-  return false;
+  if (texts.some((t) => OTHER_CODE_WORDS.test(t))) return false;
+  return texts.some((t) => SIGN_IN_WORDS.test(t));
 }
 
 export default defineRule({
@@ -261,7 +278,7 @@ export default defineRule({
           let handled = false;
           for (let el = parentElement(element); el && !handled; el = parentElement(el))
             if (pasteAttribute(el.openingElement)) handled = true;
-          if (handled || !hasCodeSign(element)) continue;
+          if (handled || !hasSignInSign(element)) continue;
           context.report({ node: opening, messageId: "splitCode" });
         }
       },

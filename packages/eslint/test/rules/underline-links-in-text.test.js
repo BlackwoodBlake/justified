@@ -38,6 +38,14 @@ run("underline-links-in-text", rule, {
     // Prose underlines links.
     `export const Article = () => <article className="prose dark:prose-invert"><p>See the <a href="/guide" className="text-primary">guide</a> first.</p></article>;`,
     `export const Article = ({ c }) => <div className={cn("prose", c)}><p>See the <a href="/guide" className="text-primary">guide</a> first.</p></div>;`,
+    // A parent that underlines the links inside it.
+    `export const Note = () => <div className="text-sm [&_a]:underline [&_a]:underline-offset-4"><p>See the <a href="/guide" className="text-primary">guide</a> first.</p></div>;`,
+    `export const Note = () => <FieldDescription className="[&>a]:underline">Read the <a href="/terms">terms</a> first.</FieldDescription>;`,
+    `export const Note = () => <div className="prose-a:underline"><p>See the <a href="/guide" className="text-primary">guide</a> first.</p></div>;`,
+    // A link drawn as a button is outside the rule.
+    `export const Empty = () => <p>No projects yet. <a href="/new" className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-primary-foreground">Create one</a></p>;`,
+    `import Link from "next/link";
+    export const Empty = () => <TableCell>None. <Link href="/new" className="rounded-md border px-3 py-1 text-sm">Add</Link></TableCell>;`,
     // A plain anchor without href, a Link from elsewhere, a styled or spread link.
     lesson(`<a className="text-primary">Download the worksheet</a>`),
     `import { Link } from "@/components/link";\n${lesson(`<Link href="/w" className="text-primary">Download</Link>`)}`,
@@ -99,6 +107,15 @@ run("underline-links-in-text", rule, {
     {
       code: `export const C = () => <TableCell>Paid by <a href="/u/7" className="text-primary hover:underline">Lena Okafor</a> on 3 May</TableCell>;`,
       errors: [{ messageId: "stateOnly" }],
+    },
+    // A parent cue only on hover does not count, and a plain fill with no padding is not a button.
+    {
+      code: `export const Note = () => <div className="[&_a:hover]:underline"><p>See the <a href="/g" className="text-primary">guide</a>.</p></div>;`,
+      errors: [{ messageId: "colourOnly" }],
+    },
+    {
+      code: `export const Note = () => <p>See the <a href="/g" className="bg-muted text-primary">guide</a>.</p>;`,
+      errors: [{ messageId: "colourOnly" }],
     },
     // A prefixed prose does not reach this link; not-prose turns prose off.
     {
