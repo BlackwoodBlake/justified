@@ -44,4 +44,8 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm test
+      # Lints shadcn's own v4 app and registry code at a pinned commit and compares the reports with the
+      # reviewed list in packages/eslint/test/shadcn-corpus.txt. The script fetches the public
+      # repository without credentials into a temporary folder; nothing is vendored.
+      - run: npm run corpus --workspace packages/eslint
       - run: npm run build

@@ -26,8 +26,14 @@
  *
  * Left alone:
  *   - Anything in an `svg`, `img`, `picture`, `video` or `canvas`, and icon
- *     components, shadcn's `Spinner` among them: illustrations and photos are the rule's exception, and
+ *     components, shadcn's `Spinner` and `IconPlaceholder` and `Icons.*`
+ *     among them: illustrations and photos are the rule's exception, and
  *     whether an icon carries meaning takes judgement.
+ *   - A text colour, and the pair check, on an element that holds no text:
+ *     only icons and pictures, or markup set with `dangerouslySetInnerHTML`
+ *     that is clearly a picture (its source speaks of a logo, an icon or an
+ *     svg, or the element is sized like an icon). Never on a control, a
+ *     field, editable text or an element given `children` as a prop.
  *   - A palette `bg-` on a plain layout element, which may be decoration.
  *   - Classes only a branch adds (`cond && "…"`, or one side of `?:`): the
  *     branch may never be taken for the code at hand. Classes both sides add
@@ -48,6 +54,12 @@
  *   - `ring-ring` with no variant, which may draw focus in a picture or a
  *     focus state set by script, and `data-[selected=true]:` in a command
  *     menu, which marks the item the keyboard is on.
+ *   - `text-white` on `bg-destructive` under the same variants, when the
+ *     element also has `dark:bg-destructive/60`, as shadcn's own
+ *     destructive `Button` and `Badge` variants write it. Without that
+ *     pairing, white on the dark theme's red is too faint. And an
+ *     arbitrary colour that only reads a token, such as
+ *     `text-[hsl(var(--muted-foreground))]`.
  *   - Meaning-based parts: `text-destructive` for a sale price, `bg-success`
  *     as a brand colour, `--chart-*` for status, and pairs split across
  *     parent and child. The review skill covers them.
@@ -56,7 +68,7 @@
  */
 import { defineRule } from "../lib/define-rule.js";
 import { parseToken, plainClassLiteral, readClassList } from "../lib/class-token-helpers.js";
-import { attributeValue, elementName, findAncestorElement, getAttribute, parentElement, unwrap } from "../lib/jsx.js";
+import { attributeValue, elementName, findAncestorElement, getAttribute, parentElement, unwrap, walk } from "../lib/jsx.js";
 
 const PALETTE =
   "(?:slate|gray|zinc|neutral|stone|mauve|olive|mist|taupe|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|[1-9]00|950)|black|white";
@@ -66,10 +78,13 @@ const RAW_INK = new RegExp(
   `^(?:text|placeholder|border(?:-[xytrblse])?|divide|ring|ring-offset|outline|decoration|caret|accent)-${COLOUR}$`,
 );
 const RAW_FILL = new RegExp(`^bg-${COLOUR}$`);
+/** An arbitrary colour that only reads a token, such as `text-[hsl(var(--muted-foreground))]`: a token, not a raw colour. */
+const TOKEN_FUNCTION =
+  /^[\w-]+-\[(?:color:)?(?:rgba?|hsla?|oklch|oklab|lab|lch|hwb)\(\s*var\(--[\w-]+\)\s*(?:[/,]\s*[\d.]+%?\s*)?\)\](?:\/\S+)?$/;
 const COLOUR_VALUE = /^\s*(#[0-9a-fA-F]{3,8}|(rgba?|hsla?|oklch|oklab|lab|lch|hwb|color)\()/;
 
 // shadcn's `Spinner` draws a lucide icon, so it counts as an icon here.
-const SKIP_ELEMENTS = new Set(["svg", "img", "picture", "video", "canvas", "Spinner"]);
+const SKIP_ELEMENTS = new Set(["svg", "img", "picture", "video", "canvas", "Spinner", "IconPlaceholder"]);
 const MEDIA = new Set(["svg", "img", "picture", "video", "canvas", "Image", "AspectRatio"]);
 const ICON_SOURCES =
   /^(lucide-react|@radix-ui\/react-icons|@tabler\/icons-react|@heroicons\/react(\/.*)?|@phosphor-icons\/react|react-icons(\/.*)?)$/;
@@ -179,8 +194,45 @@ export default defineRule({
     /** @param {any} node */
     const skipped = (node) => {
       const name = elementName(node) ?? "";
-      if (SKIP_ELEMENTS.has(name) || icons.has(name.split(".")[0]) || /Icon$/.test(name)) return true;
+      if (SKIP_ELEMENTS.has(name) || icons.has(name.split(".")[0]) || /Icon$/.test(name) || /^Icons\./.test(name))
+        return true;
       return Boolean(findAncestorElement(node, (n) => n === "svg"));
+    };
+
+    /**
+     * Whether an element holds no text of its own: markup set with
+     * `dangerouslySetInnerHTML`, such as a logo, or children that are all
+     * icons and pictures. A text colour on it colours no words.
+     * @param {any} node A JSXOpeningElement.
+     */
+    const holdsNoText = (node) => {
+      const element = node.parent;
+      if (element?.type !== "JSXElement") return false;
+      // A control, a field or editable text shows words of its own, whatever its children.
+      const name = elementName(node) ?? "";
+      const role = attributeValue(getAttribute(node, "role"));
+      if (/^(button|a|input|textarea|select|Link)$|Button$/.test(name) || role === "button" || role === "link")
+        return false;
+      if (getAttribute(node, "contentEditable") || getAttribute(node, "children")) return false;
+      const html = getAttribute(node, "dangerouslySetInnerHTML");
+      if (html) {
+        // Only markup that is clearly a picture, such as a logo or an icon set as a string.
+        const classes = readClassList(context, node)?.certain ?? [];
+        const iconSized = classes.some((t) => /^size-|^\[&_svg\]:/.test(t));
+        return element.children.length === 0 && (/logo|icon|svg/i.test(sourceCode.getText(html)) || iconSized);
+      }
+      if (node.selfClosing) return false;
+      let text = false;
+      walk(element, sourceCode.visitorKeys, (n) => {
+        if (text) return false;
+        if (n.type === "JSXText" && n.value.trim()) text = true;
+        else if (n.type === "JSXExpressionContainer" && n.parent?.type !== "JSXAttribute") text = true;
+        else if (n.type === "JSXOpeningElement" && n !== node && skipped(n)) return false;
+        else if (n.type === "JSXOpeningElement" && n !== node && elementName(n) !== "div" && elementName(n) !== "span")
+          text = true;
+        return undefined;
+      });
+      return !text;
     };
 
     /** @param {any} node */
@@ -208,11 +260,25 @@ export default defineRule({
     const checkPalette = (node, tokens, at) => {
       const control = isControl(node);
       let media;
+      /** @type {boolean | undefined} */
+      let noText;
       const parsed = tokens.map((t) => ({ token: t, ...parseToken(t) }));
       const raw = [];
       for (const p of parsed) {
+        if (TOKEN_FUNCTION.test(p.utility)) continue;
         if (RAW_INK.test(p.utility)) {
+          if (p.utility.startsWith("text-") && (noText ??= holdsNoText(node))) continue;
           if (/-(white|black)(\/\S+)?$/.test(p.utility) && p.utility.startsWith("text-") && (media ??= overMedia(node)))
+            continue;
+          // shadcn's own destructive button and badge: text-white on bg-destructive under the same variants,
+          // with the darker fill shadcn pairs it with in dark mode. White on the plain dark red is too faint.
+          if (
+            p.utility === "text-white" &&
+            tokens.includes("dark:bg-destructive/60") &&
+            parsed.some(
+              (q) => /^bg-destructive(\/\S+)?$/.test(q.utility) && q.variants.join(":") === p.variants.join(":"),
+            )
+          )
             continue;
           raw.push(p.token);
         } else if (RAW_FILL.test(p.utility)) {
@@ -355,7 +421,7 @@ export default defineRule({
           // Presence checks read only what is there whatever the branches do.
           const tokens = list.certain;
           checkPalette(node, tokens, at);
-          if (list.complete) checkPairs(tokens, at);
+          if (list.complete && !holdsNoText(node)) checkPairs(tokens, at);
 
           for (const token of tokens) {
             const { variants, utility } = parseToken(token);

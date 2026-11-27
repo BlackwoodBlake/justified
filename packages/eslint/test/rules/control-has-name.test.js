@@ -58,6 +58,24 @@ run("control-has-name", rule, {
     `export const A = () => <Button variant="outline" role="combobox" aria-label="Framework" aria-expanded={open}>Select framework...</Button>;`,
     // An aria-label that holds the visible label.
     `export const A = () => <Field label="Level"><NativeSelect aria-label="Level for Alma" /></Field>;`,
+    // A group label is not each field's own label (FRM-010's exception).
+    `export const A = () => (
+      <Field label="Date of birth">
+        <div className="flex gap-2"><Input aria-label="Day" /><Input aria-label="Month" /><Input aria-label="Year" /></div>
+      </Field>
+    );`,
+    `export const A = () => (
+      <FormItem>
+        <FormLabel>Date of birth</FormLabel>
+        <FormControl><div className="flex gap-2"><Input aria-label="Day" /><Input aria-label="Month" /><Input aria-label="Year" /></div></FormControl>
+      </FormItem>
+    );`,
+    `export const A = () => (
+      <fieldset><legend>Date of birth</legend><Input aria-label="Day" /><Input aria-label="Month" /><Input aria-label="Year" /></fieldset>
+    );`,
+    `export const A = () => (
+      <div role="group" aria-labelledby="dob"><p id="dob">Date of birth</p><Input aria-label="Day" /><Input aria-label="Month" /></div>
+    );`,
     `export const A = () => <div><Label htmlFor="lvl">Level</Label><NativeSelect id="lvl" aria-label="Level for Noor" /></div>;`,
     // The marker in parentheses is FRM-005, not this rule.
     `export const A = () => <div><Label htmlFor="n">Notes for the teacher (optional)</Label><Textarea id="n" aria-label="Notes for the teacher" /></div>;`,
@@ -84,8 +102,46 @@ run("control-has-name", rule, {
         </RadioGroup>
       </div>
     );`,
+    // Since the shadcn apps/v4 corpus: react-aria selects and slotted controls.
+    // react-aria's SelectTrigger takes its name from the Select's label.
+    `import { Select, SelectTrigger, SelectValue } from "@/registry/bases/aria/ui/select";
+    export function F() { return <div><Select aria-label="Fruits"><SelectTrigger><SelectValue /></SelectTrigger></Select></div>; }`,
+    `import { Select, SelectTrigger, SelectValue, Label } from "@/registry/bases/aria/ui/select";
+    export const A = () => (<div><Select><Label>Venue</Label><SelectTrigger><SelectValue /></SelectTrigger></Select></div>);`,
+    `import { Select, SelectTrigger, SelectValue } from "@/registry/bases/aria/ui/select";
+    export function Picker(props) { return <div><Select {...props}><SelectTrigger><SelectValue /></SelectTrigger></Select></div>; }`,
+    // A control in a slot, such as react-aria's selection checkbox, is named by the slot.
+    `export function F() { return <Table><TableHeader><TableHead><Checkbox slot="selection" /></TableHead></TableHeader></Table>; }`,
   ],
   invalid: [
+    {
+      // A react-aria Select with no label anywhere: the shown value is not a name the code gives.
+      code: `import { Select, SelectTrigger, SelectValue, SelectPopover } from "@/registry/bases/aria/ui/select";
+      export const A = () => (<div><Select placeholder="Pick a venue"><SelectTrigger><SelectValue /></SelectTrigger><SelectPopover /></Select></div>);`,
+      errors: [{ messageId: "noName" }],
+    },
+    {
+      code: `import { Select, SelectValue, Button as SelectTrigger, Popover } from "react-aria-components";
+      export const A = () => (<div><Select><SelectTrigger><SelectValue /></SelectTrigger><Popover /></Select></div>);`,
+      errors: [{ messageId: "noName" }],
+    },
+    {
+      // A slot outside react-aria gives no name.
+      code: `export const A = () => (<my-row><input type="checkbox" slot="start" /></my-row>);`,
+      errors: [{ messageId: "noName" }],
+    },
+    {
+      code: `import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
+      import { announce } from "@/lib/aria/live";
+      export const A = () => (<div><Select><SelectTrigger><SelectValue placeholder="Pick a venue" /></SelectTrigger></Select></div>);`,
+      errors: [{ messageId: "noName" }],
+    },
+    {
+      // A Radix SelectTrigger gets no name from its Select.
+      code: `import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
+      export function F() { return <div><Select><SelectTrigger><SelectValue placeholder="Choose a pool" /></SelectTrigger></Select></div>; }`,
+      errors: [{ messageId: "noName" }],
+    },
     {
       // The Don't: the notes paragraph is not tied to the text area.
       code: `export const A = () => (

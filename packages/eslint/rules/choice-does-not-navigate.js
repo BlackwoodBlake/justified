@@ -17,7 +17,16 @@
  *     or a `navigate()` from `useNavigate()`;
  *   - sends a form: `handleSubmit(...)()`, `requestSubmit()`, or a form's
  *     `submit()`. Not on a `Switch`, which may save its own setting in
- *     place, and not inside a `form method="get"`, a filter form.
+ *     place, and not inside a `form method="get"`, a filter form;
+ *   - opens a dialog, on a `Switch`, `Checkbox`, `RadioGroup`,
+ *     `ToggleGroup` or a native radio or checkbox: calls
+ *     the `useState` setter of a state that is the `open` of a `Dialog`,
+ *     `Sheet` or `Drawer` in the same component, with anything but `false`
+ *     or that state itself, or is that setter itself.
+ *
+ * A switch in a form with a save button is not reported. The rule sentence
+ * does not say a switch must apply its setting at once; that is the Do
+ * advice, and reading whether a setting waits for the form takes judgement.
  *
  * Left alone:
  *   - A change of search params on the same view: a URL that starts with
@@ -31,10 +40,15 @@
  *     (FRM-012a).
  *   - Running a command such as export from a choice, and a command item in
  *     a `ToggleGroup`: which handler is a command takes judgement.
+ *   - A `Select` or a menu choice that opens a dialog, such as *Custom
+ *     range...*: whether that item starts a task or only asks for the value
+ *     takes judgement. An `AlertDialog` opened by a choice: asking to confirm
+ *     a change is not a task.
  */
 import { defineRule } from "../lib/define-rule.js";
 import {
   attributeValue,
+  baseName,
   elementName,
   findAncestorElement,
   getAttribute,
@@ -59,6 +73,13 @@ const FUNCTIONS = new Set(["FunctionExpression", "ArrowFunctionExpression", "Fun
 const SAME_CHANGE = new Set(["startTransition", "setTimeout"]);
 const SAME_VIEW_HELPER = /query|search|param/i;
 const MAX_DEPTH = 2;
+/** Elements whose `open` a choice must not set. An `AlertDialog` only asks to confirm. */
+const DIALOGS = new Set(["Dialog", "Sheet", "Drawer"]);
+/** The choices that are read for opening a dialog. */
+const OPENS_DIALOG_CHOICES = new Set(["Switch", "Checkbox", "RadioGroup", "ToggleGroup"]);
+/** @typedef {"navigates" | "submits" | "opensDialog"} Effect */
+/** The strongest effect is reported. @type {Record<Effect, number>} */
+const RANK = { navigates: 0, submits: 1, opensDialog: 2 };
 
 /** `a.b` as written, for a non-computed member. @param {any} node */
 const propertyName = (node) =>
@@ -85,12 +106,14 @@ export default defineRule({
   level: "rule",
   verdict: "Majority (2 of 3)",
   description:
-    "A select, radio group, checkbox, switch or toggle group whose value change goes to another page or sends the form.",
+    "A select, radio group, checkbox, switch or toggle group whose value change goes to another page or sends the form, and a switch, checkbox, radio group or toggle group whose value change opens a dialog.",
   messages: {
     navigates:
       "this {{control}} goes to another page when its value changes, so a person looking through the options, or moving through them with the arrow keys, sets it off. Let it only record the choice, and put the move on a button or a link next to it. Filtering or sorting the same view through search params is fine.",
     submits:
       "this {{control}} sends the form when its value changes, before the person has decided. Let it only record the choice, and send the form with its submit button. A switch that applies and saves its own setting in place is fine.",
+    opensDialog:
+      "this {{control}} opens a dialog when its value changes, so a choice starts a task. Let it only record the choice, and open the dialog with a button whose label starts with a verb, such as Set up automatic payments.",
   },
   create(context) {
     const sourceCode = context.sourceCode;
@@ -255,17 +278,64 @@ export default defineRule({
     };
 
     /**
-     * What a function does when it runs: "navigates", "submits" or nothing.
+     * The state a `useState` setter sets, as `{ state, setter }` variables,
+     * when the name is the second item of `const [x, setX] = useState(...)`.
+     * @param {any} identifier
+     */
+    const stateOfSetter = (identifier) => {
+      if (identifier?.type !== "Identifier") return undefined;
+      const setter = variableOf(identifier);
+      const def = setter?.defs[0];
+      const pattern = def?.type === "Variable" ? def.node.id : undefined;
+      if (pattern?.type !== "ArrayPattern" || pattern.elements[1]?.type !== "Identifier") return undefined;
+      if (pattern.elements[1].name !== identifier.name || pattern.elements[0]?.type !== "Identifier") return undefined;
+      const init = unwrap(def.node.init);
+      const callee = unwrap(init?.callee);
+      if (init?.type !== "CallExpression" || (callee?.name !== "useState" && propertyName(callee) !== "useState"))
+        return undefined;
+      const state = sourceCode
+        .getDeclaredVariables(def.node)
+        .find((/** @type {any} */ v) => v.name === pattern.elements[0].name);
+      return state ? { state, setter } : undefined;
+    };
+
+    /** Whether a state variable is the `open` of a dialog, sheet or drawer. @param {any} state */
+    const opensADialog = (state) =>
+      state.references.some((/** @type {any} */ ref) => {
+        const container = ref.identifier.parent;
+        const attribute = container?.type === "JSXExpressionContainer" ? container.parent : undefined;
+        return (
+          attribute?.type === "JSXAttribute" &&
+          attribute.name.name === "open" &&
+          DIALOGS.has(baseName(attribute.parent) ?? "")
+        );
+      });
+
+    /** Whether a call sets the state that opens a dialog, to anything but `false` or itself. @param {any} call */
+    const opensDialog = (call) => {
+      const found = stateOfSetter(unwrap(call.callee));
+      if (!found || call.arguments.length === 0 || staticValue(call.arguments[0]) === false) return false;
+      const arg = unwrap(call.arguments[0]);
+      if (arg?.type === "Identifier" && variableOf(arg) === found.state) return false;
+      return opensADialog(found.state);
+    };
+
+    /**
+     * What a function does when it runs: "navigates", "submits",
+     * "opensDialog" or nothing, the first being the strongest.
      * @param {any} fn
      * @param {number} depth
      * @param {Set<any>} seen
-     * @returns {"navigates" | "submits" | undefined}
+     * @returns {Effect | undefined}
      */
     const effectOf = (fn, depth, seen) => {
       if (seen.has(fn)) return undefined;
       seen.add(fn);
-      /** @type {"navigates" | "submits" | undefined} */
+      /** @type {Effect | undefined} */
       let found;
+      const note = (/** @type {Effect | undefined} */ effect) => {
+        if (effect && (!found || RANK[effect] < RANK[found])) found = effect;
+      };
       walk(fn.body, keys, (n, parent) => {
         if (found === "navigates") return false;
         if (FUNCTIONS.has(n.type)) {
@@ -274,22 +344,22 @@ export default defineRule({
           const name = callee?.type === "Identifier" ? callee.name : propertyName(callee);
           return Boolean(name && SAME_CHANGE.has(name));
         }
-        if (n.type === "AssignmentExpression" && setsLocation(n)) found = "navigates";
+        if (n.type === "AssignmentExpression" && setsLocation(n)) note("navigates");
         if (n.type !== "CallExpression") return undefined;
-        if (navigates(n)) found = "navigates";
-        else if (!found && submits(n)) found = "submits";
+        if (navigates(n)) note("navigates");
+        else if (submits(n)) note("submits");
+        else if (opensDialog(n)) note("opensDialog");
         else if (depth < MAX_DEPTH) {
           const callee = unwrap(n.callee);
           const local = callee?.type === "Identifier" ? functionOf(callee) : undefined;
-          const inner = local && effectOf(local, depth + 1, seen);
-          if (inner === "navigates" || (inner && !found)) found = inner;
+          note(local && effectOf(local, depth + 1, seen));
         }
         return undefined;
       });
       return found;
     };
 
-    /** What a handler expression does. @param {any} expression */
+    /** What a handler expression does. @param {any} expression @returns {Effect | undefined} */
     const handlerEffect = (expression) => {
       const n = unwrap(expression);
       if (!n) return undefined;
@@ -299,6 +369,9 @@ export default defineRule({
         const callee = unwrap(n.callee);
         if (callee?.name === "handleSubmit" || propertyName(callee) === "handleSubmit") return "submits";
       }
+      // onCheckedChange={setOpen}, where open is a dialog's.
+      const set = n.type === "Identifier" ? stateOfSetter(n) : undefined;
+      if (set) return opensADialog(set.state) ? "opensDialog" : undefined;
       const fn = functionOf(n);
       return fn ? effectOf(fn, 0, new Set()) : undefined;
     };
@@ -319,6 +392,7 @@ export default defineRule({
 
         const effect = handlerEffect(attribute.value.expression);
         if (!effect) return;
+        if (effect === "opensDialog" && !(native ? name === "input" : OPENS_DIALOG_CHOICES.has(name))) return;
         const control = native
           ? name === "select"
             ? "select"

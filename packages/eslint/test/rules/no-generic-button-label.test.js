@@ -94,6 +94,15 @@ run("no-generic-button-label", rule, {
     `export function L() { return <Button asChild><a href="/yes">Yes</a></Button>; }`,
   ],
   invalid: [
+    // An icon beside the word adds no words.
+    {
+      code: `import { Send } from "lucide-react";\nexport const A = () => <Button type="submit"><Send /> Submit</Button>;`,
+      errors: [{ messageId: "generic" }],
+    },
+    {
+      code: `export const A = () => <Button type="submit"><svg aria-hidden="true" /> Submit</Button>;`,
+      errors: [{ messageId: "generic" }],
+    },
     // The Don't example, with its values written out.
     {
       code: dialog(`<Button variant="outline">No</Button><Button>Yes</Button>`),

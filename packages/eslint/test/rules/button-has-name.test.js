@@ -32,6 +32,16 @@ run("button-has-name", rule, {
     `export const A = () => <Button aria-label="Go to payment"><Trans>Continue</Trans></Button>;`,
     `export const A = (props) => <Button size="icon" {...props}><Trash2Icon /></Button>;`,
     `export const A = () => <Button size="icon"><Avatar /></Button>;`,
+    // base-ui's render prop, as in shadcn's own examples: the rendered button gives the name.
+    `${lucide}export const A = () => (
+      <Tooltip>
+        <TooltipTrigger render={<InputGroupButton size="icon-xs" aria-label="Add" />}>
+          <Plus />
+        </TooltipTrigger>
+        <TooltipContent>Add</TooltipContent>
+      </Tooltip>
+    );`,
+    `${lucide}export const A = () => <Button render={<a href="/settings" aria-label="Settings" />} size="icon"><Settings /></Button>;`,
     // asChild: the child gives the name.
     `${lucide}export const A = () => <Button asChild size="icon"><a href="/settings" aria-label="Settings"><Settings /></a></Button>;`,
     // A decorative icon beside text, hidden.
@@ -53,8 +63,60 @@ run("button-has-name", rule, {
     `${lucide}export const A = () => <Button size="icon" aria-label="Button"><X /></Button>;`,
     // A button with text and no aria-label needs nothing.
     `export const A = () => <Button>Save draft</Button>;`,
+    // Since the shadcn apps/v4 corpus.
+    // A button given as a prop's default: the component that takes it adds the name.
+    `function ToastClose({ render = <Button variant="ghost" size="icon-sm" />, ...props }) { return <Close aria-label="Close toast" render={render} {...props}><XIcon aria-hidden /></Close>; }`,
+    // A base-ui trigger drawn as an addon box, and a Button drawn as a span inside another control.
+    `export const A = () => <Tooltip><TooltipTrigger render={<InputGroupAddon align="inline-end" />}><AudioLinesIcon /></TooltipTrigger><TooltipContent>Voice Mode</TooltipContent></Tooltip>;`,
+    `export const A = () => <SidebarMenuButton>Acme<Button size="icon-sm" render={<span />} nativeButton={false}><GalleryIcon /></Button></SidebarMenuButton>;`,
   ],
   invalid: [
+    {
+      // A prop default with children of its own is rendered as it is
+      code: `
+      import { Button } from "@/components/ui/button"
+      import { MoreHorizontal } from "lucide-react"
+      export function RowActions({ trigger = <Button size="icon" variant="ghost"><MoreHorizontal /></Button> }) { return <div>{trigger}</div> }`,
+      errors: [{ messageId: "noName" }],
+    },
+    {
+      // A base-ui Button drawn as a span on its own is still a nameless control
+      code: `
+      import { Button } from "@/registry/bases/base/ui/button"
+      import { Trash2 } from "lucide-react"
+      export const A = () => <Button nativeButton={false} render={<span />}><Trash2 /></Button>`,
+      errors: [{ messageId: "noName" }],
+    },
+    {
+      // A tooltip trigger drawn as a link
+      code: `
+      import { TooltipTrigger, Tooltip } from "@/registry/bases/base/ui/tooltip"
+      import { HelpCircle } from "lucide-react"
+      export const A = () => <Tooltip><TooltipTrigger render={<a href="/help" />}><HelpCircle /></TooltipTrigger></Tooltip>`,
+      errors: [{ messageId: "tooltipOnly" }],
+    },
+    {
+      // A tooltip trigger drawn as a router Link
+      code: `
+      import { TooltipTrigger, Tooltip } from "@/registry/bases/base/ui/tooltip"
+      import { HelpCircle } from "lucide-react"
+      import Link from "next/link"
+      export const A = () => <Tooltip><TooltipTrigger render={<Link href="/help" />}><HelpCircle /></TooltipTrigger></Tooltip>`,
+      errors: [{ messageId: "tooltipOnly" }],
+    },
+    {
+      code: `export const A = () => <Tooltip><TooltipTrigger render={<InputGroupButton size="icon-xs" />}><CopyIcon /></TooltipTrigger><TooltipContent>Copy</TooltipContent></Tooltip>;`,
+      errors: [{ messageId: "tooltipOnly" }],
+    },
+    // base-ui's render prop: an icon-only trigger whose rendered button has no name either.
+    {
+      code: `${lucide}export const A = () => <Tooltip><TooltipTrigger render={<Button size="icon" />}><X /></TooltipTrigger><TooltipContent>Close</TooltipContent></Tooltip>;`,
+      errors: [{ messageId: "tooltipOnly" }],
+    },
+    {
+      code: `${lucide}export const A = () => <Button render={<a href="/x" />}><X /></Button>;`,
+      errors: [{ messageId: "noName" }],
+    },
     {
       code: `${lucide}export const A = () => <Button variant="ghost" size="icon"><Trash2 /></Button>;`,
       errors: [{ messageId: "noName" }],

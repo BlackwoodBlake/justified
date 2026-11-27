@@ -17,8 +17,9 @@
  *
  * Left alone:
  *   - Text that is more than the bare word, such as "Yes, delete", and
- *     text that is not written out: a variable, `t("...")`, or any child
- *     element such as an icon or a `<span>`.
+ *     text that is not written out: a variable, `t("...")`, or a child
+ *     element such as a `<span>`. An icon or an `aria-hidden` element beside
+ *     the word adds no words, so `<Send /> Submit` reads "Submit".
  *   - Cancel, Close, Done, Next, Continue, Back and Undo: whether they
  *     commit something cannot be seen in the code. Nouns alone and vague
  *     verbs other than Confirm need judgement too. The review skill
@@ -31,6 +32,7 @@
 import { ancestorInTree, visibleText } from "../lib/button-label-helpers.js";
 import { defineRule } from "../lib/define-rule.js";
 import { attributeValue, elementName, getAttribute, meaningfulChildren, walk } from "../lib/jsx.js";
+import { iconImports, isAriaHidden, isIcon } from "../lib/name-helpers.js";
 
 const BUTTONS = new Set(["Button", "button", "AlertDialogAction", "AlertDialogCancel"]);
 /** Elements that are a button of their own, next to which an OK is not alone. */
@@ -148,6 +150,21 @@ export default defineRule({
   },
   create(context) {
     const keys = context.sourceCode.visitorKeys;
+    /** @type {Set<string>} */
+    let icons = new Set();
+
+    /**
+     * The button's visible text with its icons left out: an icon, or an
+     * element marked `aria-hidden`, adds no words, so "<Send /> Submit"
+     * reads "Submit".
+     * @param {any} element
+     */
+    const textOf = (element) =>
+      visibleText({
+        children: element.children.filter(
+          (/** @type {any} */ c) => !(c.type === "JSXElement" && (isIcon(c, icons) || isAriaHidden(c.openingElement))),
+        ),
+      });
 
     /** @param {any} element @param {string} text @param {any} reportNode @param {boolean} alertAction */
     const check = (element, text, reportNode, alertAction) => {
@@ -163,6 +180,9 @@ export default defineRule({
     };
 
     return {
+      Program(node) {
+        icons = iconImports(node);
+      },
       JSXElement(element) {
         const opening = element.openingElement;
         const name = elementName(opening);
@@ -188,7 +208,7 @@ export default defineRule({
         }
 
         if (!BUTTONS.has(name) || choice || getAttribute(opening, "asChild")) return;
-        const text = visibleText(element);
+        const text = textOf(element);
         if (!text) return;
         const alertAction =
           name === "AlertDialogAction" ||

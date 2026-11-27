@@ -46,6 +46,9 @@ export const P = () => PLANS.map((p) => <SelectItem key={p.value} value={p.value
 </>);`,
     // html is STR-006.
     `export const R = ({ children }) => <html lang="en_US"><body>{children}</body></html>;`,
+    // A component's lang prop often names something else, such as a programming language.
+    `export const C = () => <CodeBlock lang="bash">npm install</CodeBlock>;`,
+    `export const C = () => <Shiki.Code lang="tsx" code={source} />;`,
   ],
   invalid: [
     {

@@ -15,7 +15,8 @@
  *     caption, so the table is left alone.
  *
  * Left alone: a table named by an expression, such as `aria-label={label}`,
- * even if the value may be empty. Whether a name matches the visible title
+ * even if the value may be empty, and the one table in a `figure` beside
+ * its `figcaption` or `TableCaption`. Whether a name matches the visible title
  * above the table, and whether a title says what the rows have in common,
  * need the page and a judgement. The review skill covers them.
  */
@@ -124,6 +125,21 @@ export default defineRule({
           return;
         const role = attributeValue(getAttribute(opening, "role"));
         if (getAttribute(opening, "role") && role !== "table" && role !== "grid") return;
+        // A table in a figure with its caption, as react-aria's shadcn base writes TableCaption: whether that caption
+        // counts as the table's own takes judgement.
+        const parent = node.parent;
+        if (
+          parent?.type === "JSXElement" &&
+          elementName(parent.openingElement) === "figure" &&
+          parent.children.filter(
+            (/** @type {any} */ c) => c.type === "JSXElement" && TABLES.has(elementName(c.openingElement) ?? ""),
+          ).length === 1 &&
+          parent.children.some(
+            (/** @type {any} */ c) =>
+              c.type === "JSXElement" && /^(figcaption|TableCaption)$/.test(elementName(c.openingElement) ?? ""),
+          )
+        )
+          return;
         if (worst(node.children.map(kindOf)) !== "part") return;
         if (!holdsHeaderCell(node, keys)) return;
         context.report({ node: opening, messageId: "noTitle" });

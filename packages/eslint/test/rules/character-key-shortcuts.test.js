@@ -32,6 +32,11 @@ run("character-key-shortcuts", rule, {
     }, []);`,
     `document.addEventListener("keydown", (e) => { if (!(e.metaKey || e.ctrlKey)) return; if (e.key === "k") open(); });`,
     `document.addEventListener("keydown", (e) => { const mod = e.ctrlKey || e.metaKey; if (mod && e.key === "k") open(); });`,
+    // The modifier checked inside the branch for the key: Cmd+K or Ctrl+K, outside KBD-003.
+    `document.addEventListener("keydown", (e) => { if (e.key === "k") { if (e.metaKey || e.ctrlKey) { e.preventDefault(); setOpen(true); } } });`,
+    `document.addEventListener("keydown", (e) => { if (e.key !== "k") return; if (!(e.metaKey || e.ctrlKey)) return; setOpen(true); });`,
+    `document.addEventListener("keydown", (e) => { switch (e.key) { case "k": if (e.metaKey) setOpen(true); break; } });`,
+    `document.addEventListener("keydown", (e) => { e.key === "k" && (e.metaKey || e.ctrlKey) && setOpen(true); });`,
     `window.addEventListener("keydown", (e) => { if (e.getModifierState("Control") && e.key === "s") save(); });`,
     // Keys outside the criterion.
     `document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });`,
@@ -67,8 +72,79 @@ run("character-key-shortcuts", rule, {
     `document.addEventListener("keydown", (e) => { if (e.key === shortcut) run(); });`,
     // A Space or Enter key.
     `window.addEventListener("keydown", (e) => { if (e.key === " ") togglePlay(); });`,
+    // Since the review of 0.1.1: a key counts as a modifier shortcut only when its action runs only with the modifier held.
+    // Cmd+K: the action runs only with the modifier
+    `
+    useEffect(() => { const on = (e: KeyboardEvent) => { if (e.key === "k") { if (e.metaKey || e.ctrlKey) { e.preventDefault(); setOpen((o) => !o) } } }; document.addEventListener("keydown", on); return () => document.removeEventListener("keydown", on) }, [])`,
+    // The action runs only with the modifier, after an early exit for every other key.
+    `useEffect(() => { const on = (e: KeyboardEvent) => { if (e.key !== "k") return; if (e.metaKey || e.ctrlKey) { e.preventDefault(); toggle(); } }; document.addEventListener("keydown", on); return () => document.removeEventListener("keydown", on) }, [])`,
+    `useEffect(() => { const on = (e: KeyboardEvent) => { if (e.key === "b" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); toggleSidebar(); } }; window.addEventListener("keydown", on); return () => window.removeEventListener("keydown", on) }, [])`,
+    // A tracking call before a Cmd shortcut is not its action
+    `
+    export function A() {
+      useEffect(() => {
+        const h = (e: KeyboardEvent) => { if (e.key === "k") { track("key"); if (e.metaKey) open() } }
+        window.addEventListener("keydown", h)
+        return () => window.removeEventListener("keydown", h)
+      }, [])
+    }`,
+    // Keeping the last key in a ref is not the action
+    `
+    export function A() { const last = useRef(""); useEffect(() => { const h = (e: KeyboardEvent) => { if (e.key === "k") { last.current = e.key; if (e.metaKey) open() } }; window.addEventListener("keydown", h); return () => window.removeEventListener("keydown", h) }, []) }`,
+    // A console.log before a Cmd shortcut is not its action
+    `
+    export function A() { useEffect(() => { const h = (e: KeyboardEvent) => { if (e.key === "k") { console.log("k"); if (e.metaKey) open() } }; window.addEventListener("keydown", h); return () => window.removeEventListener("keydown", h) }, []) }`,
   ],
   invalid: [
+    {
+      // useHotkeys with a list of single keys whose callback reads the pressed keys
+      code: `
+      import { useHotkeys } from "react-hotkeys-hook"
+      export function A() { useHotkeys(["j", "k"], (e, h) => (h.keys?.[0] === "j" ? next() : prev())) }`,
+      errors: [{ messageId: "plain" }],
+    },
+    {
+      // A branch that returns when a modifier is held still acts on the plain key
+      code: `
+      useEffect(() => { const on = (e: KeyboardEvent) => { if (e.key === "/") { if (e.metaKey || e.ctrlKey) return; e.preventDefault(); focusSearch() } }; document.addEventListener("keydown", on); return () => document.removeEventListener("keydown", on) }, [])`,
+      errors: [{ messageId: "plain" }],
+    },
+    {
+      // The same after an early exit for other keys
+      code: `
+      useEffect(() => { const on = (e: KeyboardEvent) => { if (e.key !== "/") return; if (e.ctrlKey || e.metaKey || e.altKey) return; e.preventDefault(); focusSearch() }; window.addEventListener("keydown", on); return () => window.removeEventListener("keydown", on) }, [])`,
+      errors: [{ messageId: "plain" }],
+    },
+    {
+      // A ternary that picks one action with Alt and another without still acts on the key alone
+      code: `
+      useEffect(() => { const on = (e: KeyboardEvent) => { if (e.key === "?") { e.altKey ? openAbout() : openHelp() } }; document.addEventListener("keydown", on); return () => document.removeEventListener("keydown", on) }, [])`,
+      errors: [{ messageId: "shift" }],
+    },
+    {
+      // A switch case that checks only Shift
+      code: `
+      useEffect(() => { const on = (e: KeyboardEvent) => { switch (e.key) { case "e": if (e.shiftKey) archiveAll(); else archive(); break } }; document.addEventListener("keydown", on); return () => document.removeEventListener("keydown", on) }, [])`,
+      errors: [{ messageId: "plain" }],
+    },
+    {
+      // A switch case that reads Cmd only for logging
+      code: `
+      useEffect(() => { const on = (e: KeyboardEvent) => { switch (e.key) { case "e": track(e.metaKey ? "cmd-e" : "e"); closeTicket(); break } }; document.addEventListener("keydown", on); return () => document.removeEventListener("keydown", on) }, [])`,
+      errors: [{ messageId: "plain" }],
+    },
+    {
+      // A plain key after a Cmd shortcut in the same handler
+      code: `
+      useEffect(() => { const on = (e: KeyboardEvent) => { if (e.key === "k") { if (e.metaKey) open() } if (e.key === "/") focusSearch() }; document.addEventListener("keydown", on); return () => document.removeEventListener("keydown", on) }, [])`,
+      errors: [{ messageId: "plain" }],
+    },
+    {
+      // A modifier read after the action does not guard it
+      code: `
+      useEffect(() => { const on = (e: KeyboardEvent) => { if (e.key !== "/") return; focusSearch(); if (e.metaKey) track("meta") }; document.addEventListener("keydown", on); return () => document.removeEventListener("keydown", on) }, [])`,
+      errors: [{ messageId: "plain" }],
+    },
     // The KBD-003 Don'ts, written out.
     { code: `${hk}export function Layout() { useHotkeys("e", closeTicket); return null; }`, errors: plain },
     {

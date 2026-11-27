@@ -26,7 +26,9 @@
  *     a control that is not disabled.
  *   - rowClick: a native row element whose `onClick` sets the same state as
  *     the control's `checked` or `onCheckedChange`, while the control has
- *     no `onClick` of its own (one that may stop the second toggle).
+ *     no `onClick` of its own (one that may stop the second toggle). A
+ *     control in a table cell is left out: it selects the row and has no
+ *     text of its own, which the rule's first exception sends to FRM-010.
  *
  * "Beside" means a sibling in the control's row: its parent element, or its
  * grandparent when the parent only wraps the control, and one level into a
@@ -94,6 +96,17 @@ function isWrapped(element) {
   for (let el = parentElement(element); el; el = parentElement(el)) {
     const n = baseName(el.openingElement) ?? "";
     if (NAMING.has(n) || /(Label|Field)$/.test(n) || getAttribute(el.openingElement, "label")) return true;
+  }
+  return false;
+}
+
+const CELLS = new Set(["td", "th", "TableCell", "TableHead"]);
+/** Whether a control sits in a table cell, as a row-selection checkbox does. @param {any} element */
+function inTableCell(element) {
+  for (let el = parentElement(element); el; el = parentElement(el)) {
+    const o = el.openingElement;
+    const role = attributeValue(getAttribute(o, "role"));
+    if (CELLS.has(elementName(o) ?? "") || role === "cell" || role === "gridcell") return true;
   }
   return false;
 }
@@ -242,8 +255,9 @@ export function labelTargetListener(context, kindOf) {
           }
         }
 
-        // An onClick on the row that sets the control's state.
-        if (!getAttribute(opening, "onClick")) {
+        // An onClick on the row that sets the control's state. A control in a table cell selects the row and has
+        // no text of its own, which FRM-016a leaves out (its name is FRM-010).
+        if (!getAttribute(opening, "onClick") && !inTableCell(element)) {
           const names = [
             ...setterNames(getAttribute(opening, "onCheckedChange")?.value?.expression, keys),
             ...(unwrap(getAttribute(opening, "checked")?.value?.expression)?.type === "Identifier"

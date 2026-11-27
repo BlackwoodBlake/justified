@@ -50,6 +50,11 @@ run("navigate-with-link", rule, {
     // Going back in history, and a refresh.
     next(`<Button variant="ghost" onClick={() => router.back()}>Back</Button>`),
     next(`<Button onClick={() => router.refresh()}>Reload</Button>`),
+    `import { useNavigate } from "react-router-dom";
+    export function Back() {
+      const navigate = useNavigate();
+      return <Button variant="ghost" onClick={() => navigate(-1)}>Back</Button>;
+    }`,
     // A handler from props, and a navigate that is not traced.
     next(`<Button onClick={onBook}>View appointments</Button>`),
     `export function A({ navigate }) { return <Button onClick={() => navigate("/a")}>Open</Button>; }`,

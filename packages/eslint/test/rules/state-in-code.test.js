@@ -18,6 +18,10 @@ run("state-in-code", rule, {
     `<div role="option" aria-selected={selected} onClick={pick} className={cn(selected && "bg-accent")}>Leeds</div>`,
     // The name follows the state.
     `<Button onClick={() => setPlaying(!playing)} className={playing ? "bg-accent" : ""}>{playing ? "Pause" : "Play"}</Button>`,
+    // A sort button in a header cell: its state is aria-sort on the cell (TBL-002), not aria-pressed.
+    `<TableHead aria-sort={sort === "name" ? "ascending" : "none"}><Button variant="ghost" onClick={() => setSort("name")} className={sort === "name" ? "text-foreground" : "text-muted-foreground"}>Name</Button></TableHead>`,
+    // Text beside a hidden icon still follows the state.
+    `<button onClick={() => setOn(!on)} className={on ? "bg-accent" : ""}>{on ? <><Check aria-hidden="true" /> Saved</> : "Save"}</button>`,
     `<li onClick={() => pick(i)} className={cn(i === activeIndex && "bg-accent")}>{t.title}{i === activeIndex && <span className="sr-only">(selected)</span>}</li>`,
     // Not a control, not a look, or a stateful component.
     `<ChevronDown className={cn("size-4", open && "rotate-180")} />`,
@@ -47,8 +51,36 @@ run("state-in-code", rule, {
     `<Button aria-disabled={!canSave} onClick={() => canSave && save()}>Save</Button>`,
     `<Button aria-disabled={!canSave} onClick={save}>Save</Button>`,
     `const save = () => { if (!canSave) { setHint(true); return; } send(); };\n<Button aria-disabled={!canSave} onClick={save}>Save</Button>`,
+    // The sort control of a header cell: its handler speaks of sorting, or the cell carries aria-sort.
+    `export function A() { const [sort, setSort] = useState(""); return <table><thead><tr><th><button onClick={() => setSort("name")} className={sort === "name" ? "font-semibold" : ""}>Name</button></th></tr></thead></table> }`,
+    `export function A() { const [by, setBy] = useState(""); return <table><thead><tr><th aria-sort={by === "name" ? "ascending" : "none"}><button onClick={() => setBy("name")} className={by === "name" ? "font-semibold" : ""}>Name</button></th></tr></thead></table> }`,
   ],
   invalid: [
+    {
+      // A pressed look on a button in a header cell that is not the sort control
+      code: `
+      export function A() { const [pinned, setPinned] = useState(false); return <table><thead><tr><th><button onClick={() => setPinned(!pinned)} className={pinned ? "bg-accent" : ""}>Pin column</button></th></tr></thead></table> }`,
+      errors: [{ messageId: "lookOnly" }],
+    },
+    {
+      // An aria-hidden icon does not say the state
+      code: `
+      export function A() { const [on, setOn] = useState(false); return <button onClick={() => setOn(!on)} className={on ? "bg-accent" : ""}>Bold {on && <Check aria-hidden />}</button> }`,
+      errors: [{ messageId: "lookOnly" }],
+    },
+    // An aria-hidden icon that follows the state is not text, so the missing state is still reported.
+    {
+      code: `export function Delivery({ items }) {
+        const [chosen, setChosen] = useState("standard");
+        return items.map((item) => (
+          <button key={item.id} type="button" onClick={() => setChosen(item.id)} className={\`rounded-lg border \${chosen === item.id ? "border-primary" : "border-border"}\`}>
+            <span>{item.title}</span>
+            {chosen === item.id && <CheckIcon aria-hidden="true" className="size-4" />}
+          </button>
+        ));
+      }`,
+      errors: lookOnly,
+    },
     // The VIS-008a Don'ts, written out.
     { code: `<Button variant="outline" onClick={() => setBold(!bold)} className={bold ? "bg-accent" : ""}>Bold</Button>`, errors: lookOnly },
     {
