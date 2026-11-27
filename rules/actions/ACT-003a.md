@@ -1,10 +1,10 @@
 ---
 id: ACT-003a
-title: Put the confirming button last in a dialog's row of buttons
+title: Put the confirming button last when a dialog's action buttons sit side by side
 short: Confirm button last
 area: actions
 status: decided
-version: "1.0.1"
+version: "1.0.2"
 verdict: unanimous
 judges: { spoken: 3, agreeing: 3 }
 law: []
@@ -22,6 +22,9 @@ how_to_check:
   - 'A dialog footer, or a row inside it, with `flex-row-reverse`, `sm:flex-row-reverse` or `order-*` classes that show the confirming button before Cancel, or `justify-start` on a side-by-side row that leaves it away from the trailing end. Leave alone stacked buttons and buttons that fill the row (see Exceptions).'
   - 'In a multi-step dialog, step buttons such as "Back" and "Next" that are split apart, or with the forward one not last. Leave alone a way out that stands alone at the leading edge (see Exceptions).'
 changelog:
+  - version: "1.0.2"
+    date: 2026-11-27
+    note: The title names the condition the rule applies under. No change in what it asks.
   - version: "1.0.1"
     date: 2026-11-24
     note: The single-button example uses Done, as ACT-001a allows.
