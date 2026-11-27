@@ -19,7 +19,6 @@ import type { RuleExamples } from "./frame";
  * live, so typing is tryable. The count line is a status region that is in
  * the page from the start. Each Don't breaks one thing:
  *   noresults  the data table's single "No results." row, no way out
- *   plaincount the count line is a plain div made together with its text
  *   redadd     the no-match line dressed as an error, with Add part as the main button
  */
 
@@ -33,7 +32,7 @@ const PARTS: Part[] = [
   { name: "Bottle cage", brand: "Alder", stock: 0 },
 ];
 
-type Variant = "do" | "noresults" | "plaincount" | "redadd";
+type Variant = "do" | "noresults" | "redadd";
 
 const matches = (p: Part, query: string, brand: string, inStock: boolean) => {
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
@@ -73,17 +72,11 @@ function StockTable({ variant, readout }: { variant: Variant; readout?: boolean 
     focusSoon(input);
   };
 
-  const countLine =
-    variant === "plaincount" ? (
-      // Created together with its text, and not a status region: a screen reader misses it.
-      <div key={countText} ref={count as never} className="m-0 text-sm text-muted-foreground">
-        {countText}
-      </div>
-    ) : (
-      <p ref={count} role="status" className="m-0 text-sm text-muted-foreground">
-        {countText}
-      </p>
-    );
+  const countLine = (
+    <p ref={count} role="status" className="m-0 text-sm text-muted-foreground">
+      {countText}
+    </p>
+  );
 
   return (
     <div className="grid w-full max-w-md gap-3 rounded-lg border border-border bg-background p-4">
@@ -213,17 +206,6 @@ export const STA003: RuleExamples = {
         </>
       ),
       Demo: () => <StockTable variant="noresults" />,
-    },
-    {
-      kind: "dont",
-      title: "A count line that is not a live region",
-      caption: (
-        <>
-          The message is fine, but "0 parts" sits in a plain div that is made at the same moment as its text. Type a
-          letter and watch the readout: nothing is sent to a live region, so a screen reader stays silent.
-        </>
-      ),
-      Demo: () => <StockTable variant="plaincount" readout />,
     },
     {
       kind: "dont",

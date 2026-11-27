@@ -12,8 +12,7 @@ import type { RuleExamples } from "./frame";
  *
  * line: a 2px line in the gap where the row would go. column: a thicker
  * border and a light fill on the column under the card, the card inside it
- * unmarked. stale: every column the card has passed stays marked. hue: only
- * the border changes colour, from grey to blue.
+ * unmarked. stale: every column the card has passed stays marked.
  */
 
 const reading = (): Col[] => [
@@ -113,26 +112,6 @@ export const ACT008: RuleExamples = {
           still={<DragDemo title="Sprint board" layout="board" columns={board()} mark="stale" frozen={staleDrag} />}
         >
           <DragDemo title="Sprint board" layout="board" columns={board()} mark="stale" announce="words" />
-        </Pair>
-      ),
-    },
-    {
-      kind: "dont",
-      title: "Only the border changes colour",
-      caption: (
-        <>
-          Drag <em>Draft the FAQ</em> over a column. Its 1-pixel border turns from grey (<code>--input</code>) to blue
-          (<code>--primary</code>) with the same weight and no fill. The two differ by about 2.2 to 1 in lightness
-          in the light theme and 1.8 to 1 in the dark one, under the 3:1 that VIS-003a asks for, so the change is a
-          change of hue and little else, and it is easy to miss which column is meant.
-        </>
-      ),
-      Demo: () => (
-        <Pair
-          note="Held over In progress. Only the border colour differs."
-          still={<DragDemo title="Sprint board" layout="board" columns={board()} mark="hue" frozen={boardDrag} />}
-        >
-          <DragDemo title="Sprint board" layout="board" columns={board()} mark="hue" announce="words" />
         </Pair>
       ),
     },

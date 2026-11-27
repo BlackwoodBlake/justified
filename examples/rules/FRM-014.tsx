@@ -42,18 +42,6 @@ function AllText() {
   );
 }
 
-function TypeWithoutPurpose() {
-  return (
-    <form noValidate onSubmit={(e) => e.preventDefault()} className={probeBox}>
-      <Watch>
-        <Field label="Email">
-          <Input type="email" defaultValue="mira@example.com" />
-        </Field>
-      </Watch>
-    </form>
-  );
-}
-
 function SignIn() {
   return (
     <form noValidate onSubmit={(e) => e.preventDefault()} className={probeBox}>
@@ -107,18 +95,6 @@ export const FRM014: RuleExamples = {
         </>
       ),
       Demo: AllText,
-    },
-    {
-      kind: "dont",
-      title: "The type in place of the autocomplete value",
-      caption: (
-        <>
-          The keyboard is right, but the field has no <code>autocomplete</code> value, so the code never states its
-          purpose. The type picks the keyboard; only <code>autocomplete</code> says what the field is for.
-        </>
-      ),
-      notLinted: "The missing autocomplete value is FRM-007's check, which is left to review.",
-      Demo: TypeWithoutPurpose,
     },
     {
       kind: "do",
