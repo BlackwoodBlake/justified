@@ -4,7 +4,7 @@ title: While an action is being sent, a second press does not send it again
 short: No double send
 area: states
 status: proposed
-version: "1.0.2"
+version: "1.0.3"
 verdict: insufficient-evidence
 judges: { spoken: 1, agreeing: 1 }
 law:
@@ -25,6 +25,9 @@ how_to_check:
   - 'A send handler with no guard for a request in flight: no check of `isSubmitting`, `isPending` or a ref set on the first press, and no `disabled` or `aria-disabled` while it runs.'
   - 'A guard only on the button''s `onClick`, while the form''s `onSubmit` can still send again when Enter is pressed in a field.'
 changelog:
+  - version: "1.0.3"
+    date: 2026-11-27
+    note: Drops a Don't about the working sign and the state in code, which STA-005a and VIS-008a cover.
   - version: "1.0.2"
     date: 2026-11-26
     note: Points to FRM-015 for Enter in a field and to VIS-008a for the state in code.
@@ -71,7 +74,6 @@ Fewer than two judges have spoken about a second press, so the verdict is Insuff
 
 - Take two payments because *Pay £38.00* was double-clicked.
 - Guard the click on the button but let Enter in a field send the form a second time.
-- Let the button look as usual and silently swallow presses, with no working sign and no state in code.
 - Write "Press the button only once" next to it and send every press.
 - Keep the button unavailable after the send failed, so the person has to reload the page to try again.
 - Switch the button off with `disabled` while it has focus and leave focus to land wherever the browser puts it.

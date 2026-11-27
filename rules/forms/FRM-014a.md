@@ -4,7 +4,7 @@ title: Give a text field that takes only digits the digit keypad with inputmode
 short: Digit keypad
 area: forms
 status: proposed
-version: "1.0.0"
+version: "1.0.1"
 verdict: insufficient-evidence
 judges: { spoken: 1, agreeing: 1 }
 law:
@@ -26,6 +26,9 @@ how_to_check:
   - 'A text `<Input>` validated by a pattern for a decimal number with no minus sign, such as `z.string().regex(/^\d+([.,]\d+)?$/)`, with no `inputMode="decimal"`.'
   - '`inputMode="numeric"` or `inputMode="decimal"` on a field whose validation pattern allows letters, such as `/^[A-Z]{2}-\d+$/`.'
 changelog:
+  - version: "1.0.1"
+    date: 2026-11-27
+    note: Leaves the number input to FRM-014b instead of listing it as a Don't.
   - version: "1.0.0"
     date: 2026-11-26
     note: First version.
@@ -62,7 +65,6 @@ Fewer than two judges have spoken about the digit keypad, so the verdict is Insu
 
 ## Don't
 
-- Use `type="number"` to get the keypad on *Card number* or *Membership number*. FRM-014b keeps such values out of a number input.
 - Our own advice: don't give *Card number* `type="tel"` to get digits. That tells the browser it is a phone number, which can bring the wrong autofill suggestions.
 - Rely on `pattern="[0-9]*"` alone for the keypad. It is not a keypad setting, and it starts the browser's own check when the form is sent.
 - Give `inputMode="numeric"` to a value that can hold letters, such as an order reference like "RX-20931" or a postcode in a country where postcodes mix letters and digits. Some keypads have no letters at all.

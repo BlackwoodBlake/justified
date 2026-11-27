@@ -4,7 +4,7 @@ title: Show that a sent action is under way until the reply comes
 short: Show it is sending
 area: states
 status: proposed
-version: "1.1.0"
+version: "1.1.1"
 verdict: unanimous
 judges: { spoken: 3, agreeing: 3 }
 law:
@@ -33,8 +33,11 @@ how_to_check:
   - 'A submit or save button that does not use `isSubmitting` from react-hook-form, `isPending` from a mutation or `pending` from `useFormStatus`, with no other working sign nearby. A classic form post that loads a new page is left alone (see Exceptions).'
   - 'A working label put back on a fixed timer, such as a `setTimeout` that restores *Send* while the request is still running.'
   - 'A dialog that closes on Escape, *Cancel* or the close icon while its request is still running, so the work goes on with no sign of how it ended. Leave it alone when closing withdraws the request and the view says so.'
-  - 'A change drawn before the reply, with `useOptimistic` or a cache write in `onMutate`, for something that pays, sends to other people, publishes or cannot be called back, with no working sign. Also one whose failure branch renders nothing where the change was made. A missing rollback is FBK-002''s check.'
+  - 'A change drawn before the reply, with `useOptimistic` or a cache write in `onMutate`, for something that pays, sends to other people, publishes or cannot be called back, with no working sign. Also one whose failure branch does not put the earlier state back (see Exceptions); the notice is FBK-002''s.'
 changelog:
+  - version: "1.1.1"
+    date: 2026-11-27
+    note: How to check tests the earlier state coming back as this rule's own condition; announcements and state in code are left to FBK-004 and VIS-008a.
   - version: "1.1.0"
     date: 2026-11-26
     note: The exception for a change shown at once now covers any small change the view can put back, not only tick boxes and switches, and says what happens when the change is refused.
@@ -77,7 +80,7 @@ Between the press and the reply the person knows nothing. If the view looks the 
 - Our own choice, for a long wait: say more than a spinner can. STA-001 covers the switch to an indicator that shows how far the work has come. Add a line near the button about what is happening or roughly how long it takes. A send that stalls or times out becomes a failure the person can act on, as FBK-002 says, and never a spinner without end. A job that runs for minutes lets the person go on with other things and leaves a lasting sign when it is done, as FBK-003 says.
 - A change shown at once, as the second exception allows: on the staff board a member of staff drags the hire card *Concrete mixer, 1 day* from *Booked* to *Out*. The card sits in *Out* from the moment it is dropped, and the moved card is the result, as FBK-003 allows. The move itself is announced as ACT-007b describes; the server's agreement adds nothing. The card's *Move to* menu does the same without dragging, as ACT-007a asks.
 - The same move, refused: the card goes back to *Booked*, in the place it had, and the card itself reads "Could not be moved to Out. The booking system did not answer." with *Try again*, as FBK-002 asks. The text is written to a polite live region that was in the page before the move, as FBK-004 says. If the card was moved with the keyboard, focus stays on the card in its old place.
-- Our own choice: a star button on the tool *Pressure washer* adds it to the person's favourites and fills at once. Its accessible name, or `aria-pressed`, follows the star both ways, also when it goes back after a refusal, and the tool's row then says "Could not be added to favourites." This helps meet 4.1.2.
+- Our own choice: a star button on the tool *Pressure washer* adds it to the person's favourites and fills at once. It goes back to empty after a refusal, and the tool's row then says "Could not be added to favourites." Its accessible name, or `aria-pressed`, follows the star both ways, as VIS-008a asks.
 - Our own choice, for fast repeats: when the star is pressed three times within a second, the view follows the last press. A late reply to an earlier press never undoes a later one, and a refusal puts back the last state the server agreed to, not an older copy. Each press sets a state, so this is the harmless repeat STA-005b allows, not a second send.
 - Our own choice: the tool name *Hammer drill 800 W* is edited in place and the new name shows as soon as the person presses Enter or leaves the field. If the save fails for a server reason, the old name comes back and the message sits at the name. If the server refuses the value itself, such as "A tool with this name already exists.", that is a field error: the field opens again with what the person typed and the message follows FRM-002a. The typed name is never thrown away.
 - Delete with *Undo*, as DST-001a describes, is the same pattern and needs no working sign. If the server then refuses the delete, the row comes back where it was with a notice in the row or the list, as FBK-002 says, and the message with *Undo* is removed or replaced, since there is nothing left to undo (FBK-005).
@@ -87,19 +90,16 @@ Between the press and the reply the person knows nothing. If the view looks the 
 
 - Leave *Send hire request* looking exactly as before for four seconds after the press, so the person cannot tell whether it was taken.
 - Show "Sending request …" for a second and then put the old label back while the request is still running.
-- Take the spinner away when the reply comes and show nothing else. FBK-002 and FBK-003 ask for the result.
 - Empty the form as soon as *Send hire request* is pressed, so a failed send leaves nothing to send again.
 - Close *Add an accessory* on Escape while the accessory is still being saved, and let the save carry on with no sign of how it ended.
 - Let *Cancel* stop the request while Escape closes the dialog and leaves it running.
 - Label a button *Stop* when pressing it only hides the dialog and the delete goes through anyway.
 - Show the working sign on every hire card because one *Mark as returned* was pressed.
-- Give the busy button a spinner with no text, so a screen reader user hears nothing during the wait.
 - Let a spinner turn for minutes after the server has stopped answering.
 - Add a hire request to *My hires* as confirmed the moment *Send hire request* is pressed, with no working sign. A request that leaves the product, like a payment or an invitation, is not a small change and shows the sign this rule asks for.
 - Let the card *Concrete mixer, 1 day* jump back to *Booked* after a refusal with no word at all, as `useOptimistic` does when nothing renders the error.
 - Leave a reordered accessory list in its new order after the server refused it.
 - Put the old tool name back when the server says the new one is taken, so what the person typed is lost.
-- Turn the star back to empty after a refusal but leave its accessible name or `aria-pressed` on the new state.
 
 ## Exceptions
 

@@ -4,7 +4,7 @@ title: Put the confirming button last when a dialog's action buttons sit side by
 short: Confirm button last
 area: actions
 status: decided
-version: "1.0.2"
+version: "1.0.3"
 verdict: unanimous
 judges: { spoken: 3, agreeing: 3 }
 law: []
@@ -22,6 +22,9 @@ how_to_check:
   - 'A dialog footer, or a row inside it, with `flex-row-reverse`, `sm:flex-row-reverse` or `order-*` classes that show the confirming button before Cancel, or `justify-start` on a side-by-side row that leaves it away from the trailing end. Leave alone stacked buttons and buttons that fill the row (see Exceptions).'
   - 'In a multi-step dialog, step buttons such as "Back" and "Next" that are split apart, or with the forward one not last. Leave alone a way out that stands alone at the leading edge (see Exceptions).'
 changelog:
+  - version: "1.0.3"
+    date: 2026-11-27
+    note: Stacked buttons and CSS reordering are left to LAY-002 instead of being checked here.
   - version: "1.0.2"
     date: 2026-11-27
     note: The title names the condition the rule applies under. No change in what it asks.
@@ -56,12 +59,11 @@ People learn where the answer to a dialog lives. After a few dialogs, the hand a
 
 - Put *Join waitlist* first and *Cancel* after it.
 - Add a third button such as *Remind me later* after the confirming button, so the action people came for is no longer at the end.
-- Reverse the buttons with the CSS `order` property or `row-reverse` so the screen shows one order and the code another. That breaks LAY-002.
 - Apply this rule to a full-page form. A page form is a different layout, and this rule does not decide where its main button goes.
 
 ## Exceptions
 
-- **Stacked buttons.** When the buttons no longer fit in a row and stack, this rule does not apply. Keep the order of the code on screen, as LAY-002 and DLG-004 say, so *Cancel* stays first.
+- **Stacked buttons.** When the buttons no longer fit in a row and stack, this rule does not apply. Whether the order on screen may then differ from the code is LAY-002.
 - **A help control on the Mac.** In a dialog styled for the Mac, a help button that explains the dialog may sit apart in the leading corner of the footer, on the same line as the action buttons.
 - **Multi-step dialogs.** In a dialog that walks through several steps, the way out may stand alone at the leading edge, while the buttons that move between steps stay together at the trailing end with the forward one last. A three-step dialog for booking a bike service could have *Cancel* on its own at the leading edge, and *Change bike* (back to the first step) and *Choose a time* at the trailing end.
 - **A top bar instead of a footer.** A sheet or full-screen dialog that puts *Cancel* at the start of its top bar and the confirming action at the end keeps the confirming action trailing, so it fits the rule.

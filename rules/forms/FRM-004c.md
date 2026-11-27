@@ -4,7 +4,7 @@ title: Ask before leaving a page throws away unsaved changes, and only when some
 short: Unsaved changes, page
 area: forms
 status: proposed
-version: "1.0.0"
+version: "1.0.1"
 verdict: insufficient-evidence
 judges: { spoken: 1, agreeing: 1 }
 law:
@@ -31,6 +31,9 @@ how_to_check:
   - 'A `beforeunload` listener that does not depend on `isDirty`, a `window.confirm()` for a move inside the product, or a guard on `router.push` alone that lets `Link` clicks and the back button through.'
   - 'A question with a third button such as "Save and leave", choices named "OK", "Yes" or "No", or any question on a page whose changes are already kept as the person goes.'
 changelog:
+  - version: "1.0.1"
+    date: 2026-11-27
+    note: Leaves where focus starts in the question to DLG-004 instead of listing it as a Don't.
   - version: "1.0.0"
     date: 2026-11-26
     note: First version.
@@ -79,7 +82,6 @@ Fewer than two judges have spoken about leaving a page with unsaved changes, so 
 - Disable the back button, or push extra entries into the history so back stays on the page.
 - Add a third button to the question, such as *Save and leave*. Keep the work as FRM-004d describes instead.
 - Label the choices *Yes* and *No*, or put *Keep editing* or *Stay on page* in place of *Cancel*.
-- Start focus on *Discard changes*, or let Enter press it before the person has moved there.
 
 ## Exceptions
 
