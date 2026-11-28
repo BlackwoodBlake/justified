@@ -281,7 +281,7 @@ This skill reviews interface code against the ${total} of Justified by Blackwood
 
 ## How to check
 
-1. Read the check files for every area the reviewed code touches, one file at a time. Each holds its rules with their rule sentences and what to look for. When unsure whether an area is touched, read it. For code that renders a page or a part of one, always read \`checks/structure.md\`, \`checks/keyboard.md\` and \`checks/visual.md\`.
+1. Read the check files for every area the reviewed code touches, one file at a time. Each holds its rules with their rule sentences and what to look for. When unsure whether an area is touched, read it. For code that renders a page or a part of one, always read \`checks/structure.md\`, \`checks/keyboard.md\`, \`checks/visual.md\` and \`checks/layout.md\`. For code with fields, also read \`checks/forms.md\`. For code that sends, loads, changes or removes data, also read \`checks/feedback.md\`, \`checks/states.md\` and \`checks/destructive.md\`.
 
    | File | Covers | Rules |
    | --- | --- | --- |
@@ -299,10 +299,12 @@ ${areaTable
 How each rule is checked, from *Checked by* in the check files:
 
 - **lint** and **review:** read the code. For \`review\`, weigh what the code does, and report only a call you could defend to the person who wrote it.
-- **runtime:** check the items that name code forms in the code; a clear match is a hit under *Rules* or *Guidelines* like any other. The others show only when the page runs, such as where focus goes or what is announced. If you can run the app and drive it, for example with Playwright or a browser tool, check them there. Otherwise list them under *Check in the running app*, with "guideline" after the id of a guideline, only where the reviewed code gives a concrete reason, such as a dialog it adds or a colour it sets, and say what in the code raised it. Keep the list short.
+- **runtime:** check the items that name code forms in the code; a clear match is a hit under *Rules* or *Guidelines* like any other. The others show only when the page runs, such as where focus goes or what is announced. If you can run the app and drive it, for example with Playwright or a browser tool, check them there. Otherwise list them under *Check in the running app*, with "guideline" after the id of a guideline, only where the reviewed code gives a concrete reason, such as a dialog it adds or a colour it sets, and say what in the code raised it. Give each such rule one line, however many apply; leave one out only when the code gives no reason for it.
 - **manual:** list under *Check by hand*, only for rules that apply.
 
 When you cannot tell from the code whether something breaks a rule, put it under *Check in the running app* or ask. Never present a guess as a hit.
+
+Before you write the report, go through every rule in the check files you read once more. Each one is either left out because its situation is not in the code, reported under *Rules* or *Guidelines*, listed under one of the *Check* sections, or checked and found fine. Look again at any rule you passed over without deciding which.
 
 ## Report
 
