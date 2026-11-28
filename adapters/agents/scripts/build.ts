@@ -131,7 +131,9 @@ Never apply an override silently. Say once per task which override shaped the wo
 
 - Overriding a rule that WCAG requires still involves that criterion. When the work touches it, name it by number and name.
 - Do not add, widen or remove an override unless the person asks. When a rule gets in the way, fix the code or ask; never write an override to make a check pass. When asked, write the reason in their words and set \`rule_version\` to the rule's current version.
-- If an id does not exist, or \`rule_version\` is below the rule's current major version, tell the person and follow the current rule until they decide.
+- If an id does not exist, the entry covers nothing: tell the person.
+- If \`rule_version\` is below the rule's current major version, tell the person the rule has changed since the override was written, and keep following the override until they decide again.
+- If an entry is invalid, such as \`guideline\` on a rule that WCAG requires, tell the person. Do not treat it as an override.
 - When another rule's check refers to an id that is off, such as "as DLG-004 says", that part is off too.
 - An override is the project's decision. It is not part of the rule and does not change it. A rule's own exceptions are part of the rule.`;
 
@@ -321,7 +323,7 @@ ${areaTable
   .map((l) => `   ${l}`)
   .join("\n")}
 
-2. Before you try a rule on a file, see whether an override covers it: an entry for that id whose \`files\` globs match the file, or that has none. An id that does not exist in the rules covers nothing.
+2. Before you try a rule on a file, see whether an override covers it: an entry for that id whose \`files\` globs match the file, or that has none. An id that does not exist in the rules covers nothing. An invalid entry, such as \`guideline\` on a rule that WCAG requires, covers nothing either; list it under *Overrides to look at*.
    - **off:** do not check the rule on that file, and report nothing about it under *Rules* or *Guidelines*. Skip the parts of other rules that refer to it too, such as "as DLG-004 says".
    - **guideline:** check it as a guideline, so report it only where the project has no convention of its own.
    - **note:** check as usual and read the reason as context. A reason such as "voiding is reversible" can settle whether a deletion rule applies at all; say so when it does.
