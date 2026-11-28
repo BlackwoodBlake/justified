@@ -15,7 +15,8 @@
  *   - Cancel drawn as the filled main button while the destructive button
  *     in the same footer uses `outline`, `secondary`, `ghost` or `link`;
  *   - `opacity-*` or `bg-destructive/*` with no state prefix on a
- *     destructive button that can be pressed, which fades it all the time.
+ *     destructive button that can be pressed, which fades the danger style
+ *     all the time. How readable its text stays is VIS-001, not this rule.
  *
  * Left alone:
  *   - `Dialog` and other containers: a delete in an edit form that runs at
@@ -106,7 +107,7 @@ export default defineRule({
     filledCancel:
       'the Cancel button is the filled main button while "{{text}}" is drawn as a quiet button. That steers the person away instead of warning them. Give Cancel the outline style and the destructive button variant="destructive".',
     faded:
-      '"{{className}}" fades this destructive button while it can be pressed, which may lower the contrast of its text. Remove the class; a disabled button fades on its own while it cannot be pressed.',
+      '"{{className}}" fades this destructive button while it can be pressed, so it no longer shows the danger style in full. Remove the class; a disabled button fades on its own while it cannot be pressed.',
   },
   create(context) {
     /** Per alert dialog footer: its Cancel buttons drawn filled, and its quiet destructive buttons. */

@@ -6,8 +6,9 @@ How to add one rule to `@blackwoodblake/justified-eslint`. Written so that sever
 
 1. Read the rule file `rules/<area>/<ID>.md` in full: the rule sentence, Exceptions, `check` and `how_to_check`.
 2. Base the lint rule on `how_to_check` and the rule sentence with its Exceptions. Never on the Do advice. The lint rule must be no stricter and no looser than the rule.
-3. Report only what the code shows for certain. A wrong report costs more than a missed one. If a case needs judgement, or shows only when the page runs, leave it out and say so in the rule file's header comment. The `justified-review` skill covers what lint cannot.
-4. Look at `examples/rules/<ID>.tsx`. Its Don't examples write the mistake out in the code, and the rule must catch each of them. A Don't that cannot be written out (the real code would change the page it is shown on) or that the rule leaves alone on purpose carries `notLinted` with the reason. Its Do examples must never be reported.
+3. A lint rule belongs to exactly one id and tests only that id's own text. When the code also breaks a neighbouring rule, leave that report to the neighbour's lint rule or to the review, even where the rule file refers to it.
+4. Report only what the code shows for certain. A wrong report costs more than a missed one. If a case needs judgement, or shows only when the page runs, leave it out and say so in the rule file's header comment. The `justified-review` skill covers what lint cannot.
+5. Look at `examples/rules/<ID>.tsx`. Its Don't examples write the mistake out in the code, and the rule must catch each of them. A Don't that cannot be written out (the real code would change the page it is shown on) or that the rule leaves alone on purpose carries `notLinted` with the reason. Its Do examples must never be reported.
 
 ## The files you add
 
