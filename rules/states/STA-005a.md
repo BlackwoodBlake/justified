@@ -37,7 +37,7 @@ how_to_check:
 changelog:
   - version: "1.1.1"
     date: 2026-11-27
-    note: How to check tests the earlier state coming back as this rule's own condition; announcements and state in code are left to FBK-004 and VIS-008a.
+    note: How to check tests the earlier state coming back as this rule's own condition; the result after the reply, announcements and state in code are left to FBK-002, FBK-003, FBK-004 and VIS-008a, and their three Don'ts are gone.
   - version: "1.1.0"
     date: 2026-11-26
     note: The exception for a change shown at once now covers any small change the view can put back, not only tick boxes and switches, and says what happens when the change is refused.
