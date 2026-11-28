@@ -1,0 +1,1198 @@
+[
+  {
+    "id": "ACT-001a",
+    "short": "Verb first",
+    "title": "Start an action button with a verb that names the action",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.3",
+    "status": "decided"
+  },
+  {
+    "id": "ACT-001b",
+    "short": "Button names",
+    "title": "Give every button an accessible name that says what it does and contains its visible text",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.1",
+    "status": "decided",
+    "wcag": [
+      {
+        "criterion": "1.1.1",
+        "name": "Non-text Content"
+      },
+      {
+        "criterion": "2.5.3",
+        "name": "Label in Name"
+      },
+      {
+        "criterion": "4.1.2",
+        "name": "Name, Role, Value"
+      }
+    ]
+  },
+  {
+    "id": "ACT-002a",
+    "short": "One emphasised per group",
+    "title": "Give at most one button in a group the most emphasised style",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.3",
+    "status": "decided"
+  },
+  {
+    "id": "ACT-002b",
+    "short": "One primary per page",
+    "title": "Use at most one primary button on a page",
+    "level": "rule",
+    "verdict": "Majority (2 of 3)",
+    "version": "1.0.2",
+    "status": "decided"
+  },
+  {
+    "id": "ACT-003a",
+    "short": "Confirm button last",
+    "title": "Put the confirming button last when a dialog's action buttons sit side by side",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.3",
+    "status": "decided"
+  },
+  {
+    "id": "ACT-003b",
+    "short": "Buttons on pages",
+    "title": "Put a page's buttons in the part they act on and keep them in the same place",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.2",
+    "status": "decided"
+  },
+  {
+    "id": "ACT-004",
+    "short": "Submit stays enabled",
+    "title": "Keep the submit button enabled on a form that does not fit on one screen",
+    "level": "guideline",
+    "verdict": "Split (1 of 2)",
+    "version": "1.1.1",
+    "status": "decided"
+  },
+  {
+    "id": "ACT-005",
+    "short": "Say what is needed",
+    "title": "Say next to an unavailable submit button what is still needed",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.4",
+    "status": "decided"
+  },
+  {
+    "id": "ACT-006",
+    "short": "Target size",
+    "title": "Make every pointer target at least 24 by 24 pixels, or pass the 24-pixel spacing test",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.3",
+    "status": "decided",
+    "wcag": [
+      {
+        "criterion": "2.5.8",
+        "name": "Target Size (Minimum)"
+      }
+    ]
+  },
+  {
+    "id": "ACT-007a",
+    "short": "No drag needed",
+    "title": "Offer a way without dragging for everything people can drag",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.0",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "2.5.7",
+        "name": "Dragging Movements"
+      }
+    ]
+  },
+  {
+    "id": "ACT-007b",
+    "short": "Announce keyboard moves",
+    "title": "Tell assistive technology what each step of a keyboard move did",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (0 of 3 judges spoke)",
+    "version": "1.0.1",
+    "status": "proposed"
+  },
+  {
+    "id": "ACT-008",
+    "short": "Drop target mark",
+    "title": "Mark where a dragged item would land, and only while it is over that place",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.2",
+    "status": "proposed"
+  },
+  {
+    "id": "ACT-009",
+    "short": "Controls have a role",
+    "title": "Give everything people click to go somewhere or to act the role of a control in code",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.0",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "4.1.2",
+        "name": "Name, Role, Value"
+      }
+    ]
+  },
+  {
+    "id": "ACT-009a",
+    "short": "Links to go somewhere",
+    "title": "Build a control that only takes people somewhere as a link, also when it looks like a button",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "ACT-009b",
+    "short": "Buttons to act",
+    "title": "Build a control that acts where the person is as a button, also when it looks like a link",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "DLG-001",
+    "short": "Escape cancels",
+    "title": "Let Escape do what Cancel does in a dialog",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.4",
+    "status": "decided"
+  },
+  {
+    "id": "DLG-002",
+    "short": "One dialog at a time",
+    "title": "Keep one dialog open at a time",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.3",
+    "status": "decided"
+  },
+  {
+    "id": "DLG-003",
+    "short": "Named destructive button",
+    "title": "Name the action on the destructive button and always offer Cancel",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.3",
+    "status": "decided"
+  },
+  {
+    "id": "DLG-004",
+    "short": "No destructive default",
+    "title": "Never make the destructive button the default in a confirmation dialog",
+    "level": "guideline",
+    "verdict": "Split (1 of 2)",
+    "version": "1.0.3",
+    "status": "decided"
+  },
+  {
+    "id": "DLG-005",
+    "short": "Danger style",
+    "title": "Give the destructive button the danger style, also when the person asked for the action",
+    "level": "guideline",
+    "verdict": "Split (1 of 2)",
+    "version": "1.0.5",
+    "status": "decided"
+  },
+  {
+    "id": "DLG-006",
+    "short": "Focus in and back",
+    "title": "Move focus into a modal dialog when it opens and back to its opener when it closes",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.1",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "2.4.3",
+        "name": "Focus Order"
+      }
+    ]
+  },
+  {
+    "id": "DLG-007",
+    "short": "Focus stays inside",
+    "title": "Keep Tab inside a modal dialog and the page behind it out of use",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "DST-001a",
+    "short": "Undo over asking",
+    "title": "Make destructive actions reversible, and offer Undo instead of asking first",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.5",
+    "status": "decided"
+  },
+  {
+    "id": "DST-001b",
+    "short": "When to ask first",
+    "title": "Ask before an action only when it cannot be reversed or a mistake would cost a lot",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.4",
+    "status": "decided"
+  },
+  {
+    "id": "FBK-002",
+    "short": "Failure where it started",
+    "title": "Show a failed action where it started and keep it there",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.1.1",
+    "status": "decided"
+  },
+  {
+    "id": "FBK-003",
+    "short": "Success in the view",
+    "title": "Show a successful result in the view, not only in a toast that disappears",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.2",
+    "status": "decided"
+  },
+  {
+    "id": "FBK-004",
+    "short": "Announce status",
+    "title": "Announce a status message without moving focus",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.3",
+    "status": "decided",
+    "wcag": [
+      {
+        "criterion": "4.1.3",
+        "name": "Status Messages"
+      }
+    ]
+  },
+  {
+    "id": "FBK-005",
+    "short": "Toast actions",
+    "title": "Give a toast at most one action, keep it until it is used, and offer that action elsewhere too",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.2",
+    "status": "decided"
+  },
+  {
+    "id": "FRM-001",
+    "short": "Visible label",
+    "title": "Give every form control a visible label",
+    "level": "rule",
+    "verdict": "Majority (2 of 3)",
+    "version": "1.1.1",
+    "status": "decided"
+  },
+  {
+    "id": "FRM-002a",
+    "short": "Error at the field",
+    "title": "Show a field's error as text at the field",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.3",
+    "status": "decided"
+  },
+  {
+    "id": "FRM-002b",
+    "short": "When errors show",
+    "title": "Show a field's error when the person leaves the field or sends the form, and clear it as soon as the value is valid",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.5",
+    "status": "decided"
+  },
+  {
+    "id": "FRM-003",
+    "short": "Cancel in form dialogs",
+    "title": "Give every form in a dialog a Cancel that always works and changes nothing",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.3",
+    "status": "decided"
+  },
+  {
+    "id": "FRM-004a",
+    "short": "Unsaved changes, full screen",
+    "title": "Ask before a full-screen dialog throws away unsaved changes, and only when something would be lost",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.5",
+    "status": "decided"
+  },
+  {
+    "id": "FRM-004b",
+    "short": "Unsaved changes, small dialog",
+    "title": "Ask before a dialog or sheet that does not fill the screen throws away unsaved changes, and only when something would be lost",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.2",
+    "status": "proposed"
+  },
+  {
+    "id": "FRM-004c",
+    "short": "Unsaved changes, page",
+    "title": "Ask before leaving a page throws away unsaved changes, and only when something would be lost",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.1",
+    "status": "proposed"
+  },
+  {
+    "id": "FRM-004d",
+    "short": "Keep work on leaving",
+    "title": "Keep what people enter when they leave a page form with a multi-line field, several steps or five or more controls, and show it is kept",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.2",
+    "status": "proposed"
+  },
+  {
+    "id": "FRM-005",
+    "short": "Required or optional",
+    "title": "Mark required or optional fields one way, in the label, with any symbol explained",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.4",
+    "status": "decided"
+  },
+  {
+    "id": "FRM-007",
+    "short": "Autocomplete",
+    "title": "Give a field for the person's own details the exact autocomplete value when WCAG lists its purpose",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.6",
+    "status": "decided",
+    "wcag": [
+      {
+        "criterion": "1.3.5",
+        "name": "Identify Input Purpose"
+      }
+    ]
+  },
+  {
+    "id": "FRM-008",
+    "short": "Accessible sign-in",
+    "title": "Let people sign in with paste, a password manager or a route with no test",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.3",
+    "status": "decided",
+    "wcag": [
+      {
+        "criterion": "3.3.8",
+        "name": "Accessible Authentication (Minimum)"
+      }
+    ]
+  },
+  {
+    "id": "FRM-009",
+    "short": "No entering twice",
+    "title": "Fill in or offer what the person already gave earlier in the same process",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.3",
+    "status": "decided",
+    "wcag": [
+      {
+        "criterion": "3.3.7",
+        "name": "Redundant Entry"
+      }
+    ]
+  },
+  {
+    "id": "FRM-010",
+    "short": "Name in code",
+    "title": "Give every form control a name in code that contains its visible label",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.1",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "4.1.2",
+        "name": "Name, Role, Value"
+      },
+      {
+        "criterion": "2.5.3",
+        "name": "Label in Name"
+      },
+      {
+        "criterion": "1.3.1",
+        "name": "Info and Relationships"
+      }
+    ]
+  },
+  {
+    "id": "FRM-011",
+    "short": "Focus on failed send",
+    "title": "When a form is sent with problems, move focus to the first problem or to a summary of them",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (0 of 3 judges spoke)",
+    "version": "1.0.1",
+    "status": "proposed"
+  },
+  {
+    "id": "FRM-012a",
+    "short": "No context change on input",
+    "title": "Changing a value does not send a form, open a page or move focus unless people were told first",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.2",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "3.2.2",
+        "name": "On Input"
+      }
+    ]
+  },
+  {
+    "id": "FRM-012b",
+    "short": "Choices are not actions",
+    "title": "Let a control that holds a choice only record it, and put actions on buttons and links, even with a notice",
+    "level": "rule",
+    "verdict": "Majority (2 of 3)",
+    "version": "1.0.1",
+    "status": "proposed"
+  },
+  {
+    "id": "FRM-013",
+    "short": "No context change on focus",
+    "title": "Receiving focus never sends a form, opens a page, a window or a dialog that takes focus, or moves focus on",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.0",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "3.2.1",
+        "name": "On Focus"
+      }
+    ]
+  },
+  {
+    "id": "FRM-014",
+    "short": "Keyboard by input type",
+    "title": "Give email, phone and web address fields the input type that matches the value",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.1",
+    "status": "proposed"
+  },
+  {
+    "id": "FRM-014a",
+    "short": "Digit keypad",
+    "title": "Give a text field that takes only digits the digit keypad with inputmode",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.1",
+    "status": "proposed"
+  },
+  {
+    "id": "FRM-014b",
+    "short": "Digit strings as text",
+    "title": "Put a string of digits that is not a quantity in a text input, never a number input",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "FRM-015",
+    "short": "Enter sends the form",
+    "title": "Let Enter in a single-line field send the form, as its main button does",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.1",
+    "status": "proposed"
+  },
+  {
+    "id": "FRM-016a",
+    "short": "Clickable option text",
+    "title": "Let a click on a checkbox's or radio button's text change it, as a click on the box does",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "FRM-016b",
+    "short": "Clickable switch text",
+    "title": "Let a click on a switch's text turn it on or off, as a click on the switch does",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "FRM-017",
+    "short": "Paste allowed",
+    "title": "Let every text field take a pasted value, and never cut it without saying so",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (0 of 3 judges spoke)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "FRM-017a",
+    "short": "Separators accepted",
+    "title": "Accept the spaces and separators people write in a number or code, and remove them before checking",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (0 of 3 judges spoke)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "FRM-017b",
+    "short": "Length limit shown",
+    "title": "State a free-text field's length limit and show how much is used",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.1",
+    "status": "proposed"
+  },
+  {
+    "id": "FRM-017c",
+    "short": "Limit reached in words",
+    "title": "Say in words when a free-text limit is reached, and never cut text in silence",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "KBD-001",
+    "short": "Keyboard and focus",
+    "title": "Let the keyboard do everything the pointer can, and show where focus is",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.4",
+    "status": "decided",
+    "wcag": [
+      {
+        "criterion": "2.1.1",
+        "name": "Keyboard"
+      },
+      {
+        "criterion": "2.4.7",
+        "name": "Focus Visible"
+      }
+    ]
+  },
+  {
+    "id": "KBD-002",
+    "short": "Focus in view",
+    "title": "Keep the focused element at least partly in view",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.2",
+    "status": "decided",
+    "wcag": [
+      {
+        "criterion": "2.4.11",
+        "name": "Focus Not Obscured (Minimum)"
+      }
+    ]
+  },
+  {
+    "id": "KBD-003",
+    "short": "Character key shortcuts",
+    "title": "Let people turn off or change a shortcut made only of character keys",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.1",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "2.1.4",
+        "name": "Character Key Shortcuts"
+      }
+    ]
+  },
+  {
+    "id": "KBD-003a",
+    "short": "Findable shortcuts",
+    "title": "Show every shortcut the product adds, beside its command or in one list",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "KBD-003b",
+    "short": "Modifier by default",
+    "title": "Build a shortcut on a modifier key by default",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "LAY-001",
+    "short": "Reflow to 320 px",
+    "title": "Let the page fit a 320-pixel viewport without scrolling sideways",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.5",
+    "status": "decided",
+    "wcag": [
+      {
+        "criterion": "1.4.10",
+        "name": "Reflow"
+      }
+    ]
+  },
+  {
+    "id": "LAY-002",
+    "short": "Code order",
+    "title": "Keep the order in the code telling the same story as the order on screen",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.2",
+    "status": "decided",
+    "wcag": [
+      {
+        "criterion": "1.3.2",
+        "name": "Meaningful Sequence"
+      },
+      {
+        "criterion": "2.4.3",
+        "name": "Focus Order"
+      }
+    ]
+  },
+  {
+    "id": "LAY-003a",
+    "short": "Resize text to 200%",
+    "title": "Let text grow to 200 percent without losing content or function",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.0",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "1.4.4",
+        "name": "Resize Text"
+      }
+    ]
+  },
+  {
+    "id": "LAY-003b",
+    "short": "Text spacing",
+    "title": "Keep all text and functions intact at WCAG's text spacing: line height 1.5, paragraphs 2, letters 0.12, words 0.16",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.1",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "1.4.12",
+        "name": "Text Spacing"
+      }
+    ]
+  },
+  {
+    "id": "NAV-002a",
+    "short": "Current page in code",
+    "title": "When a menu shows the current page, say so in the code on that item",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.1",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "1.3.1",
+        "name": "Info and Relationships"
+      }
+    ]
+  },
+  {
+    "id": "NAV-002b",
+    "short": "Current page visible",
+    "title": "Mark the current page in a repeated menu with a cue that is not colour alone",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.1",
+    "status": "proposed"
+  },
+  {
+    "id": "NAV-003",
+    "short": "Same menu order",
+    "title": "Keep repeated navigation in the same order on every page",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.0",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "3.2.3",
+        "name": "Consistent Navigation"
+      }
+    ]
+  },
+  {
+    "id": "NAV-004",
+    "short": "Skip link",
+    "title": "Start a page with a skip link when links come before its main content",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.1",
+    "status": "proposed"
+  },
+  {
+    "id": "STA-001",
+    "short": "Where waits show",
+    "title": "Show a wait in the part that is loading, not over the whole page",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.3",
+    "status": "decided"
+  },
+  {
+    "id": "STA-002a",
+    "short": "Nothing here yet",
+    "title": "Say what will appear in a space that holds nothing yet, and offer the first step",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "STA-002b",
+    "short": "Loading is not empty",
+    "title": "Never say a space is empty while its content is still loading",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "STA-003",
+    "short": "No matches",
+    "title": "When a search or filter matches nothing, say so and offer a way to change it",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.1",
+    "status": "proposed"
+  },
+  {
+    "id": "STA-004",
+    "short": "Time limits",
+    "title": "Let people turn off, lengthen or extend a time limit the product sets",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.5",
+    "status": "decided",
+    "wcag": [
+      {
+        "criterion": "2.2.1",
+        "name": "Timing Adjustable"
+      }
+    ]
+  },
+  {
+    "id": "STA-005a",
+    "short": "Show it is sending",
+    "title": "Show that a sent action is under way until the reply comes",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.1.1",
+    "status": "proposed"
+  },
+  {
+    "id": "STA-005b",
+    "short": "No double send",
+    "title": "While an action is being sent, a second press does not send it again",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.3",
+    "status": "proposed"
+  },
+  {
+    "id": "STR-001",
+    "short": "Page title per view",
+    "title": "Give every page a title that says what it is for, and change it with every view",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.1",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "2.4.2",
+        "name": "Page Titled"
+      }
+    ]
+  },
+  {
+    "id": "STR-002a",
+    "short": "Headings in code",
+    "title": "Mark text that heads a part of the view as a heading in code",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.0",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "1.3.1",
+        "name": "Info and Relationships"
+      }
+    ]
+  },
+  {
+    "id": "STR-002b",
+    "short": "Headings that describe",
+    "title": "Word each heading so it says what the part below it holds",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.0",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "2.4.6",
+        "name": "Headings and Labels"
+      }
+    ]
+  },
+  {
+    "id": "STR-003",
+    "short": "One h1, no skipped levels",
+    "title": "Give each view one h1 and every other heading the level its place in the outline gives it",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "STR-004",
+    "short": "Landmark regions",
+    "title": "Build the page's regions from landmark elements, and name repeated ones apart",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "STR-005",
+    "short": "Text for images",
+    "title": "Give images and icons that carry information a text alternative, and hide the ones that only decorate",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.1",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "1.1.1",
+        "name": "Non-text Content"
+      }
+    ]
+  },
+  {
+    "id": "STR-006",
+    "short": "Page language",
+    "title": "Name the page's main language in the html element's lang attribute, and change it when the interface changes language",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.1",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "3.1.1",
+        "name": "Language of Page"
+      }
+    ]
+  },
+  {
+    "id": "STR-006a",
+    "short": "Language of parts",
+    "title": "Mark text in another language than the text around it with its own lang attribute",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.0",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "3.1.2",
+        "name": "Language of Parts"
+      }
+    ]
+  },
+  {
+    "id": "TBL-001",
+    "short": "Table headers in code",
+    "title": "Build data in rows and columns as a table in code, with its headings marked as headers",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.1",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "1.3.1",
+        "name": "Info and Relationships"
+      }
+    ]
+  },
+  {
+    "id": "TBL-002",
+    "short": "Sortable headers",
+    "title": "Put a keyboard sort control in a sortable header, and expose its order in code",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.1",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "4.1.2",
+        "name": "Name, Role, Value"
+      },
+      {
+        "criterion": "2.1.1",
+        "name": "Keyboard"
+      },
+      {
+        "criterion": "1.3.1",
+        "name": "Info and Relationships"
+      }
+    ]
+  },
+  {
+    "id": "TBL-003",
+    "short": "Row actions by keyboard",
+    "title": "Give every row action its own control the keyboard reaches, and show hidden actions on focus",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.2",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "2.1.1",
+        "name": "Keyboard"
+      },
+      {
+        "criterion": "4.1.2",
+        "name": "Name, Role, Value"
+      },
+      {
+        "criterion": "2.4.7",
+        "name": "Focus Visible"
+      }
+    ]
+  },
+  {
+    "id": "TBL-004",
+    "short": "Table title",
+    "title": "Give every data table a visible title and tie it to the table in code",
+    "level": "guideline",
+    "verdict": "Insufficient evidence (1 of 3 judges spoke)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "TXT-001a",
+    "short": "Error messages",
+    "title": "Say what went wrong, what it concerns and what to do next",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.2",
+    "status": "decided"
+  },
+  {
+    "id": "TXT-002a",
+    "short": "Hover content",
+    "title": "Let people close, hover and keep content that appears on hover or focus",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.0",
+    "status": "decided",
+    "wcag": [
+      {
+        "criterion": "1.4.13",
+        "name": "Content on Hover or Focus"
+      }
+    ]
+  },
+  {
+    "id": "TXT-002b",
+    "short": "Tooltips",
+    "title": "Open tooltips on focus too, and keep what people need on the page",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.2",
+    "status": "decided"
+  },
+  {
+    "id": "TXT-003",
+    "short": "Clear link text",
+    "title": "Make every link's destination clear from its text, its name or the sentence it sits in",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.4",
+    "status": "decided",
+    "wcag": [
+      {
+        "criterion": "2.4.4",
+        "name": "Link Purpose (In Context)"
+      },
+      {
+        "criterion": "2.5.3",
+        "name": "Label in Name"
+      }
+    ]
+  },
+  {
+    "id": "VIS-001",
+    "short": "Text contrast",
+    "title": "Give text at least 4.5:1 contrast against the colour it is actually drawn on",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.1",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "1.4.3",
+        "name": "Contrast (Minimum)"
+      }
+    ]
+  },
+  {
+    "id": "VIS-002",
+    "short": "Colour by role",
+    "title": "Use each colour token only for the role and the pairs it was made for",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.1.0",
+    "status": "proposed"
+  },
+  {
+    "id": "VIS-003a",
+    "short": "Not by colour alone",
+    "title": "Never let colour be the only sign of what something means or which state it is in",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.1",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "1.4.1",
+        "name": "Use of Color"
+      }
+    ]
+  },
+  {
+    "id": "VIS-003b",
+    "short": "Links in text",
+    "title": "Make a link in running text stand out from the words around it by more than colour",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.0",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "1.4.1",
+        "name": "Use of Color"
+      }
+    ]
+  },
+  {
+    "id": "VIS-004",
+    "short": "Non-text contrast",
+    "title": "Give the edges and state marks of controls, and the parts of graphics people need, 3:1 contrast",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.1.0",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "1.4.11",
+        "name": "Non-text Contrast"
+      }
+    ]
+  },
+  {
+    "id": "VIS-005",
+    "short": "Pause moving content",
+    "title": "Let people pause, stop or hide content that moves or updates by itself",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.0",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "2.2.2",
+        "name": "Pause, Stop, Hide"
+      }
+    ]
+  },
+  {
+    "id": "VIS-006",
+    "short": "Reduced motion",
+    "title": "Swap movement for a fade or no motion when the person asks for reduced motion",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.1",
+    "status": "proposed"
+  },
+  {
+    "id": "VIS-007",
+    "short": "Not by motion alone",
+    "title": "Never let motion be the only sign of what happened",
+    "level": "rule",
+    "verdict": "Unanimous (2 of 2)",
+    "version": "1.0.0",
+    "status": "proposed"
+  },
+  {
+    "id": "VIS-008",
+    "short": "Hover and press looks",
+    "title": "Show a change on everything people can press, while it is pressed and while the pointer is over it",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.1",
+    "status": "proposed"
+  },
+  {
+    "id": "VIS-008a",
+    "short": "State in code",
+    "title": "Set every state a control shows in code on the control, and change it whenever the look changes",
+    "level": "rule",
+    "verdict": "Requirement",
+    "version": "1.0.0",
+    "status": "proposed",
+    "wcag": [
+      {
+        "criterion": "4.1.2",
+        "name": "Name, Role, Value"
+      }
+    ]
+  },
+  {
+    "id": "VIS-008b",
+    "short": "Selected look kept",
+    "title": "Keep a selected or on state visible while the item is hovered, focused or pressed",
+    "level": "rule",
+    "verdict": "Unanimous (3 of 3)",
+    "version": "1.0.0",
+    "status": "proposed"
+  }
+]

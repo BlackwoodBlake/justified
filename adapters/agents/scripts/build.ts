@@ -15,6 +15,12 @@
  *     SKILL.md, checks/<area>.md, rules/   the rules: how to work and report,
  *                                          and every rule's how_to_check
  *
+ *   dist/ids.json                          every id with its level, verdict,
+ *   dist/justified.schema.json             version and WCAG criteria, and the
+ *                                          schema for a project's justified.json.
+ *                                          Both are also written to
+ *                                          packages/eslint, which commits them.
+ *
  * With --compact, it also writes a short AGENTS.md that is not part of the
  * package yet (npm run build:compact):
  *
@@ -30,6 +36,8 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { buildIds, buildSchema, json } from "./ids.ts";
 
 type Rule = {
   id: string;
@@ -424,6 +432,13 @@ writeFileSync(join(reviewDir, "SKILL.md"), review);
 for (const a of areas) writeFileSync(join(reviewDir, "checks", `${a.area}.md`), checkFile(a));
 writeFileSync(join(out, "AGENTS.md"), agents);
 writeFileSync(join(out, "AGENTS-full.md"), full);
+// Rule data and the schema for justified.json, for the agents and the lint plugin.
+const ids = buildIds(rules);
+for (const dir of [out, here("../../../packages/eslint/")]) {
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "ids.json"), json(ids));
+  writeFileSync(join(dir, "justified.schema.json"), json(buildSchema(ids)));
+}
 const compact = process.argv.includes("--compact");
 if (compact) writeFileSync(join(out, "AGENTS-compact.md"), compactAgents);
 console.log(
