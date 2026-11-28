@@ -324,7 +324,7 @@ ${areaTable
   .join("\n")}
 
 2. Before you try a rule on a file, see whether an override covers it: an entry for that id whose \`files\` globs match the file, or that has none. An id that does not exist in the rules covers nothing. An invalid entry, such as \`guideline\` on a rule that WCAG requires, covers nothing either; list it under *Overrides to look at*.
-   - **off:** do not check the rule on that file, and report nothing about it under *Rules* or *Guidelines*. Skip the parts of other rules that refer to it too, such as "as DLG-004 says".
+   - **off:** do not check the rule on that file, and report nothing about it under *Rules* or *Guidelines*. For a requirement the review still looks, only to show under *Overridden by the project* where it would otherwise have reported something; those findings appear nowhere else. Skip the parts of other rules that refer to it too, such as "as DLG-004 says".
    - **guideline:** check it as a guideline, so report it only where the project has no convention of its own.
    - **note:** check as usual and read the reason as context. A reason such as "voiding is reversible" can settle whether a deletion rule applies at all; say so when it does.
    - Never count an override as passed, and never write that the code is fine or resolved because of one.
@@ -352,32 +352,32 @@ Use this format and order, and leave out a section with nothing in it:
 \`\`\`markdown
 ## Justified review
 
-Reviewed: uncommitted changes in 3 files.
+Reviewed: uncommitted changes in 6 files.
 
 ### Overridden by the project
 
-- **ACT-006** Target size, in \`src/admin/**\`: overridden by the project (off). "The admin table is a dense tool used with a keyboard." Not checked in 4 reviewed files. Review by 2027-03-01.
+- **ACT-006** Target size, in \`src/admin/**\`: overridden by the project (off). "The admin table is a dense tool used with a keyboard." Not checked in 2 reviewed files. Review by 2027-03-01.
   This rule is a WCAG requirement: WCAG 2.2 2.5.8 Target Size (Minimum).
   Would otherwise be reported at \`src/admin/users-table.tsx:22\`.
   ${SITE}/patterns/act-006/
 - **ACT-001a** Verb first, everywhere: overridden by the project (guideline). "Our forms use Save and Submit throughout."
   ${SITE}/patterns/act-001a/
 
-#### Overrides to look at
+### Overrides to look at
 
 - **FRM-099**: no rule has this id. The override covers nothing.
 - **FRM-007** Autocomplete: \`rule_version\` 0.9.0 is below the current major version, and \`review_by\` 2026-06-01 has passed. The override still applies.
 
 ### Rules
 
-- \`src/settings/delete-account.tsx:58\` may break **DLG-003** Named destructive button, and also ACT-001a Verb first. Rule, Unanimous (3 of 3).
+- \`src/settings/delete-account.tsx:58\` may break **DLG-003** Named destructive button. Rule, Unanimous (3 of 3).
   The button that deletes the account says "OK", which does not name what will happen.
   Fix: label it "Delete account".
   ${SITE}/patterns/dlg-003/
-- \`src/settings/profile-form.tsx:41\` may break **FRM-007** Autocomplete. Rule, Requirement: WCAG 2.2 1.3.5 Identify Input Purpose.
-  The *Email* field asks for the person's own email and has no \`autoComplete\`.
-  Fix: add \`autoComplete="email"\`.
-  ${SITE}/patterns/frm-007/
+- \`src/settings/profile-form.tsx:41\` may break **FRM-001** Visible label. Rule, Majority (2 of 3).
+  The *Nickname* field has a placeholder but no label that stays visible.
+  Fix: add a visible label above the field.
+  ${SITE}/patterns/frm-001/
 
 ### Guidelines, our choice
 
@@ -395,7 +395,7 @@ Reviewed: uncommitted changes in 3 files.
 Automated checks find some problems, not all. Test with real people and assistive technology.
 \`\`\`
 
-- *Overridden by the project* comes before *Rules*. Give one bullet for each override that applied to a reviewed file, in this order: requirements, then rules, then guidelines. Each bullet has the id and short name, the scope (\`in src/admin/**\` or \`everywhere\`), "overridden by the project" with the action (off or guideline), the reason quoted as written, "Not checked in N reviewed files." for off, \`review_by\` if the entry has one, and the rule's link. For a requirement, add the criterion on its own line: "This rule is a WCAG requirement: WCAG 2.2 2.5.8 Target Size (Minimum)." Leave out \`note\` entries and overrides that touched no reviewed file.
+- *Overridden by the project* comes before *Rules*. Give one bullet for each override that applied to a reviewed file, in this order: by the rule's level (a WCAG requirement, then another rule, then a guideline), and within a level \`off\` before \`guideline\`. Each bullet has the id and short name, the scope (\`in src/admin/**\` or \`everywhere\`), "overridden by the project" with the action (off or guideline), the reason quoted as written, "Not checked in N reviewed files." for off, where N is the number of reviewed files the override covers (all of them when it lists no \`files\`), \`review_by\` if the entry has one, and the rule's link. For a requirement, add the criterion on its own line: "This rule is a WCAG requirement: WCAG 2.2 2.5.8 Target Size (Minimum)." Leave out \`note\` entries and overrides that touched no reviewed file.
 - For an overridden requirement only, you may add "Would otherwise be reported at \`file:line\`." It is never a finding. Never add it for a rule or guideline that WCAG does not require.
 - Under *Overrides to look at*, list an override whose \`review_by\` date has passed, whose \`rule_version\` is below the rule's current major version (the check file's rule page and \`rules/<id>.md\` give the version), or whose id does not exist. \`review_by\` is only a reminder: the override still applies.
 - Under *Rules*, put the rules WCAG requires first and then the rules the judges decide. Within each, and under *Guidelines*, order by file and line. Under the two *Check* sections, keep the order of the check files.
@@ -493,7 +493,7 @@ const missing = [
   ["AGENTS.md", "## Your project's overrides"],
   ["AGENTS-full.md", "## Your project's overrides"],
   ["skills/justified-review/SKILL.md", "### Overridden by the project"],
-  ["skills/justified-review/SKILL.md", "#### Overrides to look at"],
+  ["skills/justified-review/SKILL.md", "### Overrides to look at"],
   ["skills/justified-review/SKILL.md", "No problems found against the rules the project follows."],
 ].filter(([f, text]) => !readFileSync(join(out, f), "utf8").includes(text));
 if (missing.length) {
