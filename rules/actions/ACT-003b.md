@@ -4,7 +4,7 @@ title: Put a page's buttons in the part they act on and keep them in the same pl
 short: Buttons on pages
 area: actions
 status: decided
-version: "1.0.1"
+version: "1.0.2"
 verdict: unanimous
 judges: { spoken: 3, agreeing: 3 }
 law:
@@ -30,6 +30,9 @@ how_to_check:
   - 'Compare pages of the same kind at the same window size: does each task, such as "Add stop", sit in the same area and position on every one? A move at a very different window size is fine.'
   - 'Product-wide controls, such as a language picker or "Contact support", rendered in one page''s own header instead of the top bar shown on every page.'
 changelog:
+  - version: "1.0.2"
+    date: 2026-11-27
+    note: Leaves the order in the code to LAY-002 instead of listing it as a Don't.
   - version: "1.0.1"
     date: 2026-11-24
     note: Names the part of the rule the top bar follows.
@@ -64,7 +67,6 @@ People read a button through what surrounds it. A button inside a card is taken 
 - Put *New booking*, which acts on the whole page, inside the first card of a list of bookings.
 - Put *Order parts* in the header on one product page and at the bottom of the description on the next.
 - Put the language picker or *Contact support* in one page's own header. They belong to the product's top bar, which is shown on every page.
-- Show *Swap lesson* inside a row on screen while the code places it after the table. LAY-002 does not allow that.
 
 ## Exceptions
 

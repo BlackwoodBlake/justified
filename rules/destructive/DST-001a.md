@@ -4,7 +4,7 @@ title: Make destructive actions reversible, and offer Undo instead of asking fir
 short: Undo over asking
 area: destructive
 status: decided
-version: "1.0.4"
+version: "1.0.5"
 verdict: unanimous
 judges: { spoken: 2, agreeing: 2 }
 law:
@@ -27,6 +27,9 @@ how_to_check:
   - 'An *Undo* that restores only part, such as the item without its files, comments or place in the list, or an *Undo* shown for something that has left the product, such as a sent email.'
   - 'An *Undo* reachable only by Ctrl+Z with nothing on screen, or a message with *Undo* that takes focus when it appears.'
 changelog:
+  - version: "1.0.5"
+    date: 2026-11-27
+    note: Says that keeping focus still is this rule's own choice, and leaves the announcement to FBK-004.
   - version: "1.0.4"
     date: 2026-11-26
     note: The exception for unsaved input now also covers pages and names FRM-004c and FRM-004d. A delete the server refuses brings the item back and withdraws Undo (STA-005a).
@@ -60,7 +63,7 @@ People slip. They pick the wrong row, tap a moment too early or change their min
 - Let *Undo* bring back the whole previous state: the item, its contents, its comments, its tags, its place in the list and who could see it.
 - Say in the message what happened, so *Undo* is clear without guessing. If the button needs a longer accessible name, start it with the visible word, such as "Undo archiving Autumn 2026".
 - Keep *Undo* on screen for as long as FBK-005 says: until the person uses it, closes it or leaves the view, or a newer message makes it moot. Nobody has to catch it in time. After that, a lasting way back such as *Deleted items*, *Archive* or *History* remains.
-- Show the new state in the view itself, as FBK-003 says. The message is an addition, never the only sign. Announce the message without moving focus, as FBK-004 says.
+- Show the new state in the view itself, as FBK-003 says. The message is an addition, never the only sign. Leave focus where it is when the message appears; FBK-004 leaves that choice to this rule and covers how the message is announced.
 - Make *Undo* reachable with the keyboard in the normal tab order. A shortcut such as Ctrl+Z may also work, but never as the only route.
 - If the server refuses a delete that has already left the list, the item comes back in its place, the message with *Undo* is withdrawn, and the failure shows where FBK-002 says (STA-005a).
 - After *Undo*, show the project back in its place. If focus was on *Undo* and the message closes, move focus to the restored project.

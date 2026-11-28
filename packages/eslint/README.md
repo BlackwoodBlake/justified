@@ -32,6 +32,50 @@ Lint `.js` and `.ts` files too, not only `.jsx` and `.tsx`. Some rules read code
 
 `recommended` turns on every rule. A rule is an `"error"`. A guideline is a `"warn"`: it is our own choice, where the design systems we weigh are divided, so keep your project's own convention where it has one. To turn on single rules instead, add the plugin as `plugins: { justified }` and list the rules you want.
 
+### Write down where your project departs from a rule
+
+`fromProject` is the usual setup. It gives you `recommended`, plus whatever your project has recorded in `justified.json`.
+
+```js
+// eslint.config.js
+import justified from "@blackwoodblake/justified-eslint";
+
+export default [
+  // ...your parser config
+  ...justified.fromProject(import.meta.dirname, { files: ["**/*.{jsx,tsx}"] }),
+];
+```
+
+`fromProject(dir, { files, file = "justified.json", strict = false })` looks for the nearest `justified.json` from `dir` upwards, so it also works in a monorepo where the file sits at the root. Without a file you get plain `recommended`. `files` limits the rules to those globs. With `strict: true`, an id that Justified does not have throws; otherwise it is reported as a warning and ignored. `recommended` still works on its own, as above.
+
+A deliberate departure goes in `justified.json` at the root of your project, committed beside `package.json`, with your reason:
+
+```json
+{
+  "$schema": "https://blackwoodblake.com/design-system/schema/justified.schema.json",
+  "justified": "0.5.0",
+  "overrides": [
+    {
+      "id": "DLG-004",
+      "action": "off",
+      "reason": "The admin tool moves focus to the first field on purpose.",
+      "files": ["src/admin/**"],
+      "rule_version": "1.0.2"
+    }
+  ]
+}
+```
+
+- `id` is one exact id. Wildcards and families do not work: FRM-004 does not cover FRM-004a.
+- `action` is `off` (your project does not follow the text), `guideline` (treat a rule as a guideline that yields to your own convention) or `note` (the text applies in full, and your reason is context). `guideline` cannot be used on a WCAG requirement; use `off` or `note`.
+- `reason` is required, at least 20 characters once trimmed, in your own words.
+- `files` is optional: positive globs, relative to `justified.json`. Without it, the whole project. In a monorepo they are rewritten for the config's folder; a glob that points outside it cannot be matched by flat config and is left out.
+- `rule_version`, `review_by`, `owner` and `lint_rules` are optional. `rule_version` lets the tools say when the rule has changed since you wrote the override. `lint_rules` limits `off` and `guideline` to some of the id's lint rules. ESLint ignores `review_by`, so results never change with the date.
+
+Your agent, the review and the linter read the same file. An override is your project's decision, not ours: Justified shows it and does not judge it. Overriding a WCAG requirement still involves that criterion, and `fromProject` says so once when the config loads.
+
+The package includes `justified.schema.json` for editor hints and `ids.json`, the list of ids with their level, verdict and version.
+
 ### Use it with jsx-a11y
 
 These rules add what is specific to shadcn components and patterns. For plain HTML elements, also turn on `eslint-plugin-jsx-a11y`, and tell it which of your components draw which element, so its checks reach them too. Set `no-autofocus` to ignore components, since a dialog may move focus on purpose and `justified/no-destructive-autofocus` covers the case that matters there.

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://blackwoodblake.com/design-system/schema/justified.schema.json",
+  "justified": "0.5.0",
+  "overrides": [
+    {
+      "id": "ACT-006",
+      "action": "off",
+      "reason": "The admin table is a dense tool that staff use with a keyboard.",
+      "files": ["src/admin/**"],
+      "rule_version": "1.0.3",
+      "review_by": "2027-03-01"
+    },
+    {
+      "id": "ACT-001a",
+      "action": "guideline",
+      "reason": "Our forms use the same Submit button everywhere.",
+      "rule_version": "1.0.3"
+    },
+    {
+      "id": "DLG-003",
+      "action": "note",
+      "reason": "Voiding an invoice is reversible, so the dialog is a light check.",
+      "files": ["src/invoices/**"],
+      "rule_version": "1.0.3"
+    },
+    {
+      "id": "FRM-099",
+      "action": "off",
+      "reason": "Written for a rule that has since been renamed or removed."
+    },
+    {
+      "id": "FRM-007",
+      "action": "off",
+      "reason": "The sign-up form is shown on shared kiosks, so nothing is filled in.",
+      "files": ["src/settings/**"],
+      "rule_version": "0.9.0",
+      "review_by": "2026-06-01"
+    }
+  ]
+}

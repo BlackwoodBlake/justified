@@ -136,6 +136,23 @@ split the rule until each judge either supports or opposes it. Keep the
 rule's purpose: narrowing it must not water it down until it says
 nothing.
 
+## Rule version numbers
+
+Every rule has a version, and a project can write down which version its
+override was made against. The number means:
+
+- **Patch** (1.0.1): wording, examples or references changed. What the
+  rule asks is the same, so overrides are unaffected.
+- **Minor** (1.1.0): a new exception, or a new thing to look for, without
+  changing what the rule asks.
+- **Major** (2.0.0): what the rule asks changed, or its level or verdict
+  changed.
+
+An override whose `rule_version` is below the current major version is
+flagged in every layer that reads `justified.json`: the linter, the
+agent skill and the review. The override still applies until the project
+decides again.
+
 ## Never
 - Copy or lightly rework a sentence from a source.
 - Follow a source's structure, headings or order.

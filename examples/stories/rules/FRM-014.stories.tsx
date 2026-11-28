@@ -39,7 +39,7 @@ export const Example2: Story = {
 };
 
 export const Example3: Story = {
-  name: "Don't: The type in place of the autocomplete value",
+  name: "Do: A field that takes a user name stays text",
   render: () => {
     const e = FRM014.examples[2];
     return (
@@ -51,21 +51,9 @@ export const Example3: Story = {
 };
 
 export const Example4: Story = {
-  name: "Do: A field that takes a user name stays text",
-  render: () => {
-    const e = FRM014.examples[3];
-    return (
-      <ExampleFrame kind={e.kind} title={e.title} caption={e.caption}>
-        <e.Demo />
-      </ExampleFrame>
-    );
-  },
-};
-
-export const Example5: Story = {
   name: "Don't: An email type on Email or username",
   render: () => {
-    const e = FRM014.examples[4];
+    const e = FRM014.examples[3];
     return (
       <ExampleFrame kind={e.kind} title={e.title} caption={e.caption}>
         <e.Demo />

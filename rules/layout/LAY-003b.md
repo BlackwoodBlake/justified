@@ -1,10 +1,10 @@
 ---
 id: LAY-003b
-title: Keep all text and functions intact when people widen the text spacing
+title: "Keep all text and functions intact at WCAG's text spacing: line height 1.5, paragraphs 2, letters 0.12, words 0.16"
 short: Text spacing
 area: layout
 status: proposed
-version: "1.0.0"
+version: "1.0.1"
 verdict: requirement
 judges: { spoken: 1, agreeing: 1 }
 law:
@@ -29,6 +29,9 @@ how_to_check:
   - 'An element holding text with a fixed `h-*` or `max-h-*` and `overflow-hidden`, or with a fixed height and nothing else, where one more line would be cut or spill over the next element.'
   - 'A label with `truncate` or `whitespace-nowrap` inside a fixed width or height, such as a sidebar item, tab or pill, that is cut off under the wider spacing and has no way to the full text (see Exceptions).'
 changelog:
+  - version: "1.0.1"
+    date: 2026-11-27
+    note: The title names the condition the rule applies under. No change in what it asks.
   - version: "1.0.0"
     date: 2026-11-26
     note: First version.

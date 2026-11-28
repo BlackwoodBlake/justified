@@ -114,3 +114,26 @@ for (const [id, rule] of Object.entries(RULES)) {
     });
   });
 }
+
+describe("expectTitleChangesOnNavigate starter titles", () => {
+  /** A page whose title is read from `title`, without a browser. */
+  const fakePage = (title) => ({ title: async () => title, waitForTimeout: async () => {} });
+
+  for (const title of ["App", "app", "Vite + React + TS", "My App", "Document"]) {
+    it(`reports the starter title ${JSON.stringify(title)}`, async () => {
+      await assert.rejects(
+        api.expectTitleChangesOnNavigate(fakePage(title), [async () => {}], { settle: 0 }),
+        (error) => error instanceof JustifiedFinding && /starter title/.test(error.message),
+      );
+    });
+  }
+
+  for (const title of ["Apps – Acme", "App settings", "Invoices – App Store Connect"]) {
+    it(`does not call ${JSON.stringify(title)} a starter title`, async () => {
+      await assert.rejects(
+        api.expectTitleChangesOnNavigate(fakePage(title), [async () => {}], { settle: 0 }),
+        (error) => error instanceof JustifiedFinding && /stayed/.test(error.message),
+      );
+    });
+  }
+});

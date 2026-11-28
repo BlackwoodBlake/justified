@@ -4,7 +4,7 @@ title: Changing a value does not send a form, open a page or move focus unless p
 short: No context change on input
 area: forms
 status: proposed
-version: "1.0.1"
+version: "1.0.2"
 verdict: requirement
 judges: { spoken: 0, agreeing: 0 }
 law:
@@ -31,6 +31,9 @@ how_to_check:
   - 'A notice given only in a `Tooltip`, a `placeholder` or text after the control. It must come before the control in reading order.'
   - 'Change a filter, sort or radio with the keyboard and see whether focus stays on the control rather than moving to the first result or elsewhere.'
 changelog:
+  - version: "1.0.2"
+    date: 2026-11-27
+    note: The Don't about a radio group names the missing notice, and points to FRM-012b for the stricter case.
   - version: "1.0.1"
     date: 2026-11-26
     note: Refers to FRM-015 for Enter in a single-line field, which is activation.
@@ -66,7 +69,7 @@ This rule holds the law's floor, where a notice is enough. FRM-012b is the judge
 
 - Give a `Select` or `RadioGroup` an `onValueChange` that calls `router.push`, `navigate()`, `window.location` or `window.open` with no notice before it, such as a *Branch* select that loads that branch's own page.
 - Call `form.handleSubmit()`, `form.requestSubmit()` or a server action from a `Select` or `Checkbox` change, such as a *Show returned loans* checkbox that sends the form and reloads the page. The Working Group lists sending on a change as a failure.
-- Build a *Plan* radio group whose `onValueChange` opens checkout. Radix `RadioGroup` checks an item as soon as an arrow key moves to it, so `onValueChange` fires on every arrow press and a keyboard user is taken away on the first one. A notice does not fix that; see FRM-012b.
+- Build a *Plan* radio group whose `onValueChange` opens checkout, with no notice before it. Radix `RadioGroup` checks an item as soon as an arrow key moves to it, so `onValueChange` fires on every arrow press and a keyboard user is taken away on the first one. FRM-012b asks for a button here even with a notice.
 - Assume a select only commits on Enter. A native `select` can change value with arrow keys while closed on some platforms, and typing a letter on a closed Radix `Select` trigger chooses the matching option. Arrow keys, Enter and Space on that closed trigger only open it, so typing is the case that commits there. Check your build before tying anything to the change.
 - Send the code from `InputOTP`'s `onComplete`, or move focus from *Day* to *Month* when two digits are in, with no text before the field that says so.
 - Give the switch *Automatic payments* an `onCheckedChange` that opens a `Dialog`, which takes focus, with nothing before the switch that warns of it. Use a button such as *Set up automatic payments*, as FRM-012b asks.

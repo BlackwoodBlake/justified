@@ -49,15 +49,3 @@ export const Example3: Story = {
     );
   },
 };
-
-export const Example4: Story = {
-  name: "Don't: The target hides its focus ring",
-  render: () => {
-    const e = NAV004.examples[3];
-    return (
-      <ExampleFrame kind={e.kind} title={e.title} caption={e.caption}>
-        <e.Demo />
-      </ExampleFrame>
-    );
-  },
-};

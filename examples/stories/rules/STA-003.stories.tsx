@@ -39,21 +39,9 @@ export const Example2: Story = {
 };
 
 export const Example3: Story = {
-  name: "Don't: A count line that is not a live region",
-  render: () => {
-    const e = STA003.examples[2];
-    return (
-      <ExampleFrame kind={e.kind} title={e.title} caption={e.caption}>
-        <e.Demo />
-      </ExampleFrame>
-    );
-  },
-};
-
-export const Example4: Story = {
   name: "Don't: No match dressed as an error",
   render: () => {
-    const e = STA003.examples[3];
+    const e = STA003.examples[2];
     return (
       <ExampleFrame kind={e.kind} title={e.title} caption={e.caption}>
         <e.Demo />

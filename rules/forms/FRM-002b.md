@@ -4,7 +4,7 @@ title: Show a field's error when the person leaves the field or sends the form, 
 short: When errors show
 area: forms
 status: decided
-version: "1.0.4"
+version: "1.0.5"
 verdict: unanimous
 judges: { spoken: 2, agreeing: 2 }
 law:
@@ -31,6 +31,9 @@ how_to_check:
   - 'An `onChange` handler that calls `setError`, `trigger()` or a zod `safeParse` and sets a new error, rather than only clearing an error already shown.'
   - 'A check only the server can make, such as an address lookup, called from `onChange` or a debounced effect on the value instead of on blur or send.'
 changelog:
+  - version: "1.0.5"
+    date: 2026-11-27
+    note: Leaves where focus goes when an error shows to FRM-011 instead of listing it as a Don't.
   - version: "1.0.4"
     date: 2026-11-26
     note: Refers to FRM-017b and FRM-017c for a free-text field's count and the words at its length limit, which are not errors.
@@ -70,7 +73,6 @@ An error that appears halfway through a word scolds people for something they ha
 - Mark *Customer number* as missing just because the person tabbed past it on the way to *Postcode*. A field that is entered and left without a change waits until the form is sent.
 - Keep an error on a field after the person has fixed it, until they leave the field or send the form again.
 - Send the form and report only the first problem, leaving the rest to appear one round at a time.
-- Move focus to an error that appears when the person leaves a field. They have already moved on and should stay where they are.
 - Treat a live check on a new password as a reason to check email addresses, postcodes or national ID numbers while people type.
 
 ## Exceptions

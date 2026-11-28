@@ -50,15 +50,3 @@ export const Example3: Story = {
     );
   },
 };
-
-export const Example4: Story = {
-  name: "Don't: Only the border changes colour",
-  render: () => {
-    const e = ACT008.examples[3];
-    return (
-      <ExampleFrame kind={e.kind} title={e.title} caption={e.caption}>
-        <e.Demo />
-      </ExampleFrame>
-    );
-  },
-};

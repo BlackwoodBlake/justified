@@ -1,10 +1,10 @@
 ---
 id: FRM-004d
-title: Keep what people enter in a longer page form when they leave, and show that it is kept
+title: Keep what people enter when they leave a page form with a multi-line field, several steps or five or more controls, and show it is kept
 short: Keep work on leaving
 area: forms
 status: proposed
-version: "1.0.1"
+version: "1.0.2"
 verdict: insufficient-evidence
 judges: { spoken: 1, agreeing: 1 }
 law:
@@ -31,6 +31,9 @@ how_to_check:
   - 'A save with no status shown near the form, a "Saved" that shows before the server has answered, or a delayed save that is dropped when the route changes or the tab closes.'
   - 'A draft in the browser''s storage that holds a password, a card number or a one-time code.'
 changelog:
+  - version: "1.0.2"
+    date: 2026-11-27
+    note: The title names the condition the rule applies under. No change in what it asks.
   - version: "1.0.1"
     date: 2026-11-26
     note: No possessive on a source's name. No change in what the guideline asks.

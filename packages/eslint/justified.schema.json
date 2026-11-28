@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blackwoodblake.com/design-system/schema/justified.schema.json",
+  "title": "Justified project overrides",
+  "description": "Your project's own decisions to depart from rules and guidelines of Justified by Blackwood & Blake. Each needs a reason.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "overrides"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "justified": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "The Justified version the file was written for. Informational."
+    },
+    "overrides": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "action",
+          "reason"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}-\\d{3}[a-z]?$",
+            "examples": [
+              "ACT-001a",
+              "ACT-001b",
+              "ACT-002a"
+            ],
+            "description": "One exact id, such as FRM-004. No wildcards or families. An id that Justified does not have is not a schema error: the linter warns and ignores it, or throws with strict."
+          },
+          "action": {
+            "enum": [
+              "off",
+              "guideline",
+              "note"
+            ],
+            "description": "off: the project does not follow the text. guideline: treat a rule as a guideline that yields to the project's own convention (not for a WCAG requirement). note: the text applies in full; the reason is context."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 20,
+            "pattern": "\\S",
+            "description": "Your project's own words for the decision."
+          },
+          "files": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^[^!]",
+              "minLength": 1
+            },
+            "description": "Positive globs, relative to this file. Without it, the whole project."
+          },
+          "rule_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "description": "The version of the rule the override was written against."
+          },
+          "review_by": {
+            "type": "string",
+            "format": "date",
+            "description": "A date to look at the decision again. ESLint ignores it."
+          },
+          "owner": {
+            "type": "string"
+          },
+          "lint_rules": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^justified/"
+            },
+            "description": "Limits off and guideline to some of the id's lint rules."
+          }
+        }
+      }
+    }
+  }
+}

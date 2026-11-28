@@ -1,6 +1,6 @@
 {
   "name": "@blackwoodblake/justified-eslint",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "ESLint rules for shadcn and React apps that flag code that may break the behaviour rules of Justified by Blackwood & Blake.",
   "keywords": [
     "eslint",
@@ -37,6 +37,8 @@
     "index.d.ts",
     "lib",
     "rules",
+    "ids.json",
+    "justified.schema.json",
     "README.md",
     "LICENSE"
   ],

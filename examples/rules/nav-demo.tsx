@@ -559,7 +559,7 @@ export type SkipKind = "visible" | "hidden" | "none";
  * "Start from the top" button puts focus just before the example, as if the
  * page had just loaded, so the next press of Tab is the first one.
  */
-export function SkipDemo({ skip, targetRing = true }: { skip: SkipKind; targetRing?: boolean }) {
+export function SkipDemo({ skip }: { skip: SkipKind }) {
   const uid = useId();
   const headingId = `${uid}-heading`;
   const scene = useRef<HTMLDivElement>(null);
@@ -654,7 +654,7 @@ export function SkipDemo({ skip, targetRing = true }: { skip: SkipKind; targetRi
               ref={heading}
               id={headingId}
               tabIndex={-1}
-              className={cn("m-0 w-fit rounded-sm text-base font-semibold", targetRing ? focusRing : "outline-none")}
+              className={cn("m-0 w-fit rounded-sm text-base font-semibold", focusRing)}
             >
               Invoices
             </h4>

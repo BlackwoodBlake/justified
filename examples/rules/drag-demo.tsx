@@ -16,8 +16,7 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent, type PointerEve
  *     cancels.
  *   - mark: what shows the landing place (ACT-008). "line" is a 2px line in
  *     the gap, "column" is a thicker border and a fill on the column under
- *     the card, "stale" leaves every column the card passed marked, "hue"
- *     only changes the border colour.
+ *     the card, and "stale" leaves every column the card passed marked.
  *   - buttons: Move up and Move down on each row (ACT-007a).
  *   - pick: tap a card to open Move to buttons for the other columns.
  *   - announce: the words for assistive technology (ACT-007b). "words" are
@@ -44,7 +43,7 @@ export type DragDemoProps = {
   title: string;
   columns: Col[];
   layout: "list" | "board";
-  mark?: "line" | "column" | "stale" | "hue";
+  mark?: "line" | "column" | "stale";
   keyboard?: boolean;
   buttons?: boolean;
   pick?: boolean;
@@ -459,10 +458,9 @@ export function DragDemo({
             data-col={col.id}
             className={cn(
               layout === "board" && "rounded-lg border p-2 pb-0",
-              layout === "board" && !on(c) && (mark === "hue" ? "border-input" : "border-border"),
-              on(c) && mark === "hue" && "border-primary",
+              layout === "board" && !on(c) && "border-border",
               // A thicker, dashed border and a fill, kept apart from the focus ring. The padding gives back the extra pixel.
-              on(c) && mark !== "hue" && "border-2 border-dashed border-primary bg-primary/10 px-[7px] pt-[7px]",
+              on(c) && "border-2 border-dashed border-primary bg-primary/10 px-[7px] pt-[7px]",
             )}
           >
             {layout === "board" && <h5 className="m-0 mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{col.title}</h5>}

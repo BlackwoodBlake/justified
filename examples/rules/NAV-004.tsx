@@ -74,16 +74,5 @@ export const NAV004: RuleExamples = {
       ),
       Demo: () => <SkipDemo skip="hidden" />,
     },
-    {
-      kind: "dont",
-      title: "The target hides its focus ring",
-      caption: (
-        <>
-          Start from the top, press Tab and then Enter. Focus moves to the heading, as the line under the example says, but
-          the heading shows no ring, so the person cannot see where they now are.
-        </>
-      ),
-      Demo: () => <SkipDemo skip="visible" targetRing={false} />,
-    },
   ],
 };

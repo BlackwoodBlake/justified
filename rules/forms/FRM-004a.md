@@ -4,7 +4,7 @@ title: Ask before a full-screen dialog throws away unsaved changes, and only whe
 short: Unsaved changes, full screen
 area: forms
 status: decided
-version: "1.0.4"
+version: "1.0.5"
 verdict: unanimous
 judges: { spoken: 2, agreeing: 2 }
 law:
@@ -27,10 +27,13 @@ check: runtime
 how_to_check:
   - 'In a full-screen dialog, type in a field, then try Cancel, the close icon, Escape, a swipe and the browser back button, and see whether every way that discards asks first.'
   - 'Open the full-screen dialog and close it with nothing typed, or after typing and deleting, and see whether it closes at once with no question.'
-  - 'When the question opens, see whether focus starts on Cancel, whether Escape and Cancel keep every value, and whether focus returns to where it was.'
+  - 'When the question opens, press *Cancel* and see whether the full-screen dialog stays open with every value kept. Where focus starts is DLG-004''s check, Escape DLG-001''s and where focus returns DLG-006''s.'
   - 'An `onOpenChange`, `onEscapeKeyDown` or `popstate` handler that closes the full-screen dialog without the same unsaved-changes check that Cancel uses.'
   - 'A question with a third button such as "Save as draft", choices named "Yes" and "No", or a question shown when the way out keeps a draft.'
 changelog:
+  - version: "1.0.5"
+    date: 2026-11-27
+    note: How to check tests only this rule; focus and Escape in the question are left to DLG-004, DLG-001 and DLG-006.
   - version: "1.0.4"
     date: 2026-11-26
     note: Refers to FRM-004c and FRM-004d for pages.
@@ -80,7 +83,6 @@ A full-screen dialog, one that covers the whole screen and is used on small scre
 - Show the question when the close icon keeps the review as a draft, since nothing would be lost.
 - Add a third button to the confirmation, such as *Save as draft*. Keep a draft by saving as the person goes or through the close icon instead.
 - Label the choices *Yes* and *No*, or put *Keep writing* in place of *Cancel*.
-- Start focus on *Discard review*, or let Enter press it before the person has moved there.
 - Let *Publish review* close the view without publishing when the review cannot be sent, so the person believes it went out. The main action does its job or keeps the view open and says why.
 - Stack a second confirmation on top of the first.
 
