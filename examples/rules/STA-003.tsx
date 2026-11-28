@@ -176,7 +176,7 @@ function StockTable({ variant, readout }: { variant: Variant; readout?: boolean 
         )}
       </div>
 
-      {readout && <Announced target={count} plainName="a plain div" />}
+      {readout && <Announced target={count} />}
     </div>
   );
 }
