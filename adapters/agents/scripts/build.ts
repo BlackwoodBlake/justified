@@ -4,24 +4,25 @@
  *
  *   dist/AGENTS.md                         every rule sentence, grouped by
  *                                          level, with a link to the full rule
- *   dist/skills/justified/SKILL.md         the same as a skill for Claude Code
+ *   dist/skills/justified/SKILL.md         a skill for Claude Code: one line
+ *                                          per rule (id, short name and title,
+ *                                          the rule in brief), grouped by area
  *   dist/rules/<id>.md                     one full rule per file: Why, Do,
- *   dist/skills/justified/rules/<id>.md    Don't and Exceptions
+ *   dist/skills/justified/rules/<id>.md    Don't, Exceptions and How to check
  *   dist/AGENTS-full.md                    everything in one file, for agents
  *                                          that cannot open links
  *   dist/skills/justified-review/          a skill that reviews code against
-^ *     SKILL.md, checks/<area>.md, rules/   the rules: how to work and report,
+ *     SKILL.md, checks/<area>.md, rules/   the rules: how to work and report,
  *                                          and every rule's how_to_check
  *
- * With --compact, it also writes a shorter variant that is not part of the
+ * With --compact, it also writes a short AGENTS.md that is not part of the
  * package yet (npm run build:compact):
  *
- *   dist/AGENTS-compact.md                 one line per rule: id, short name
- *   dist/skills/justified-compact/         and title, grouped by area; the
- *     SKILL.md, rules/<id>.md              full rules as above
+ *   dist/AGENTS-compact.md                 the skill's one-line list as an
+ *                                          instructions file
  *
- * The short files are what an agent keeps in mind; it opens a full rule
- * only when its work touches that rule. Reads
+ * The one-line lists are what an agent keeps in mind; it opens a full rule
+ * before it writes or reviews code that the line covers. Reads
  * packages/patterns/dist/rules.json, so run the patterns build first (the
  * root `npm run build` does). The website serves dist/ at
  * /design-system/agents/. Rule texts are CC BY 4.0; the files say so.
@@ -163,21 +164,6 @@ ${levelName(r)}. Verdict: ${verdict(r)}. Status: ${r.status}. ${page(r)}
 ${r.body}
 
 ${howToCheck(r)}
-
-${licence}
-`;
-
-const skill = `---
-name: justified
-description: Behaviour rules from Justified by Blackwood & Blake for shadcn apps. Use when building, changing or reviewing interface code with forms, fields, labels, validation, input types, paste, buttons, links, dialogs, toasts, error messages, loading states, tooltips, hover and pressed states, keyboard focus, shortcuts, page language, zoom or layout.
----
-
-# Justified behaviour rules
-
-${intro(`Before you write or review code that an entry covers, read its full rule: Why, Do, Don't and Exceptions. It is in \`rules/<id>.md\` next to this file if that folder was installed, and otherwise at the link after the entry. Apply the exceptions only as written.`)}
-- To review a change or a folder against every rule, with a report by file, line and rule id, use the \`justified-review\` skill if it is installed.
-
-${list((r) => `${SITE}/agents/rules/${file(r)}`)}
 
 ${licence}
 `;
@@ -372,8 +358,9 @@ Change no code unless the person asks. When they do, fix what the report lists, 
 ${licence}
 `;
 
-// The compact variant: one line per rule, the title as the rule in brief, and
-// the full rule opened on demand. Behind --compact while it is measured.
+// The skill: one line per rule, the title as the rule in brief, and the full
+// rule opened on demand. AGENTS-compact.md, the same list as an instructions
+// file, stays behind --compact while it is measured.
 
 const mark = (r: Rule) => (r.verdict === "requirement" ? " [WCAG]" : r.level === "guideline" ? " [guideline]" : "");
 const brief = (r: Rule) => `- **${r.id}** ${r.short}: ${r.title}.${mark(r)}`;
@@ -398,7 +385,7 @@ A line marked [WCAG] is a rule that WCAG 2.2 Level AA requires. An unmarked line
 - **A guideline:** follow it where the project has no convention of its own. Where the project already does it another way, keep the project's way and say nothing.
 - **When two apply:** a rule that WCAG requires comes before other rules, a narrower rule before a wider one, and any rule before a guideline.`;
 
-const compactSkill = `---
+const skill = `---
 name: justified
 description: Behaviour rules from Justified by Blackwood & Blake for shadcn apps. Use when building, changing or reviewing interface code with forms, fields, labels, validation, input types, paste, buttons, links, dialogs, toasts, error messages, loading states, tooltips, hover and pressed states, keyboard focus, shortcuts, page language, zoom or layout.
 ---
@@ -436,13 +423,7 @@ for (const a of areas) writeFileSync(join(reviewDir, "checks", `${a.area}.md`), 
 writeFileSync(join(out, "AGENTS.md"), agents);
 writeFileSync(join(out, "AGENTS-full.md"), full);
 const compact = process.argv.includes("--compact");
-if (compact) {
-  const dir = join(out, "skills", "justified-compact");
-  mkdirSync(join(dir, "rules"), { recursive: true });
-  for (const r of rules) writeFileSync(join(dir, "rules", file(r)), one(r));
-  writeFileSync(join(dir, "SKILL.md"), compactSkill);
-  writeFileSync(join(out, "AGENTS-compact.md"), compactAgents);
-}
+if (compact) writeFileSync(join(out, "AGENTS-compact.md"), compactAgents);
 console.log(
-  `agents: wrote SKILL.md, justified-review (SKILL.md and ${areas.length} check files), AGENTS.md, AGENTS-full.md${compact ? ", the compact SKILL.md and AGENTS-compact.md" : ""} and ${rules.length} rule file(s) (${total})`,
+  `agents: wrote SKILL.md, justified-review (SKILL.md and ${areas.length} check files), AGENTS.md, AGENTS-full.md${compact ? ", AGENTS-compact.md" : ""} and ${rules.length} rule file(s) (${total})`,
 );
