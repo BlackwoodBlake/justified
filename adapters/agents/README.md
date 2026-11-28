@@ -13,7 +13,7 @@ The package holds files only, no code.
 | File | For |
 | --- | --- |
 | `dist/skills/justified/` | Claude Code: `SKILL.md`, one line per rule, with every full rule in `rules/` |
-| `dist/skills/justified-review/` | Claude Code: a review of changed code against every rule, with `checks.md` and every full rule |
+| `dist/skills/justified-review/` | Claude Code: a review of changed code against every rule, with `checks/<area>.md` and every full rule |
 | `dist/AGENTS.md` | Any agent that reads an instructions file |
 | `dist/AGENTS-full.md` | An agent that cannot open links: every rule in full, in one file |
 | `dist/rules/<id>.md` | One full rule per file: Why, Do, Don't and Exceptions |
