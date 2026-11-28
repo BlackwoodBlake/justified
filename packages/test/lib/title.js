@@ -15,7 +15,7 @@ import { JustifiedFinding, JustifiedUsageError, quote } from "./report.js";
 
 /** @typedef {import("@playwright/test").Page} Page */
 
-const STARTER = /^(vite \+ react( \+ ts)?|vite app|react app|create next app|create react app|my app|untitled|document)$/i;
+const STARTER = /^(vite \+ react( \+ ts)?|vite app|react app|create next app|create react app|my app|app|untitled|document)$/i;
 const PLACEHOLDER = /\bundefined\b|\bnull\b|\bNaN\b|\[object Object\]|\{\{?[^}]*\}\}?|%s\b/;
 
 /**
