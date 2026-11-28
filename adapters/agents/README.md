@@ -12,11 +12,13 @@ The package holds files only, no code.
 
 | File | For |
 | --- | --- |
-| `dist/skills/justified/` | Claude Code: `SKILL.md`, with every full rule in `rules/` |
+| `dist/skills/justified/` | Claude Code: `SKILL.md`, one line per rule, with every full rule in `rules/` |
 | `dist/skills/justified-review/` | Claude Code: a review of changed code against every rule, with `checks.md` and every full rule |
 | `dist/AGENTS.md` | Any agent that reads an instructions file |
 | `dist/AGENTS-full.md` | An agent that cannot open links: every rule in full, in one file |
 | `dist/rules/<id>.md` | One full rule per file: Why, Do, Don't and Exceptions |
+
+The skill's `SKILL.md` has one line per rule: its id, short name and the rule in brief. Before the agent writes or reviews code that a line covers, it opens the full rule in `rules/<id>.md`. `AGENTS.md` gives every rule as one full sentence.
 
 ## Use
 
