@@ -41,6 +41,7 @@ import { buildIds, buildSchema, json } from "./ids.ts";
 
 type Rule = {
   id: string;
+  version: string;
   title: string;
   short: string;
   area: string;
@@ -81,6 +82,8 @@ const verdict = (r: Rule) =>
       : `${VERDICT[r.verdict]} (${r.judges.agreeing} of ${r.judges.spoken})`;
 const levelName = (r: Rule) => (r.level === "guideline" ? "Guideline, our choice" : "Rule");
 const file = (r: Rule) => `${r.id.toLowerCase()}.md`;
+const ids = buildIds(rules);
+const ruleVersion = (r: Rule) => String(r.version);
 const page = (r: Rule) => `${SITE}/patterns/${r.id.toLowerCase()}/`;
 
 /** The "## Rule" section as one paragraph. */
@@ -115,6 +118,23 @@ const nRules = rules.filter((r) => r.level === "rule").length;
 const nGuidelines = rules.length - nRules;
 const total = `${count(nRules, "rule", "rules")} and ${count(nGuidelines, "guideline", "guidelines")}`;
 
+/** The section that tells an agent how to read a project's justified.json. */
+const overrides = `## Your project's overrides
+
+A project may record its own decisions to depart from a rule or guideline in \`justified.json\` at its root. If the file is there, read it before you build or change interface code. Each entry has an \`id\`, an \`action\`, a \`reason\` and sometimes \`files\`.
+
+- **off:** do not apply that text in the files it lists, or anywhere if it lists none.
+- **guideline:** treat the rule as a guideline: follow it where the project has no convention of its own, and keep the project's way where it has one.
+- **note:** the text applies in full. The reason is context.
+
+Never apply an override silently. Say once per task which override shaped the work, by id, and give the project's reason.
+
+- Overriding a rule that WCAG requires still involves that criterion. When the work touches it, name it by number and name.
+- Do not add, widen or remove an override unless the person asks. When a rule gets in the way, fix the code or ask; never write an override to make a check pass. When asked, write the reason in their words and set \`rule_version\` to the rule's current version.
+- If an id does not exist, or \`rule_version\` is below the rule's current major version, tell the person and follow the current rule until they decide.
+- When another rule's check refers to an id that is off, such as "as DLG-004 says", that part is off too.
+- An override is the project's decision. It is not part of the rule and does not change it. A rule's own exceptions are part of the rule.`;
+
 const intro = (
   fullRule: string,
 ) => `These are the behaviour rules of Justified by Blackwood & Blake: how forms, buttons, dialogs and other parts of an interface should behave in a shadcn app. Each one was tried against WCAG 2.2 and weighed by established design systems; the verdict says how strongly they agree. Following them helps you work toward WCAG 2.2 AA. It does not make a product compliant on its own and is not a certification.
@@ -133,6 +153,8 @@ const intro = (
 - **Any other rule:** follow it. If the person you work for asks for something else, do what they ask, and tell them which rule it departs from and why the rule exists.
 - **A guideline:** follow it where the project has no convention of its own. Where the project already does it another way, keep the project's way and say nothing.
 - **When two apply:** a rule that WCAG requires comes before other rules, a narrower rule before a wider one, and any rule before a guideline.
+
+${overrides}
 
 Every rule and guideline, with its verdict and the sources behind it: ${SITE}/patterns/`;
 
@@ -167,7 +189,7 @@ const howToCheck = (r: Rule, h = "##") =>
 
 const one = (r: Rule) => `# ${r.id} ${r.title}
 
-${levelName(r)}. Verdict: ${verdict(r)}. Status: ${r.status}. ${page(r)}
+${levelName(r)}. Verdict: ${verdict(r)}. Status: ${r.status}. Version: ${ruleVersion(r)}. ${page(r)}
 
 ${r.body}
 
@@ -191,7 +213,7 @@ ${intro("Each entry is followed further down by its full rule: Why, Do, Don't an
 
 ${list((r) => `#${r.id.toLowerCase()}`)}
 
-${rules.map((r) => `<a id="${r.id.toLowerCase()}"></a>\n\n## ${r.id} ${r.title}\n\n${levelName(r)}. Verdict: ${verdict(r)}. Status: ${r.status}. ${page(r)}\n\n${demote(r.body)}\n\n${howToCheck(r, "###")}`).join("\n\n")}
+${rules.map((r) => `<a id="${r.id.toLowerCase()}"></a>\n\n## ${r.id} ${r.title}\n\n${levelName(r)}. Verdict: ${verdict(r)}. Status: ${r.status}. Version: ${ruleVersion(r)}. ${page(r)}\n\n${demote(r.body)}\n\n${howToCheck(r, "###")}`).join("\n\n")}
 
 ${licence}
 `;
@@ -286,6 +308,7 @@ This skill reviews interface code against the ${total} of Justified by Blackwood
 - Read the rest of each file, and the files it uses, to judge the change. Leave problems that were already there, unless the change depends on them: a new page in a layout whose title is a starter title, or a new menu item in a menu that marks the current page only by colour.
 - If you leave out clear problems next to the change, say so in one line after *Reviewed*, such as "Unchanged files nearby may break other rules; review \`src/invoices/\` to see them."
 - A shared component, such as one in a component library, is reviewed for what it does wherever it is used. Leave out what depends on how an app uses it.
+- Read \`justified.json\` at the project's root first, if there is one. It lists the project's own decisions to depart from a rule or guideline (see step 2 under *How to check*). After *Reviewed*, say how many overrides applied to the reviewed files.
 
 ## How to check
 
@@ -298,7 +321,13 @@ ${areaTable
   .map((l) => `   ${l}`)
   .join("\n")}
 
-2. For each rule, decide first whether it applies. Many rules open with their situation, such as "When a menu shows the current page" or "In a dialog that …". If the reviewed code has no such situation, the rule does not apply: skip it and do not mention it.
+2. Before you try a rule on a file, see whether an override covers it: an entry for that id whose \`files\` globs match the file, or that has none. An id that does not exist in the rules covers nothing.
+   - **off:** do not check the rule on that file, and report nothing about it under *Rules* or *Guidelines*. Skip the parts of other rules that refer to it too, such as "as DLG-004 says".
+   - **guideline:** check it as a guideline, so report it only where the project has no convention of its own.
+   - **note:** check as usual and read the reason as context. A reason such as "voiding is reversible" can settle whether a deletion rule applies at all; say so when it does.
+   - Never count an override as passed, and never write that the code is fine or resolved because of one.
+
+   Then, for each rule, decide whether it applies. Many rules open with their situation, such as "When a menu shows the current page" or "In a dialog that …". If the reviewed code has no such situation, the rule does not apply: skip it and do not mention it.
 3. Before you report a rule, open its full rule in \`rules/<id>.md\` and read the Exceptions. A case they cover is not a break.
 4. Then look for the items under *Look for*. Each is a sign that the rule may be broken. Report a hit only when the code clearly shows it. Advice that the rule's Do marks as our own, and that the rule sentence does not state, is never a hit.
 5. Read what the code uses before you report it. A Justified or shadcn component, or the project's own wrapper, may already do what the rule asks, as React Router's \`NavLink\` sets \`aria-current\`. Read the project's own copy of a component, such as \`components/ui/\`, where there is one; where there is none, assume the stock shadcn component.
@@ -322,6 +351,20 @@ Use this format and order, and leave out a section with nothing in it:
 ## Justified review
 
 Reviewed: uncommitted changes in 3 files.
+
+### Overridden by the project
+
+- **ACT-006** Target size, in \`src/admin/**\`: overridden by the project (off). "The admin table is a dense tool used with a keyboard." Not checked in 4 reviewed files. Review by 2027-03-01.
+  This rule is a WCAG requirement: WCAG 2.2 2.5.8 Target Size (Minimum).
+  Would otherwise be reported at \`src/admin/users-table.tsx:22\`.
+  ${SITE}/patterns/act-006/
+- **ACT-001a** Verb first, everywhere: overridden by the project (guideline). "Our forms use Save and Submit throughout."
+  ${SITE}/patterns/act-001a/
+
+#### Overrides to look at
+
+- **FRM-099**: no rule has this id. The override covers nothing.
+- **FRM-007** Autocomplete: \`rule_version\` 0.9.0 is below the current major version, and \`review_by\` 2026-06-01 has passed. The override still applies.
 
 ### Rules
 
@@ -350,6 +393,9 @@ Reviewed: uncommitted changes in 3 files.
 Automated checks find some problems, not all. Test with real people and assistive technology.
 \`\`\`
 
+- *Overridden by the project* comes before *Rules*. Give one bullet for each override that applied to a reviewed file, in this order: requirements, then rules, then guidelines. Each bullet has the id and short name, the scope (\`in src/admin/**\` or \`everywhere\`), "overridden by the project" with the action (off or guideline), the reason quoted as written, "Not checked in N reviewed files." for off, \`review_by\` if the entry has one, and the rule's link. For a requirement, add the criterion on its own line: "This rule is a WCAG requirement: WCAG 2.2 2.5.8 Target Size (Minimum)." Leave out \`note\` entries and overrides that touched no reviewed file.
+- For an overridden requirement only, you may add "Would otherwise be reported at \`file:line\`." It is never a finding. Never add it for a rule or guideline that WCAG does not require.
+- Under *Overrides to look at*, list an override whose \`review_by\` date has passed, whose \`rule_version\` is below the rule's current major version (the check file's rule page and \`rules/<id>.md\` give the version), or whose id does not exist. \`review_by\` is only a reminder: the override still applies.
 - Under *Rules*, put the rules WCAG requires first and then the rules the judges decide. Within each, and under *Guidelines*, order by file and line. Under the two *Check* sections, keep the order of the check files.
 - Write the level and verdict exactly as the check file gives them, such as "Rule, Requirement: WCAG 2.2 1.3.5 Identify Input Purpose" or "Rule, Unanimous (2 of 2), proposed". A *proposed* rule may still change.
 - Every hit says "may break" and names the rule by id and short name. Never call a hit a WCAG failure or a violation, and never say the code is accessible, compliant or meets WCAG.
@@ -359,7 +405,7 @@ Automated checks find some problems, not all. Test with real people and assistiv
 - When fixes for two hits work on each other, such as a submit button kept off until the form is valid and the form's validation mode, give one fix that settles both and say so in each.
 - A guideline is our own choice. Report it only where the project has no convention of its own; where the project already does it another way, leave it out.
 - List hits and what to check only. Never list rules that were checked and found fine.
-- With no hits, write "No problems found against Justified's rules." and still list what to check in the running app. End every report with the last line above.
+- With no hits and no overrides in effect, write "No problems found against Justified's rules." With no hits but overrides in effect, write "No problems found against the rules the project follows." Either way still list what to check in the running app. End every report with the last line above.
 
 ## Fixing
 
@@ -376,7 +422,7 @@ const mark = (r: Rule) => (r.verdict === "requirement" ? " [WCAG]" : r.level ===
 const brief = (r: Rule) => `- **${r.id}** ${r.short}: ${r.title}.${mark(r)}`;
 const byArea = areas.map((a) => `## ${a.label}\n\n${inArea(a.area).map(brief).join("\n")}`).join("\n\n");
 
-const compactIntro = (where: string) => `These are the behaviour rules of Justified by Blackwood & Blake for shadcn apps: ${total}, one line each, grouped by area. Following them helps you work toward WCAG 2.2 AA. It does not make a product compliant and is not a certification.
+const compactIntro = (where: string, tail = "") => `These are the behaviour rules of Justified by Blackwood & Blake for shadcn apps: ${total}, one line each, grouped by area. Following them helps you work toward WCAG 2.2 AA. It does not make a product compliant and is not a certification.
 
 ## How to use this file
 
@@ -393,7 +439,9 @@ A line marked [WCAG] is a rule that WCAG 2.2 Level AA requires. An unmarked line
 - **A rule that WCAG requires:** follow it. If the person you work for asks for something else, do what they ask, and tell them which WCAG 2.2 criterion is involved, by number and name, as the full rule gives it.
 - **Any other rule:** follow it. If the person you work for asks for something else, do what they ask, and tell them which rule it departs from and why the rule exists.
 - **A guideline:** follow it where the project has no convention of its own. Where the project already does it another way, keep the project's way and say nothing.
-- **When two apply:** a rule that WCAG requires comes before other rules, a narrower rule before a wider one, and any rule before a guideline.`;
+- **When two apply:** a rule that WCAG requires comes before other rules, a narrower rule before a wider one, and any rule before a guideline.
+${tail}
+${overrides}`;
 
 const skill = `---
 name: justified
@@ -402,8 +450,7 @@ description: Behaviour rules from Justified by Blackwood & Blake for shadcn apps
 
 # Justified behaviour rules
 
-${compactIntro(`\`rules/<id>.md\` next to this file, with the id in lower case, such as \`rules/frm-002a.md\` for FRM-002a, or, if that folder was not installed, ${SITE}/agents/rules/frm-002a.md.`)}
-- To review a change or a folder against every rule, use the \`justified-review\` skill if it is installed.
+${compactIntro(`\`rules/<id>.md\` next to this file, with the id in lower case, such as \`rules/frm-002a.md\` for FRM-002a, or, if that folder was not installed, ${SITE}/agents/rules/frm-002a.md.`, "- To review a change or a folder against every rule, use the `justified-review` skill if it is installed.\n")}
 
 ${byArea}
 
@@ -433,11 +480,23 @@ for (const a of areas) writeFileSync(join(reviewDir, "checks", `${a.area}.md`), 
 writeFileSync(join(out, "AGENTS.md"), agents);
 writeFileSync(join(out, "AGENTS-full.md"), full);
 // Rule data and the schema for justified.json, for the agents and the lint plugin.
-const ids = buildIds(rules);
 for (const dir of [out, here("../../../packages/eslint/")]) {
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "ids.json"), json(ids));
   writeFileSync(join(dir, "justified.schema.json"), json(buildSchema(ids)));
+}
+// The override sections must reach every file that tells an agent how to work.
+const missing = [
+  ["skills/justified/SKILL.md", "## Your project's overrides"],
+  ["AGENTS.md", "## Your project's overrides"],
+  ["AGENTS-full.md", "## Your project's overrides"],
+  ["skills/justified-review/SKILL.md", "### Overridden by the project"],
+  ["skills/justified-review/SKILL.md", "#### Overrides to look at"],
+  ["skills/justified-review/SKILL.md", "No problems found against the rules the project follows."],
+].filter(([f, text]) => !readFileSync(join(out, f), "utf8").includes(text));
+if (missing.length) {
+  console.error(`agents: missing in the output: ${missing.map(([f, t]) => `${f} (${t})`).join("; ")}`);
+  process.exit(1);
 }
 const compact = process.argv.includes("--compact");
 if (compact) writeFileSync(join(out, "AGENTS-compact.md"), compactAgents);
