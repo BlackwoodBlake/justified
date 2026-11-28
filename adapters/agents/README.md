@@ -42,6 +42,31 @@ Commit the copied files, so everyone on the project, and their agents, gets the 
 
 The files tell the agent how firmly to hold each text. A rule is followed. A guideline, which is our own choice, gives way to a convention your project already has. When you ask for something a rule advises against, the agent does what you ask and says which rule it departs from.
 
+## Your project's own decisions
+
+A project can write down where it departs from a rule or guideline in `justified.json` at its root, committed beside `package.json`. The schema is at [blackwoodblake.com/design-system/schema/justified.schema.json](https://blackwoodblake.com/design-system/schema/justified.schema.json).
+
+```json
+{
+  "$schema": "https://blackwoodblake.com/design-system/schema/justified.schema.json",
+  "overrides": [
+    {
+      "id": "DLG-004",
+      "action": "off",
+      "reason": "The admin tool moves focus to the first field on purpose.",
+      "files": ["src/admin/**"],
+      "rule_version": "1.0.3"
+    }
+  ]
+}
+```
+
+- `id` is one exact id, and `reason` is required, at least 20 characters, in your own words.
+- `action` is `off` (the text is not followed in the listed files, or anywhere without `files`), `guideline` (the rule is followed only where the project has no convention of its own) or `note` (the text applies in full and the reason is context). `guideline` cannot be used on a rule that WCAG requires.
+- `files`, `rule_version`, `review_by`, `owner` and `lint_rules` are optional. `review_by` is a reminder, not an end date.
+
+The agent skill and the review skill read the file, say which override shaped the work, and flag an id that does not exist, a `rule_version` below the rule's current major version and a `review_by` date that has passed. The agent adds or changes an override only when you ask. An override is your project's decision; it does not change the rule. Overriding a rule that WCAG requires still involves that criterion, and the report names it. The linter reads the same file; see the [ESLint plugin](https://www.npmjs.com/package/@blackwoodblake/justified-eslint). A project to try the review on is in `fixtures/overrides-project/` in the repository.
+
 ## Accessibility
 
 Justified helps you build interfaces that work toward WCAG 2.2
