@@ -78,7 +78,7 @@ export function buildSchema(ids: IdEntry[]) {
     required: ["overrides"],
     properties: {
       $schema: { type: "string" },
-      justified: { type: "string", pattern: "^\\d+\\.\\d+\\.\\d+", description: "The Justified version the file was written for. Informational." },
+      justified: { type: "string", pattern: "^\\d+\\.\\d+\\.\\d+$", description: "The Justified version the file was written for. Informational." },
       overrides: {
         type: "array",
         items: {
@@ -86,12 +86,12 @@ export function buildSchema(ids: IdEntry[]) {
           additionalProperties: false,
           required: ["id", "action", "reason"],
           properties: {
-            id: { type: "string", pattern: "^[A-Z]{3}-\\d{3}[a-z]?$", enum: ids.map((i) => i.id), description: "One exact id. No wildcards or families." },
+            id: { type: "string", pattern: "^[A-Z]{3}-\\d{3}[a-z]?$", examples: ids.slice(0, 3).map((i) => i.id), description: "One exact id, such as FRM-004. No wildcards or families. An id that Justified does not have is not a schema error: the linter warns and ignores it, or throws with strict." },
             action: {
               enum: ["off", "guideline", "note"],
               description: "off: the project does not follow the text. guideline: treat a rule as a guideline that yields to the project's own convention (not for a WCAG requirement). note: the text applies in full; the reason is context.",
             },
-            reason: { type: "string", minLength: 20, description: "Your project's own words for the decision." },
+            reason: { type: "string", minLength: 20, pattern: "\\S", description: "Your project's own words for the decision." },
             files: {
               type: "array",
               minItems: 1,

@@ -8,12 +8,13 @@
  * results never change with the calendar. Everything is validated by hand,
  * so the plugin needs no extra dependency.
  */
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 const ids = JSON.parse(readFileSync(new URL("../ids.json", import.meta.url), "utf8"));
 
 const ID = /^[A-Z]{3}-\d{3}[a-z]?$/;
+const VERSION_START = /^\d+\.\d+\.\d+/;
 const SEMVER = /^(\d+)\.(\d+)\.(\d+)$/;
 const ACTIONS = ["off", "guideline", "note"];
 const TOP_KEYS = ["$schema", "justified", "overrides"];
@@ -29,15 +30,27 @@ function isDate(text) {
   return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === text;
 }
 
+/** Whether the path is a regular file; a folder with the same name does not count. @param {string} candidate */
+function isFile(candidate) {
+  try {
+    return existsSync(candidate) && statSync(candidate).isFile();
+  } catch {
+    return false;
+  }
+}
+
 /** The nearest file with this name, from `dir` upwards. @param {string} dir @param {string} name */
 function findFile(dir, name) {
-  if (path.isAbsolute(name)) return existsSync(name) ? name : undefined;
+  if (path.isAbsolute(name)) return isFile(name) ? name : undefined;
   for (let current = path.resolve(dir); ; current = path.dirname(current)) {
     const candidate = path.join(current, name);
-    if (existsSync(candidate)) return candidate;
+    if (isFile(candidate)) return candidate;
     if (path.dirname(current) === current) return undefined;
   }
 }
+
+/** A glob in one spelling, so `./src/**` and `src\\**` compare equal to `src/**`. @param {string} glob */
+const normalizeGlob = (glob) => glob.replace(/\\/g, "/").replace(/^(\.\/)+/, "");
 
 const posix = (p) => p.split(path.sep).join("/");
 const hasGlob = (s) => /[*?[\]{}()!]/.test(s);
@@ -104,13 +117,17 @@ export function createFromProject(plugin) {
 
     let data;
     try {
-      data = JSON.parse(readFileSync(found, "utf8"));
+      data = JSON.parse(readFileSync(found, "utf8").replace(/^\uFEFF/, ""));
     } catch (error) {
       return fail("", `cannot read the file as JSON (${/** @type {Error} */ (error).message})`);
     }
     if (!isObject(data)) fail("", "the file must hold a JSON object");
     for (const key of Object.keys(data)) if (!TOP_KEYS.includes(key)) fail("", `unknown field "${key}"`);
     if (data.justified !== undefined && typeof data.justified !== "string") fail("", `"justified" must be a version string`);
+    if (typeof data.justified === "string" && !VERSION_START.test(data.justified)) {
+      warn(`${label}: "justified" should be a version such as "0.5.0", not "${data.justified}"; it is informational only.`);
+    }
+    if (data.$schema !== undefined && typeof data.$schema !== "string") warn(`${label}: "$schema" should be text (the address of the schema); it is ignored.`);
     if (!Array.isArray(data.overrides)) fail("", `"overrides" must be a list`);
 
     // The folder of the config, seen from the folder of justified.json.
@@ -149,7 +166,7 @@ export function createFromProject(plugin) {
         }
       }
 
-      const clash = seen.find((other) => other.id === entry.id && (!other.files || !entry.files || other.files.some((g) => entry.files.includes(g))));
+      const clash = seen.find((other) => other.id === entry.id && (!other.files || !entry.files || other.files.some((g) => entry.files.some((h) => normalizeGlob(g) === normalizeGlob(h)))));
       if (clash) fail(where, `the id is listed twice for the same files (see overrides[${clash.index}]); keep one entry`);
       seen.push({ id: entry.id, files: entry.files, index });
 

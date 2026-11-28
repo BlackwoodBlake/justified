@@ -28,7 +28,7 @@ describe("agent files read justified.json", { skip: !built && "run npm run build
     const t = read("skills/justified-review/SKILL.md");
     const over = t.indexOf("### Overridden by the project");
     assert.ok(over > 0 && over < t.indexOf("### Rules\n"));
-    assert.ok(t.includes("#### Overrides to look at"));
+    assert.ok(t.includes("### Overrides to look at"));
     assert.ok(t.includes("No problems found against the rules the project follows."));
     assert.ok(t.includes("No problems found against Justified's rules."));
   });

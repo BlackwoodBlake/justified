@@ -180,6 +180,9 @@ describe("fromProject malformed files", () => {
   bad("unknown top-level field", '{"overrides": [], "extra": 1}', /unknown field "extra"/);
   bad("no overrides list", "{}", /overrides/);
 
+  bad("the same id twice with the same glob spelled differently", [entry("ACT-004", { files: ["src/**"] }), entry("ACT-004", { files: ["./src/**"] })], /twice/);
+  bad("the same id twice with a backslash glob", [entry("ACT-004", { files: ["src\\**"] }), entry("ACT-004", { files: ["src/**"] })], /twice/);
+
   it("allows the same id for different files", () => {
     assert.doesNotThrow(() => load(withOverrides([entry("ACT-004", { files: ["a/**"] }), entry("ACT-004", { files: ["b/**"] })])));
   });
@@ -268,5 +271,45 @@ describe("fromProject with ESLint", () => {
     const base = { files: ["**/*.tsx"], languageOptions: { parser: tsParser, parserOptions: { ecmaFeatures: { jsx: true } } } };
     const ids = linter.verify(other, [base, ...configs], { filename: join(root, "src/admin/b.tsx") }).map((m) => m.ruleId);
     assert.ok(ids.includes("justified/hover-controls-on-focus"), JSON.stringify(ids));
+  });
+});
+
+describe("fromProject file handling", () => {
+  it("skips a folder named justified.json when it looks upwards", () => {
+    const root = project({ "justified.json": { overrides: [entry("ACT-004")] }, "app/justified.json/keep.txt": "x" });
+    const { configs } = load(join(root, "app"));
+    assert.equal(configs.length, 2);
+  });
+
+  it("returns just recommended when only a folder has the name", () => {
+    const root = project({ "justified.json/keep.txt": "x" });
+    assert.equal(load(root, { file: "justified.json" }).configs.length, 1);
+  });
+
+  it("reads a file that starts with a byte order mark", () => {
+    const root = project({ "justified.json": "﻿" + JSON.stringify({ overrides: [entry("ACT-004")] }) });
+    assert.equal(load(root).configs.length, 2);
+  });
+});
+
+describe("fromProject top-level fields", () => {
+  const warningsFor = (extra) => load(project({ "justified.json": { ...extra, overrides: [] } })).warnings;
+
+  it("warns when $schema is not text", () => {
+    assert.match(warningsFor({ $schema: 5 }).join("\n"), /\$schema.*text/);
+    assert.deepEqual(warningsFor({ $schema: "https://example.com/s.json" }), []);
+  });
+
+  it("warns when justified is not a version", () => {
+    assert.match(warningsFor({ justified: "latest" }).join("\n"), /"justified" should be a version/);
+    assert.deepEqual(warningsFor({ justified: "0.5.0" }), []);
+  });
+
+  it("the schema anchors the version, needs text in reason and takes unknown ids", () => {
+    const schema = buildSchema(buildIds([]));
+    assert.equal(schema.properties.justified.pattern, "^\\d+\\.\\d+\\.\\d+$");
+    const props = schema.properties.overrides.items.properties;
+    assert.equal(props.reason.pattern, "\\S");
+    assert.equal(props.id.enum, undefined);
   });
 });

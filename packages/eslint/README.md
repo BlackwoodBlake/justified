@@ -68,7 +68,7 @@ A deliberate departure goes in `justified.json` at the root of your project, com
 
 - `id` is one exact id. Wildcards and families do not work: FRM-004 does not cover FRM-004a.
 - `action` is `off` (your project does not follow the text), `guideline` (treat a rule as a guideline that yields to your own convention) or `note` (the text applies in full, and your reason is context). `guideline` cannot be used on a WCAG requirement; use `off` or `note`.
-- `reason` is required, at least 20 characters, in your own words.
+- `reason` is required, at least 20 characters once trimmed, in your own words.
 - `files` is optional: positive globs, relative to `justified.json`. Without it, the whole project. In a monorepo they are rewritten for the config's folder; a glob that points outside it cannot be matched by flat config and is left out.
 - `rule_version`, `review_by`, `owner` and `lint_rules` are optional. `rule_version` lets the tools say when the rule has changed since you wrote the override. `lint_rules` limits `off` and `guideline` to some of the id's lint rules. ESLint ignores `review_by`, so results never change with the date.
 
