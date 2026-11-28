@@ -4,9 +4,13 @@
  *
  * `configs.recommended` turns on every rule: a Justified rule as "error"
  * and a guideline, which is our choice, as "warn".
+ *
+ * `fromProject(dir, options)` is recommended plus the project's own
+ * departures, read from justified.json (see lib/from-project.js).
  */
 import { createRequire } from "node:module";
 
+import { createFromProject } from "./lib/from-project.js";
 import rules from "./rules/index.js";
 
 const { name, version } = createRequire(import.meta.url)("./package.json");
@@ -28,5 +32,8 @@ plugin.configs.recommended = {
     ]),
   ),
 };
+
+export const fromProject = createFromProject(plugin);
+plugin.fromProject = fromProject;
 
 export default plugin;

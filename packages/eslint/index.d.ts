@@ -14,6 +14,24 @@ export interface JustifiedRuleDocs {
   justifiedVerdict: string;
 }
 
+export interface FromProjectOptions {
+  /** Limit the rules to these globs, such as ["**\/*.{jsx,tsx}"]. Relative to the config file. */
+  files?: Linter.Config["files"];
+  /** The file to look for, upwards from `dir`. Default "justified.json". */
+  file?: string;
+  /** Throw on an id that Justified does not have, instead of warning. Default false. */
+  strict?: boolean;
+  /** Where warnings go. Default console.warn. */
+  onWarning?: (message: string) => void;
+}
+
+/**
+ * `recommended` plus the departures a project wrote down in justified.json,
+ * as flat config objects. Searches upwards from `dir` for the nearest file.
+ * Returns just `recommended` when there is none.
+ */
+export type FromProject = (dir: string, options?: FromProjectOptions) => Linter.Config[];
+
 export interface JustifiedPlugin extends ESLint.Plugin {
   meta: { name: string; version: string; namespace: "justified" };
   rules: Record<JustifiedRuleName, Rule.RuleModule>;
@@ -21,7 +39,10 @@ export interface JustifiedPlugin extends ESLint.Plugin {
     /** Every rule on: rules as "error", guidelines as "warn". A flat config object. */
     recommended: Linter.Config;
   };
+  fromProject: FromProject;
 }
+
+export declare const fromProject: FromProject;
 
 declare const plugin: JustifiedPlugin;
 export default plugin;
