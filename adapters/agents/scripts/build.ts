@@ -118,6 +118,21 @@ const nRules = rules.filter((r) => r.level === "rule").length;
 const nGuidelines = rules.length - nRules;
 const total = `${count(nRules, "rule", "rules")} and ${count(nGuidelines, "guideline", "guidelines")}`;
 
+/**
+ * Runtime rules that apply to every page whatever the code says. A review lists them
+ * under "Check in the running app" whenever it covers code that renders UI, because
+ * the code gives no sign of them. Other runtime rules need a concrete reason in the code.
+ */
+const PAGE_WIDE_RUNTIME = ["LAY-001", "LAY-003a", "LAY-003b", "VIS-001", "KBD-002", "ACT-006"];
+const pageWide = PAGE_WIDE_RUNTIME.map((id) => rules.find((r) => r.id === id));
+for (const [i, r] of pageWide.entries()) {
+  if (!r || r.check !== "runtime") {
+    console.error(`agents: ${PAGE_WIDE_RUNTIME[i]} is not a rule with check: runtime; fix PAGE_WIDE_RUNTIME`);
+    process.exit(2);
+  }
+}
+const pageWideList = pageWide.map((r) => `${r!.id} ${r!.short}`).join(", ");
+
 /** The section that tells an agent how to read a project's justified.json. */
 const overrides = `## Your project's overrides
 
@@ -338,7 +353,7 @@ ${areaTable
 How each rule is checked, from *Checked by* in the check files:
 
 - **lint** and **review:** read the code. For \`review\`, weigh what the code does, and report only a call you could defend to the person who wrote it.
-- **runtime:** check the items that name code forms in the code; a clear match is a hit under *Rules* or *Guidelines* like any other. The others show only when the page runs, such as where focus goes or what is announced. If you can run the app and drive it, for example with Playwright or a browser tool, check them there. Otherwise list them under *Check in the running app*, with "guideline" after the id of a guideline, only where the reviewed code gives a concrete reason, such as a dialog it adds or a colour it sets, and say what in the code raised it. Give each such rule one line, however many apply; leave one out only when the code gives no reason for it.
+- **runtime:** check the items that name code forms in the code; a clear match is a hit under *Rules* or *Guidelines* like any other. The others show only when the page runs, such as where focus goes or what is announced. If you can run the app and drive it, for example with Playwright or a browser tool, check them there. Otherwise list them under *Check in the running app*, with "guideline" after the id of a guideline, Give each such rule one line, however many apply. Two kinds belong there. When the reviewed code renders a page or a component, always list these page-wide rules, whatever the code says, because the code shows nothing of them: ${pageWideList}. Any other runtime rule goes there only where the reviewed code gives a concrete reason, such as a dialog it adds or a colour it sets; say what in the code raised it, and leave it out when the code gives none.
 - **manual:** list under *Check by hand*, only for rules that apply.
 
 When you cannot tell from the code whether something breaks a rule, put it under *Check in the running app* or ask. Never present a guess as a hit.
@@ -387,6 +402,8 @@ Reviewed: uncommitted changes in 6 files.
 
 - **DLG-006** Focus in and back: open the delete dialog, close it with Cancel, Escape and the close icon, and see that focus is back on *Delete account* each time.
   ${SITE}/patterns/dlg-006/
+- **LAY-003a** Text to 200 percent: zoom the settings page to 200 percent and see that nothing is cut off or overlaps.
+  ${SITE}/patterns/lay-003a/
 
 ### Check by hand
 
