@@ -62,6 +62,10 @@ export const buttonVariants = cva(
         lg: "h-11 px-6 text-base",
         // A square button for one icon. Give it a name with aria-label (ACT-001b).
         icon: "size-10 px-0",
+        // The other icon sizes shadcn has, matching sm and lg. The smallest is 24 by 24 pixels, the least ACT-006 allows.
+        "icon-xs": "size-6 px-0",
+        "icon-sm": "size-9 px-0",
+        "icon-lg": "size-11 px-0",
       },
     },
     defaultVariants: {
